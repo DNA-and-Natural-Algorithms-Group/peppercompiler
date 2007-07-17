@@ -1,0 +1,74 @@
+"""Multistrand wrapper"""
+
+import string, os
+
+STOP_FLAG = "Stop_Flag"
+def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc):
+  """strands = dict of strand_name : sequence used in structs
+     *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
+     temp = temperature (deg C)   conc = concentration
+     time = max time of sim   trials = number of trials"""
+  # Assumes that structures are connected complexes
+  assert start_struct != stop_struct
+  # TODO-maybe: better/non-colliding filenames (ex: /tmp/tp191913787)
+  in_name  = "tmp.infile"
+  out_name = "tmp.outfile"
+  
+  # Print input file for Multistrand
+  f = file(in_name, "w")
+  # Strand Definitions
+  f.write("#Strands\n")
+  for name, seq in strands.items():
+    f.write("%s,%s\n" % (name, seq))
+  # Start Structure
+  f.write("#StartStructure\n")
+  for compl in start_struct:
+    struct = compl.struct.replace("+", "_")
+    struct = compl.struct.replace("_", ".") # TODO: leave "_" as soon as that works
+    f.write(string.join(compl.strands, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    f.write(struct + "\n")                        # ((...._..((_))..)..(_..)...)
+  # Stop Structure
+  f.write("#StopStructures\n")
+  for compl in stop_struct:
+    struct = compl.struct.replace("+", "_")
+    struct = compl.struct.replace("_", ".") # TODO: leave "_" as soon as that works
+    f.write(string.join(compl.strands, ",") + "\n")
+    f.write(struct + "\n")
+  f.write("TAG: %s\n" % STOP_FLAG)
+  # Other params
+  f.write("##Temperature=%f\n" % temp) # Currently not working
+  f.write("#Concentration=%f\n" % conc)
+  f.write("#SimTime=%d\n" % time)
+  f.write("#NumSims=%d\n" % trials)
+  f.write("#Logfile=%s\n" % out_name)
+  f.write("#OutputInterval=-1\n")   # Suppress output
+  f.write("#StopOption=2\n")        # Stop on stop structures defined above
+  # Done
+  f.close()
+  
+  # Run Multistrand!
+  try:
+    os.remove(out_name)
+  except OSError:
+    pass # If out_name doesn't exist, we're done
+  command = "Multistrand > /dev/null < %s" % in_name
+  #print command
+  stat = os.system(command)
+  if stat != 0:
+    raise OSError, "Multistrand failed with status (%d)" % stat
+  os.remove(infilename)
+  
+  # Read back results
+  f = file(out_name, "r")
+  res = f.read()
+  f.close()
+  
+  frac = res.count(STOP_FLAG) / trials
+  times = []
+  for line in res:
+    if STOP_FLAG in line:
+      start = line.find(STOP_FLAG) + len(STOP_FLAG)
+      times.append(float(line[start:]))
+  
+  return frac, times, res
+
