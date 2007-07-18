@@ -61,7 +61,7 @@ class Circuit(PrintObject):
         dummy_name = "%s-%s" % (glob_name, gate_name)
         outfile.write("structure %s = H%d(+)\n" % (dummy_name, length))
         if isinstance(loc_seq, Sequence):
-          seqs = loc_seq.name
+          seqs = gate_name+"-"+loc_seq.name
         else:
           seqs = string.join([gate_name+"-"+seq.name for seq in loc_seq.nupack_seqs])
         outfile.write("%s : %s %s\n" % (dummy_name, glob_name, seqs))
