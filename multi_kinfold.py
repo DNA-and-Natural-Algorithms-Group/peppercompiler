@@ -1,14 +1,15 @@
 """Multistrand wrapper"""
 from __future__ import division
 
-import string, os
+import string, os, subprocess
 
 STOP_FLAG = "Stop_Flag"
-def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc):
+def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num_proc=8):
   """strands = dict of strand_name : sequence used in structs
      *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
      temp = temperature (deg C)   conc = concentration
-     time = max time of sim   trials = number of trials"""
+     time = max time of sim   trials = number of trials
+     num_proc = number of processes to start (trials devided between them)."""
   # Assumes that structures are connected complexes
   assert start_struct != stop_struct
   # TODO-maybe: better/non-colliding filenames (ex: /tmp/tp191913787)
@@ -40,7 +41,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc):
   f.write("##Temperature=%f\n" % temp) # Currently not working
   f.write("#Concentration=%f\n" % conc)
   f.write("#SimTime=%d\n" % time)
-  f.write("#NumSims=%d\n" % trials)
+  f.write("#NumSims=%d\n" % (trials // num_proc))
   f.write("#Logfile=%s\n" % out_name)
   f.write("#OutputInterval=-1\n")   # Suppress output
   f.write("#StopOption=2\n")        # Stop on stop structures defined above
@@ -54,9 +55,17 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc):
     pass # If out_name doesn't exist, we're done
   command = "Multistrand > /dev/null < %s" % in_name
   #print command
-  stat = os.system(command)
-  if stat != 0:
-    raise OSError, "Multistrand failed with status (%d)" % stat
+
+  # Start 'num_proc' processes
+  procs = []
+  for i in range(num_proc):
+    procs.append( subprocess.Popen(command, shell=True) )
+  # Wait for them to finish
+  for i in range(num_proc):
+    return_code = procs[i].wait()
+    if return_code != 0:
+      print
+      raise OSError, "Multistrand failed with status (%d)" % return_code
   os.remove(in_name)
   
   # Read back results
