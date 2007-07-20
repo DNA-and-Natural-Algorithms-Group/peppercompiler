@@ -1,3 +1,5 @@
+from __future__ import division
+
 import sys, pickle, re
 from circuit_parser import load_circuit
 from kinetics import read_nupack, test_kinetics
@@ -22,8 +24,16 @@ def finish(infilename):
     for kin in gate.kinetics.values():
       # Call Multistrand instances
       ### TODO: deal with "muliple inputs" where c2 could be any of 4 strands
-      res = test_kinetics(gate_name, kin, seqs, mfe_structs)
+      frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs)
+      ave =  ( sum(times) / len(times) if times else 0 )
       # TODO: process results
+      print "kin", gate_name,
+      for compl in kin.inputs:
+        print compl.name,
+      print "->",
+      for compl in kin.outputs:
+        print compl.name,
+      print ":", frac, ave
   # TODO: Inform user of results
 
 def save(obj, filename):

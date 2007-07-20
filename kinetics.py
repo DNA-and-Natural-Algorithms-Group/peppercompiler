@@ -8,7 +8,6 @@ from multi_kinfold import DNAkinfold
 
 def read_nupack(filename):
   # Note: parseFile reads entire file into memory and then returns entire file of data
-  print repr(filename)
   stats, total_n_star = ngram.document.parseFile(filename)
   seqs = {}
   structs = {}
@@ -30,23 +29,14 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=10, time=100000, tem
   used_strands = ordered_dict()
   ## Subroutine
   def convert(foo):
+    bar = []
     for compl in foo:
       # Load seq/struct with encoded name
       name = gate_name+"-"+compl.name
+
       if seqs.has_key(name): # The standard easy method
-        struct = mfe_structs[name]
         seq = seqs[name]
-        # Load sequences for individual strands and check consistency
-        strand_seqs = seqs.split("+")
-        assert len(compl.strands) == len(strand_seqs)
-        these_strands = []
-        for strand, strand_seq in zip(compl.strands, strand_seqs):
-          these_strands.append(strand.name)
-          assert len(strand_seq) == strand.length
-          if not used_strands.has_key(strand.name):
-            used_strands[strand.name] = strand_seq
-          else:
-            assert used_strands[strand.name] == strand_seq
+        struct = mfe_structs[name]
       else: # The fallback method
         seq = ""
         for strand in compl.strands:
@@ -54,13 +44,25 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=10, time=100000, tem
           for small_seq in strand.nupack_seqs:
             seq += seqs[gate_name+"-"+small_seq.name]
           seq += "+" # With strand break between strands
-        seq.strip("+")
-        
-        struct = DNAfold(seq, temp)
+        seq = seq.rstrip("+")
+        struct, dG = DNAfold(seq, temp) # We ignore the dG
         # Fill in sequence and mfe_structure info
         seqs[name] = seq
         mfe_structs[name] = struct
-      bar.append((these_strands, struct))
+
+      # Load sequences for individual strands and check consistency
+      strand_seqs = seq.split("+")
+      assert len(compl.strands) == len(strand_seqs)
+      these_strands = []
+      for strand, strand_seq in zip(compl.strands, strand_seqs):
+        these_strands.append(strand.name)
+        assert len(strand_seq) == strand.length
+        if not used_strands.has_key(strand.name):
+          used_strands[strand.name] = strand_seq
+        else:
+          assert used_strands[strand.name] == strand_seq
+        
+      bar.append(Complex(these_strands, struct))
     return bar
   ## End Subroutine
   ins = convert(kin.inputs)
