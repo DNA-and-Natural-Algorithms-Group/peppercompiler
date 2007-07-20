@@ -33,7 +33,7 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=10, time=100000, tem
     for compl in foo:
       # Load seq/struct with encoded name
       name = gate_name+"-"+compl.name
-      try: # Temporary, while all structures are not in .summary file
+      if seqs.has_key(name): # The standard easy method
         struct = mfe_structs[name]
         seq = seqs[name]
         # Load sequences for individual strands and check consistency
@@ -47,9 +47,16 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=10, time=100000, tem
             used_strands[strand.name] = strand_seq
           else:
             assert used_strands[strand.name] == strand_seq
-      except KeyError:
-        seq = string.join([used_strands[strand.name] for strand in compl.strands], "+")
-        struct = DNAfold(seq)
+      else: # The fallback method
+        seq = ""
+        for strand in compl.strands:
+          # For each strand combine sequences
+          for small_seq in strand.nupack_seqs:
+            seq += seqs[gate_name+"-"+small_seq.name]
+          seq += "+" # With strand break between strands
+        seq.strip("+")
+        
+        struct = DNAfold(seq, temp)
         # Fill in sequence and mfe_structure info
         seqs[name] = seq
         mfe_structs[name] = struct

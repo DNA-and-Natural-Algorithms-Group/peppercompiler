@@ -12,6 +12,7 @@ def compiler(infilename):
   save(circuit, infilename+".save")
   ### TODO: Work out automatic way of doing this with Joe Zadeh.
   #raw_input("Run %s.des in NUPACK, save the result in %s.summary and press enter to continue." % (infilename, infilename))
+
 def finish(infilename):
   circuit = load(infilename+".save")
   # Read results
@@ -30,6 +31,7 @@ def save(obj, filename):
   f = file(filename, "w")
   pickle.dump(obj, f)
   f.close()
+
 def load(filename):
   """Load it back."""
   f = file(filename, "r")
