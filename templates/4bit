@@ -1,0 +1,68 @@
+import HalfAdder
+import Adder
+import LastAdder
+import Detector
+
+# Inputs
+in NX0
+in NX1
+in NX2
+in NX3
+in NY0
+in NY1
+in NY2
+in NY3
+in  X0
+in  X1
+in  X2
+in  X3
+in  Y0
+in  Y1
+in  Y2
+in  Y3
+
+# Gates
+gate G0_00 = HalfAdder: NX0 + NY0  ->  NS0 + NC1
+gate G0_01 = HalfAdder: NX0 +  Y0  ->   S0 + NC1
+gate G0_10 = HalfAdder:  X0 + NY0  ->   S0 + NC1
+gate G0_11 = HalfAdder:  X0 +  Y0  ->  NS0 +  C1
+
+gate G1_000 = Adder: NX1 + NY1 + NC1  -> NS1 + NC2
+gate G1_001 = Adder: NX1 + NY1 +  C1  ->  S1 + NC2
+gate G1_010 = Adder: NX1 +  Y1 + NC1  ->  S1 + NC2
+gate G1_011 = Adder: NX1 +  Y1 +  C1  -> NS1 +  C2
+gate G1_100 = Adder:  X1 + NY1 + NC1  ->  S1 + NC2
+gate G1_101 = Adder:  X1 + NY1 +  C1  -> NS1 +  C2
+gate G1_110 = Adder:  X1 +  Y1 + NC1  -> NS1 +  C2
+gate G1_111 = Adder:  X1 +  Y1 +  C1  ->  S1 +  C2
+
+gate G2_000 = Adder: NX2 + NY2 + NC2  -> NS2 + NC3
+gate G2_001 = Adder: NX2 + NY2 +  C2  ->  S2 + NC3
+gate G2_010 = Adder: NX2 +  Y2 + NC2  ->  S2 + NC3
+gate G2_011 = Adder: NX2 +  Y2 +  C2  -> NS2 +  C3
+gate G2_100 = Adder:  X2 + NY2 + NC2  ->  S2 + NC3
+gate G2_101 = Adder:  X2 + NY2 +  C2  -> NS2 +  C3
+gate G2_110 = Adder:  X2 +  Y2 + NC2  -> NS2 +  C3
+gate G2_111 = Adder:  X2 +  Y2 +  C2  ->  S2 +  C3
+
+gate G3_000 = LastAdder: NX3 + NY3 + NC3  -> NS3 + NC4
+gate G3_001 = LastAdder: NX3 + NY3 +  C3  ->  S3 + NC4
+gate G3_010 = LastAdder: NX3 +  Y3 + NC3  ->  S3 + NC4
+gate G3_011 = LastAdder: NX3 +  Y3 +  C3  -> NS3 +  C4
+gate G3_100 = LastAdder:  X3 + NY3 + NC3  ->  S3 + NC4
+gate G3_101 = LastAdder:  X3 + NY3 +  C3  -> NS3 +  C4
+gate G3_110 = LastAdder:  X3 +  Y3 + NC3  -> NS3 +  C4
+gate G3_111 = LastAdder:  X3 +  Y3 +  C3  ->  S3 +  C4
+
+# Detectors
+gate DNS0 = Detector: NS0 ->
+gate  DS0 = Detector:  S0 ->
+gate DNS1 = Detector: NS1 ->
+gate  DS1 = Detector:  S1 ->
+gate DNS2 = Detector: NS2 ->
+gate  DS2 = Detector:  S2 ->
+gate DNS3 = Detector: NS3 ->
+gate  DS3 = Detector:  S3 ->
+gate DNC4 = Detector: NC4 ->
+gate  DC4 = Detector:  C4 ->
+
