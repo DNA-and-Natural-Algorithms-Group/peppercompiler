@@ -5,13 +5,19 @@ import RNAfold_grammar as gram
 
 #Globals
 par_file = "/research/src/ViennaRNA-1.4/dna.par"
-RNAfold  = '/research/bin/RNAfold';
+RNAfold  = "/research/bin/RNAfold";
+
+### TODO: This is not the most efficient?
+def tempfilename(*args, **keys):
+  fd, filename = tempfile.mkstemp(*args, **keys)
+  os.close(fd)
+  return filename
 
 BREAK = "NNNNN" # Fake sequence used for strand break
 def DNAfold(seq, temp, pf=False):
   """Runs Vienna RNAfold on sequence 'seq' at temp 'temp' (with partition function calc if 'pf' is True)."""
-  infilename = tempfile.mkstemp(prefix="rna_in")[1]
-  outfilename = tempfile.mkstemp(prefix="rna_out")[1]
+  infilename  = tempfilename(prefix="rna_in")
+  outfilename = tempfilename(prefix="rna_out")
 
   # Make dummy sequence which has our fake strand break (because RNAfold can't handle multistranded folding)
   dummy_seq = seq.replace("+", BREAK)

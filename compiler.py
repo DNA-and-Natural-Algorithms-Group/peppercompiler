@@ -34,7 +34,6 @@ def finish(infilename):
       for compl in kin.outputs:
         print compl.name,
       print ":", frac, ave
-  # TODO: Inform user of results
 
 def save(obj, filename):
   """Save an object for later finishing."""
