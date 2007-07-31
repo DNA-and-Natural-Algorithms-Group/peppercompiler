@@ -24,7 +24,7 @@ class Complex(object):
   def __init__(self, strands, struct):
     self.strands = strands; self.struct = struct
 
-def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=10, time=100000, temp=25, conc=10):
+def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=50, time=100000, temp=25, conc=10, num_proc=8):
   """Test times for inputs to combine/seperate into outputs"""
   used_strands = ordered_dict()
   ## Subroutine
@@ -67,6 +67,6 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=10, time=100000, tem
   ## End Subroutine
   ins = convert(kin.inputs)
   outs = convert(kin.outputs)
-  return DNAkinfold(used_strands, ins, outs, trials, time, temp, conc)
+  return DNAkinfold(used_strands, ins, outs, trials, time, temp, conc, num_proc)
 
 

@@ -1,10 +1,10 @@
 """Multistrand wrapper"""
 from __future__ import division
 
-import string, os, subprocess
+import string, os, subprocess, math
 
 STOP_FLAG = "Stop_Flag"
-def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num_proc=8):
+def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num_proc=1):
   """strands = dict of strand_name : sequence used in structs
      *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
      temp = temperature (deg C)   conc = concentration
@@ -12,6 +12,8 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num
      num_proc = number of processes to start (trials devided between them)."""
   # Assumes that structures are connected complexes
   assert start_struct != stop_struct
+  trials_each = int(math.ceil(trials / num_proc))
+  trials = trials_each * num_proc
   # TODO-maybe: better/non-colliding filenames (ex: /tmp/tp191913787)
   in_name  = "tmp.infile"
   out_name = "tmp.outfile"
@@ -41,7 +43,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num
   f.write("##Temperature=%f\n" % temp) # Currently not working
   f.write("#Concentration=%f\n" % conc)
   f.write("#SimTime=%d\n" % time)
-  f.write("#NumSims=%d\n" % (trials // num_proc))
+  f.write("#NumSims=%d\n" % trials_each)
   f.write("#Logfile=%s\n" % out_name)
   f.write("#OutputInterval=-1\n")   # Suppress output
   f.write("#StopOption=2\n")        # Stop on stop structures defined above
