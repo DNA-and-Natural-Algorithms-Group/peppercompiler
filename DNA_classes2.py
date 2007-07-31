@@ -125,11 +125,12 @@ class Strand(SuperSequence):
 
 class Structure(object):
   """Container for structures/complexes"""
-  def __init__(self, name, struct, *strands):
+  def __init__(self, name, mfe, struct, *strands):
     self.name = name
+    self.mfe = mfe
+    self.struct = struct
     self.strands = list(strands)
     self.nupack_seqs = []
-    self.struct = struct
     for strand in strands:
       assert isinstance(strand, Strand), "Structure must get strands"
       self.nupack_seqs += strand.nupack_seqs

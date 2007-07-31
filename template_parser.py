@@ -63,7 +63,7 @@ sup_seq_stat = S(K(sup_seq)) + var + S("=") + strand_const_list + S(":") + integ
 strand_stat  = S(K(strand))  + var + S("=") + strand_const_list + S(":") + integer
 
 # structure <name> = <strands> : <secondary structure>
-struct_stat = S(K(struct)) + var + S("=") + strand_list + S(":") + secondary_struct
+struct_stat = S(K(struct)) + O(K("--no-mfe"), default=False) + var + S("=") + strand_list + S(":") + secondary_struct
 
 # kin <inputs> -> <outputs>
 kin_stat = S(K(kin)) + struct_list + S("->") + struct_list
