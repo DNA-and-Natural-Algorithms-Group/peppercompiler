@@ -1,14 +1,14 @@
 """Multistrand wrapper"""
 from __future__ import division
 
-import string, os, subprocess, math
+import string, os, subprocess, math, time
 
 STOP_FLAG = "Stop_Flag"
-def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num_proc=1):
+def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1):
   """strands = dict of strand_name : sequence used in structs
      *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
      temp = temperature (deg C)   conc = concentration
-     time = max time of sim   trials = number of trials
+     sim_time = max time of sim   trials = number of trials
      num_proc = number of processes to start (trials devided between them)."""
   # Assumes that structures are connected complexes
   assert start_struct != stop_struct
@@ -42,7 +42,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num
   # Other params
   f.write("##Temperature=%f\n" % temp) # Currently not working
   f.write("#Concentration=%f\n" % conc)
-  f.write("#SimTime=%d\n" % time)
+  f.write("#SimTime=%d\n" % sim_time)
   f.write("#NumSims=%d\n" % trials_each)
   f.write("#Logfile=%s\n" % out_name)
   f.write("#OutputInterval=-1\n")   # Suppress output
@@ -62,6 +62,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, time, temp, conc, num
   procs = []
   for i in range(num_proc):
     procs.append( subprocess.Popen(command, shell=True) )
+    time.sleep(1.0)
   # Wait for them to finish
   for i in range(num_proc):
     return_code = procs[i].wait()
