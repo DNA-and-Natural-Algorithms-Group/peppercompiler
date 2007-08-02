@@ -1,7 +1,7 @@
 """Multistrand wrapper"""
 from __future__ import division
 
-import string, os, subprocess, math, time
+import string, os, subprocess, math, time, random
 
 STOP_FLAG = "Stop_Flag"
 def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1):
@@ -14,9 +14,11 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   assert start_struct != stop_struct
   trials_each = int(math.ceil(trials / num_proc))
   trials = trials_each * num_proc
-  # TODO-maybe: better/non-colliding filenames (ex: /tmp/tp191913787)
-  in_name  = "tmp.infile"
-  out_name = "tmp.outfile"
+  # TODO: use a standard method to make non-coliding names in /tmp once Multistrand accepts paths.
+  t = time.time()
+  r = random.random()
+  in_name  = ".tmp.multi.in_%r-%r" % (t, r)
+  out_name = ".tmp.multi.out_%r-%r" % (t, r)
   
   # Print input file for Multistrand
   f = file(in_name, "w")
@@ -52,7 +54,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   
   # Run Multistrand!
   try:
-    os.remove(out_name)
+    pass #os.remove(out_name)
   except OSError:
     pass # If out_name doesn't exist, we're done
   command = "Multistrand > /dev/null < %s" % in_name
@@ -69,7 +71,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
     if return_code != 0:
       print
       raise OSError, "Multistrand failed with status (%d)" % return_code
-  os.remove(in_name)
+  #os.remove(in_name)
   
   # Read back results
   f = file(out_name, "r")
