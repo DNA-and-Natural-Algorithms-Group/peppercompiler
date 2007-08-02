@@ -12,7 +12,7 @@ def finish(infilename, gate_name, kin_num):
   gate = circuit.gates[gate_name]
   kin = gate.kinetics[kin_num]
   # Call Multistrand instances
-  frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs)
+  frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs, out_interval=1000, trials=1, num_proc=1)
   ave =  ( sum(times) / len(times) if times else 0 )
   # TODO: process results
   print "kin", gate_name,

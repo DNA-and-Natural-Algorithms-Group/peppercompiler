@@ -4,7 +4,7 @@ from __future__ import division
 import string, os, subprocess, math, time, random
 
 STOP_FLAG = "Stop_Flag"
-def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1):
+def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1, out_interval=-1):
   """strands = dict of strand_name : sequence used in structs
      *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
      temp = temperature (deg C)   conc = concentration
@@ -47,7 +47,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   f.write("#SimTime=%d\n" % sim_time)
   f.write("#NumSims=%d\n" % trials_each)
   f.write("#Logfile=%s\n" % out_name)
-  f.write("#OutputInterval=-1\n")   # Suppress output
+  f.write("#OutputInterval=%d\n" % out_interval)   # -1 = Suppress output
   f.write("#StopOption=2\n")        # Stop on stop structures defined above
   # Done
   f.close()
@@ -57,7 +57,10 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
     pass #os.remove(out_name)
   except OSError:
     pass # If out_name doesn't exist, we're done
-  command = "Multistrand > /dev/null < %s" % in_name
+  if out_interval == -1:
+    command = "Multistrand > /dev/null < %s" % in_name
+  else:
+    command = "Multistrand < %s" % in_name
   #print command
 
   # Start 'num_proc' processes
