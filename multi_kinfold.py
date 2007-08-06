@@ -25,20 +25,22 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   # Strand Definitions
   f.write("#Strands\n")
   for name, seq in strands.items():
-    f.write("%s,%s\n" % (name, seq))
+    f.write("strand_%s,%s\n" % (name, seq))
   # Start Structure
   f.write("#StartStructure\n")
   for compl in start_struct:
     struct = compl.struct.replace("+", "_")
     struct = struct.replace("_", ".") # TODO: leave "_" as soon as that works
-    f.write(string.join(compl.strands, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    s = ["strand_"+x for x in compl.strands]
+    f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     f.write(struct + "\n")                        # ((...._..((_))..)..(_..)...)
   # Stop Structure
   f.write("#StopStructures\n")
   for compl in stop_struct:
     struct = compl.struct.replace("+", "_")
     struct = struct.replace("_", ".") # TODO: leave "_" as soon as that works
-    f.write(string.join(compl.strands, ",") + "\n")
+    s = ["strand_"+x for x in compl.strands]
+    f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     f.write(struct + "\n")
   f.write("TAG: %s\n" % STOP_FLAG)
   # Other params
