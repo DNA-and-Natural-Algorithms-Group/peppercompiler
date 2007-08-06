@@ -37,10 +37,10 @@ class Gate(PrintObject):
     if DEBUG: print "strand", name
     assert not self.strands.has_key(name), "Duplicate strand definition"
     self.strands[name] = Strand(name, length, *const)
-  def add_structure(self, (no_mfe, name, strands, struct)):
+  def add_structure(self, (mfe, name, strands, struct)):
     if DEBUG: print "struct", name
     assert not self.structs.has_key(name), "Duplicate structure definition"
-    self.structs[name] = Structure(name, not no_mfe, struct, *strands)
+    self.structs[name] = Structure(name, mfe, struct, *strands)
   def add_kinetics(self, (inputs, outputs)):
     if DEBUG: print "kin", self.kin_num
     self.kinetics[self.kin_num] = Kinetics(self.kin_num, list(inputs), list(outputs))
@@ -67,6 +67,6 @@ class Gate(PrintObject):
       seqs = string.join([prefix+seq.name for seq in struct.nupack_seqs])
       outfile.write("%s : %s\n" % (name, seqs))
       if struct.mfe:
-        outfile.write("%s < 1.0\n" % name)
+        outfile.write("%s < %f\n" % (name, struct.mfe))
     ### TODO: do something for prevents
 

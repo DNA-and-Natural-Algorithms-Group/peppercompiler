@@ -31,7 +31,7 @@ class Circuit(PrintObject):
     # Setup gates
     this_templ = self.template[templ_name]
     self.gates[gate_name] = this_templ
-    assert len(inputs) == len(this_templ.inputs)
+    assert len(inputs) == len(this_templ.inputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(inputs), len(this_templ.inputs))
     assert len(outputs) == len(this_templ.outputs)
     # Constrain all gate inputs and outputs
     for glob_name, loc_name in zip(list(inputs)+list(outputs), this_templ.inputs+this_templ.outputs):

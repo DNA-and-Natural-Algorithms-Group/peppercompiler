@@ -1,5 +1,10 @@
 """DNA design container classes"""
-import HU_parser
+import HU_parser, string
+
+# Global DNA nt groups
+group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
+         "W": "AT", "S": "CG", "N": "ATCG"} #... Others can be put later if needed ...
+compliment = {"A": "T", "T": "A", "C": "G", "G": "C"}
 
 class Sequence(object):
   """Container for sequences"""
@@ -18,6 +23,8 @@ class Sequence(object):
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
+  def get_seq(self):
+    return self.seq
   def __repr__(self):
     return "Sequence(%(name)r, %(constr)r)" % self.__dict__
 
@@ -29,6 +36,8 @@ class ReverseSequence(Sequence):
     self.num = wc.num
     self.reversed = True
     self.wc = wc
+  def get_seq(self):
+    return string.join([compliment[symb] for symb in self.wc.seq[::-1]], "")
   def __repr__(self):
     return "~Sequence(%(name)r, %(constr)r)" % self.wc.__dict__
 
@@ -44,6 +53,7 @@ class Structure(object):
 
   def seq_loc(self, index):
     num = 0  # Current seq number
+    #print self.name, index
     while self.seqs[num].length  <=  index:
       index -= self.seqs[num].length  # Move past sequence
       num += 1

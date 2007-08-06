@@ -24,7 +24,7 @@ class Complex(object):
   def __init__(self, strands, struct):
     self.strands = strands; self.struct = struct
 
-def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=9, time=100000, temp=25, conc=10., num_proc=3, out_interval=-1):
+def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=24, time=100000, temp=25, conc=10., num_proc=8, out_interval=-1):
   """Test times for inputs to combine/seperate into outputs"""
   used_strands = ordered_dict()
   ## Subroutine

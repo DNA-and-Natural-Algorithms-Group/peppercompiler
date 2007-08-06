@@ -27,6 +27,7 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 var = Word(alphas, alphanums+"_") # Variable name
 var_list = List(var + S(Optional("+")))  # Space sep list of variable names optional plus
 integer = Word(nums).setParseAction(Map(int))
+float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
 # Sequence const could be ?N, 3N or N
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes))
@@ -62,8 +63,10 @@ sup_seq_stat = S(K(sup_seq)) + var + S("=") + strand_const_list + S(":") + integ
 # strand <name> = <constraints / sequences> : <length>
 strand_stat  = S(K(strand))  + var + S("=") + strand_const_list + S(":") + integer
 
-# structure <name> = <strands> : <secondary structure>
-struct_stat = S(K(struct)) + O(K("--no-mfe"), default=False) + var + S("=") + strand_list + S(":") + secondary_struct
+# structure <optinoal mfe param> <name> = <strands> : <secondary structure>
+mfe_info = O(  K("--no-mfe").setParseAction(lambda s,t,l: False) | \
+               (S("--mfe=") + float_)  , default=1.0)
+struct_stat = S(K(struct)) + mfe_info + var + S("=") + strand_list + S(":") + secondary_struct
 
 # kin <inputs> -> <outputs>
 kin_stat = S(K(kin)) + struct_list + S("->") + struct_list
@@ -74,6 +77,7 @@ document = StringStart() + delimitedList(O(statement), "\n") + StringEnd()
 document.ignore(pythonStyleComment)
 
 def load_template(filename):
+  global gate # DEBUG
   gate = Gate()
 
   # Set parse actions to build data

@@ -18,7 +18,7 @@ class Sequence(object):
     assert wilds in (0,1) , "Too many wildcards in sequence"
     if wilds == 0: # no wildcards
       check_length = sum(lengths)
-      assert check_length == length, "Sequence length mismatch"
+      assert check_length == length, "Sequence length mismatch. %s: %r != %r" % (name, check_length, length)
     else: # one wildcard
       check_length = sum([x for x in lengths if x != WILDCARD])
       delta = length - check_length
@@ -93,10 +93,10 @@ class SuperSequence(object):
           wildcard = (len(self.seqs), len(self.nupack_seqs), item) # Index and entry of wildcard
           
     if not wildcard:
-      assert self.length == length, "Super Sequence length mismatch"
+      assert self.length == length, "Super Sequence length mismatch. %s: %r != %r" % (name, self.length, length)
     else:
       delta = length - self.length
-      assert delta >= 0
+      assert delta >= 0, "Super Sequence too short. %s: %r > %r" % (name, self.length, length)
       i, j, item = wildcard
       junk_seq = JunkSequence(delta, item)
       self.seqs.insert(i, junk_seq)

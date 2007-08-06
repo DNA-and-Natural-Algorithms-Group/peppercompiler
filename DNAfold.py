@@ -4,8 +4,10 @@ import os, tempfile
 import RNAfold_grammar as gram
 
 #Globals
-par_file = "/research/src/ViennaRNA-1.4/dna.par"
-RNAfold  = "/research/bin/RNAfold";
+#par_file = "/research/src/ViennaRNA-1.4/dna.par"
+#RNAfold  = "/research/bin/RNAfold";
+par_file = "dna.par"
+RNAfold = "RNAfold"
 
 ### TODO: This is not the most efficient?
 def tempfilename(*args, **keys):
@@ -34,7 +36,7 @@ def DNAfold(seq, temp, pf=False):
     command = "%s -T %f -P %s < %s > %s" % (RNAfold, temp, par_file, infilename, outfilename)
   stat = os.system(command)
   if stat != 0:
-    raise OSError, "DNAfold failed with status (%d)" % stat
+    raise OSError, "RNAfold failed with status (%d)" % stat
   os.remove(infilename)
   
   # Read results
