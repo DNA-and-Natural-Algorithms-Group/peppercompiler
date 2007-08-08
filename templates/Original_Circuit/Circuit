@@ -1,0 +1,29 @@
+import Translate, Translate_Rev, Translate_Loop, And21_Rev, And31, Threshold, Detector
+
+# Inputs
+strand let_7c   = TGAGGTAGTAGGTTGTATGGT  : 21  # 15nt data region
+strand miR_124a = TAAGGCACGCGGTGAATGCC   : 20  # 14nt "
+strand miR_15a  = TAGCAGCACATAATGGTTTGTG : 22  # 16nt "
+strand miR_10b  = CCCTGTAGAACCGAATTTGTGT : 22  # ---"---
+strand miR_143  = TGAGATGAAGCACTGTAGCTCA : 22
+strand miR_122a = TGGAGTGTGACAATGGTGTTTG : 22
+
+# Translation
+gate Trans1 = Translate(6, 15, 30, 3): let_7c -> Jout
+gate Trans2 = Translate_Rev(6, 14, 30, 3): miR_124a -> Mout
+gate Trans3 = Translate(6, 16, 30, 3): miR_15a -> Sout
+gate Trans4 = Translate(6, 16, 30, 3): miR_10b -> Sout
+gate Trans5 = Translate(6, 16, 30, 3): miR_143 -> Rout  # Can't design the actual psuedoknotted gate
+
+gate Trans6 = Translate(6, 16, 30, 3): miR_122a -> Nout
+gate Trans7 = Translate_Loop(6, 30, 30, 3, 15): Nout -> Rout
+
+# Circuit
+gate And1 = And21_Rev(6, 30, 30, 30, 3, 15): Jout + Mout -> Eout
+
+gate And2 = And31(6, 30, 30, 30, 30, 3, 15): Sout + Eout + Rout -> Aout
+
+gate Thresh = Threshold(6, 30, 30, 30, 30, 3, 15): Aout -> Th_out
+
+gate Det_Out = Detector(6, 30): Th_out -> 
+

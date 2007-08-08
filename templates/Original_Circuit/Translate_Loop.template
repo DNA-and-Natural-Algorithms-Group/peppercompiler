@@ -1,0 +1,23 @@
+declare Translate_Loop(t, di, do, c, end): in -> out(OUT)
+
+sequence toe_in = ?N : <t>
+sequence data_in = S ?N S : <di>
+sequence toe_out = ?N : <t>
+sequence data_out = S ?N S : <do>
+
+sequence in = toe_in data_in : <t+di>
+sequence out = toe_out data_out : <t+do>
+
+strand In = in : <t+di>
+strand Base = ?N : <t+di>
+strand Out = ?N out S <end-1>N : <do+(di-c)>
+
+## Structures
+struct IN = In : U<t+di>
+struct Gate = Out + Base : H<di-end>(U<do-c> H<end>(+)) U<t>
+
+struct IN_waste = In + Base : H<t+di>(+)
+struct OUT = Out : U<do+di-c>
+
+kin IN + Gate -> OUT + IN_waste
+

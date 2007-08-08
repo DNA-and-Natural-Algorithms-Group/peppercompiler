@@ -1,0 +1,8 @@
+declare Threshold(t, di1, di2, di3, do, c, end): in -> out
+
+import And31
+
+strand Th2_in = ?N : <t+di2>
+
+gate Gate = And31(t, di1, di2, di3, do, c, end): in + Th2_in + in -> out
+

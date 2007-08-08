@@ -1,0 +1,36 @@
+declare And31(t, di1, di2, do, c, end): x + y -> out(OUT)
+
+sequence tx = ?N : <t>
+sequence dx = S ?N S : <di1>
+sequence ty = ?N : <t>
+sequence dy = S ?N S : <di2>
+sequence toe_out = ?N : <t>
+sequence data_out = S ?N S : <do>
+
+sequence x = dy ty : <t+di1>
+sequence y = tz dz : <t+di2>
+sequence out = toe_out data_out : <t+do>
+
+strand inX = x : <t+di1>
+strand inY = y : <t+di2>
+
+strand X = ?N : <t+di1>
+strand Y = ?N : <di1+di2>
+strand Out = <end-1>N S out ?N : <do+(di3-c)>
+
+## Structures
+struct InX = inX : U<t+di1>
+struct InY = inY : U<t+di2>
+struct InZ = inX : U<t+di3>
+
+struct Gate = Y + Out + X : H<di1>(H<di2-end>(H<end>(+) U<do-c>) +) U<t>
+struct Gate_inter = Y + Out : U<di1> H<di2-end>(H<end>(+) U<do-c>)
+
+struct X_waste = inX + X : H<t+di1>(+)
+struct Y_waste = inY + Y : H<t+di2>(+) U<di1-t>
+
+struct OUT = Out : U<do+(di3-c)>
+
+kin InX + Gate -> X_waste + Gate_inter
+kin InY + Gate_inter -> Y_waste + OUT
+
