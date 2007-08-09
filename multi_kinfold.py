@@ -3,6 +3,15 @@ from __future__ import division
 
 import string, os, subprocess, math, time, random
 
+def random_seed():
+  """Return a (mostly) random seed x uniform random [0 <= x < 2**31]"""
+  rand_bytes = os.urandom(4)
+  seed = 0
+  for byte in rand_bytes:
+    seed = seed*256 + ord(byte)
+  seed %= 2**31
+  return hex(seed).rstrip("L")
+
 STOP_FLAG = "Stop_Flag"
 def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1, out_interval=-1):
   """strands = dict of strand_name : sequence used in structs
@@ -55,21 +64,15 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   f.close()
   
   # Run Multistrand!
-  try:
-    pass #os.remove(out_name)
-  except OSError:
-    pass # If out_name doesn't exist, we're done
-  if out_interval == -1:
-    command = "Multistrand > /dev/null < %s" % in_name
-  else:
-    command = "Multistrand < %s" % in_name
-  #print command
-
   # Start 'num_proc' processes
   procs = []
   for i in range(num_proc):
+    command = 'echo "#Startseed=%s" | cat - %s | nice -n 19 Multistrand' % (random_seed(), in_name)
+    if out_interval == -1:
+      command += " > /dev/null"
+    print command
     procs.append( subprocess.Popen(command, shell=True) )
-    time.sleep(1.0)
+    #time.sleep(1.0)
   # Wait for them to finish
   for i in range(num_proc):
     return_code = procs[i].wait()
@@ -89,6 +92,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
     if STOP_FLAG in line:
       start = line.find(STOP_FLAG) + len(STOP_FLAG)
       times.append(float(line[start:]))
+  #os.remove(out_name)
   
   return frac, times, res
 
