@@ -2,6 +2,7 @@
 
 from template_class import Gate
 from pyparsing import *
+from var_substitute import process
 
 ## Some globals
 # Pyparsing shortcuts
@@ -10,12 +11,15 @@ S = Suppress
 O = Optional
 List = lambda x: Group(ZeroOrMore(x))
 Map = lambda func: (lambda s,l,t: map(func, t) )
+import string
+lowers = string.lowercase
 # syntax names and sets
 # Codes for different subsets of nucleotides
 NAcodes = "ACGTUNSWRYMKVHBD"
-func = "function"
+#func = "function"
+func = "declare"
 seq = "sequence"
-sup_seq = "sup-sequence"
+sup_seq = "sequence"
 strand = "strand"
 struct = "structure"
 kin = "kin"
@@ -25,15 +29,18 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 
 ## Define Grammar
 var = Word(alphas, alphanums+"_") # Variable name
-var_list = List(var + S(Optional("+")))  # Space sep list of variable names optional plus
+var_list = List(var + S(O("+")))  # Space sep list of variable names optional plus
 integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
+
+out = var + S("(" + var + ")")
+out_list = List(out + S(O("+")))
 
 # Sequence const could be ?N, 3N or N
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes))
 seq_const_list = List(seq_const)
 
-seq_var = Group(var+Optional("*", default=""))
+seq_var = Group(Word(lowers, alphas+"_") + Optional("*", default=""))
 seq_list = List(seq_var)
 
 # Strand definition could be:
@@ -51,8 +58,9 @@ struct_list = List(struct_var + S(Optional("+")))
 secondary_struct = Word( nums+"UH()+ " ) # I don't need to break it up
 
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
-# function <gate> = <func name>: <inputs> -> <outputs>
-func_stat = S(K(func)) + O(S(var + "=")) + var + S(":") + var_list + S("->") + var_list
+# function <gate> = <func name>(<params>): <inputs> -> <outputs>
+params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
+func_stat = S(K(func)) + var + params + S(":") + var_list + S("->") + out_list
 
 # sequence <name> = <constraints> : <length>
 seq_stat  = S(K(seq))  + var + S("=") + seq_const_list + S(":") + integer
@@ -76,7 +84,9 @@ statement = func_stat | seq_stat | sup_seq_stat | strand_stat | struct_stat | ki
 document = StringStart() + delimitedList(O(statement), "\n") + StringEnd()
 document.ignore(pythonStyleComment)
 
-def load_template(filename):
+def load_template(basename, args):
+  ## replace args
+  doc = substitute(basename, args)
   global gate # DEBUG
   gate = Gate()
 
@@ -93,7 +103,25 @@ def load_template(filename):
   struct_var.setParseAction(lambda s,t,l: gate.structs[l[0]])
   
   # Build data
-  document.parseFile(filename)
+  document.parseString(doc)
   assert gate.def_func
   return gate
+
+def substitute(basename, args):
+  filename = basename+".template"
+  # Clear parse actions
+  func_stat.setParseAction(lambda s,t,l: None)
+  # Parse for function declaration
+  print filename
+  param_names = func_stat.parseFile(filename)[1]
+  params = {}
+  assert len(param_names) == len(args)
+  for name, val in zip(param_names, args):
+    params[name] = val
+  return process(params, filename)
+
+
+
+
+
 

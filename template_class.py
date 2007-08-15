@@ -16,7 +16,7 @@ class Gate(PrintObject):
     self.kin_num = 0
   
   ## Add information from document statements to object
-  def add_function(self, (name, inputs, outputs)):
+  def add_function(self, (name, params, inputs, outputs)):
     if DEBUG: print "function", name
     assert not self.def_func, "Multiple function declarations"
     self.def_func = True

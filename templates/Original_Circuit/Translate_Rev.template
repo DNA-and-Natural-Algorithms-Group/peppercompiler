@@ -13,11 +13,11 @@ strand Base = ?N : <t+di>
 strand Out = out ?N : <di + do - c>
 
 ## Structures
-struct IN = In : U<t+di>
-struct Gate = Base + Out : U<t> H<di>(+ U<do-c>)
+structure IN = In : U<t+di>
+structure Gate = Base + Out : U<t> H<di>(+ U<do-c>)
 
-struct IN_waste = In + Base : H<t+di>(+)
-struct OUT = Out : U<di+do-c>
+structure IN_waste = In + Base : H<t+di>(+)
+structure OUT = Out : U<di+do-c>
 
 kin IN + Gate -> OUT + IN_waste
 

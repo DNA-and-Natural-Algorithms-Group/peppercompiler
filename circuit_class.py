@@ -14,28 +14,35 @@ class Circuit(PrintObject):
     self.gates = ordered_dict()
   
   ## Add information from document statements to object
-  def add_import(self, (name,)):
-    if DEBUG: print "import", name
-    ### TODO: allow different name than path (i.e. import GeorgHalfAdder0712 as HalfAdder)
-    path = name
-    assert not self.template.has_key(name)
-    self.template[name] = load_template(path)
+  def add_import(self, imports):
+    for path, name in imports:
+	    if name == None:
+	      # filename is used as the internal name by default
+	      if "/" not in path:
+	        name = path
+	      else:
+		      name = path[path.rfind("/")+1:]  # Strip off lower directories
+	    if DEBUG: print "import", name, path
+	    assert not self.template.has_key(name)
+	    self.template[name] = path
+
   def add_input(self, (name,)):
     pass
   #  if DEBUG: print "in", name
   #  # Setup inputs (not strictly necessary, may scrap ...)
   #  self.glob[name] = []
   #  self.lengths[name] = None
-  def add_gate(self, (gate_name, templ_name, inputs, outputs)):
+
+  def add_gate(self, (gate_name, templ_name, templ_params, inputs, outputs)):
+    print gate_name, templ_name, list(templ_params), list(inputs), list(outputs)
     if DEBUG: print "gate", gate_name
     # Setup gates
-    this_templ = self.template[templ_name]
-    self.gates[gate_name] = this_templ
-    assert len(inputs) == len(this_templ.inputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(inputs), len(this_templ.inputs))
-    assert len(outputs) == len(this_templ.outputs)
+    self.gates[gate_name] = this_gate = load_template(self.template[templ_name], templ_params)
+    assert len(inputs) == len(this_gate.inputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(inputs), len(this_gate.inputs))
+    assert len(outputs) == len(this_gate.outputs)
     # Constrain all gate inputs and outputs
-    for glob_name, loc_name in zip(list(inputs)+list(outputs), this_templ.inputs+this_templ.outputs):
-      loc_seq = this_templ.seqs[loc_name]
+    for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+      loc_seq = this_gate.seqs[loc_name]
       if not self.glob.has_key(glob_name):
         self.glob[glob_name] = [(loc_seq, gate_name)]
         self.lengths[glob_name] = loc_seq.length

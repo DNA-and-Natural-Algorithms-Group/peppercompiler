@@ -24,19 +24,19 @@ strand Z = ?N : <di2+di3>
 strand Out = ?N out S <end-1>N : <do+(di3-c)>
 
 ## Structures
-struct InX = inX : U<t+di1>
-struct InY = inY : U<t+di2>
-struct InZ = inX : U<t+di3>
+structure InX = inX : U<t+di1>
+structure InY = inY : U<t+di2>
+structure InZ = inX : U<t+di3>
 
-struct Gate = Y + Out + Z + X : H<di1>(H<di2>(+ H<di3-end>(U<do-c> H<end>(+))) +) U<t>
-struct Gate_inter1 = Y + Out + Z : U<di1> H<di2>(+ H<di3-end>(U<do-c> H<end>(+)))
-struct Gate_inter2 =     Out + Z :                 H<di3-end>(U<do-c> H<end>(+)) U<di2>
+structure Gate = Y + Out + Z + X : H<di1>(H<di2>(+ H<di3-end>(U<do-c> H<end>(+))) +) U<t>
+structure Gate_inter1 = Y + Out + Z : U<di1> H<di2>(+ H<di3-end>(U<do-c> H<end>(+)))
+structure Gate_inter2 =     Out + Z :                 H<di3-end>(U<do-c> H<end>(+)) U<di2>
 
-struct X_waste = inX + X : H<t+di1>(+)
-struct Y_waste = inY + Y : H<t+di2>(+) U<di1-t>
-struct Z_waste = inZ + Z : H<t+di3>(+) U<di2-t>
+structure X_waste = inX + X : H<t+di1>(+)
+structure Y_waste = inY + Y : H<t+di2>(+) U<di1-t>
+structure Z_waste = inZ + Z : H<t+di3>(+) U<di2-t>
 
-struct OUT = Out : U<do+(di3-c)>
+structure OUT = Out : U<do+(di3-c)>
 
 kin InX + Gate -> X_waste + Gate_inter1
 kin InY + Gate_inter1 -> Y_waste + Gate_inter2
