@@ -11,8 +11,8 @@ import Translate, Translate_Rev, Translate_Loop, And21_Rev, And31, Threshold, De
 # Translation
 gate Trans1 = Translate(6, 15, 30, 3): let_7c -> Jout
 gate Trans2 = Translate_Rev(6, 14, 30, 3): miR_124a -> Mout
-gate Trans3 = Translate(6, 16, 30, 3): miR_15a -> Sout
-gate Trans4 = Translate(6, 16, 30, 3): miR_10b -> Sout
+gate Trans3 = Translate(6, 16, 30, 1): miR_15a -> Sout
+gate Trans4 = Translate(6, 16, 30, 0): miR_10b -> Sout
 gate Trans5 = Translate(6, 16, 30, 3): miR_143 -> Rout  # Can't design the actual psuedoknotted gate
 
 gate Trans6 = Translate(6, 16, 30, 3): miR_122a -> Nout

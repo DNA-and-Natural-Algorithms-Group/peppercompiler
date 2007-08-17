@@ -31,18 +31,36 @@ class Gate(PrintObject):
   def add_super_sequence(self, (name, const, length)):
     if DEBUG: print "sup-sequence", name
     assert not self.seqs.has_key(name), "Duplicate sequence definition"
+    for n, item in enumerate(const):
+      if item[0] == "Sequence":
+        if item[1][1] == "":
+          const[n] =  self.seqs[item[1][0]]
+        else:
+          const[n] = ~self.seqs[item[1][0]]
     self.seqs[name] = SuperSequence(name, length, *const)
     self.sup_seqs[name] = self.seqs[name]
   def add_strand(self, (name, const, length)):
     if DEBUG: print "strand", name
     assert not self.strands.has_key(name), "Duplicate strand definition"
+    for n, item in enumerate(const):
+      if item[0] == "Sequence":
+        if item[1][1] == "":
+          const[n] =  self.seqs[item[1][0]]
+        else:
+          const[n] = ~self.seqs[item[1][0]]
     self.strands[name] = Strand(name, length, *const)
   def add_structure(self, (mfe, name, strands, struct)):
     if DEBUG: print "struct", name
     assert not self.structs.has_key(name), "Duplicate structure definition"
+    for n, strand in enumerate(strands):
+      strands[n] = self.strands[strand]
     self.structs[name] = Structure(name, mfe, struct, *strands)
   def add_kinetics(self, (inputs, outputs)):
     if DEBUG: print "kin", self.kin_num
+    for n, struct in enumerate(inputs):
+      inputs[n] = self.structs[struct]
+    for n, struct in enumerate(outputs):
+      outputs[n] = self.structs[struct]
     self.kinetics[self.kin_num] = Kinetics(self.kin_num, list(inputs), list(outputs))
     self.kin_num += 1
   

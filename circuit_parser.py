@@ -5,7 +5,6 @@ from pyparsing import *
 K = CaselessKeyword
 S = Suppress
 O = Optional
-#H = Hidden = lambda x: Literal("").setParseAction(lambda s,t,l: x)  # A hidden field, it tags an entry
 List = lambda x: Group(ZeroOrMore(x))  # A grouped list
 Map = lambda func: (lambda s,l,t: map(func, t) )  # A useful mapping function
 
@@ -27,7 +26,7 @@ import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=N
 params = O( S("(") + Group(delimitedList(integer)) + S(")") , default=[])
 gate_stat = K(gate) + var + S("=") + var + params + S(":") + var_list + S("->") + var_list
 
-statement = import_stat | input_stat | gate_stat
+statement = import_stat | gate_stat
 
 document = StringStart() + delimitedList(O(Group(statement)), delim="\n") + StringEnd()
 document.ignore(pythonStyleComment)
@@ -36,16 +35,10 @@ def load_circuit(filename):
   """Load circuit connectivity file"""
   circuit = Circuit()
   
-  # Set parse actions
-  #import_stat.setParseAction(lambda s,t,l: circuit.add_import(l))
-  #input_stat.setParseAction(lambda s,t,l: circuit.add_input(l))
-  #gate_stat.setParseAction(lambda s,t,l: circuit.add_gate(l))
-  
   # Build data
-  #document.parseFile(filename)
   statements = document.parseFile(filename)
   for stat in statements:
-    #print x
+    #print list(stat)
     if stat[0] == import_:
       circuit.add_import(stat[1:])
     elif stat[0] == gate:

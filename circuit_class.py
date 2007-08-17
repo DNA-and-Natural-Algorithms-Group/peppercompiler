@@ -26,15 +26,7 @@ class Circuit(PrintObject):
 	    assert not self.template.has_key(name)
 	    self.template[name] = path
 
-  def add_input(self, (name,)):
-    pass
-  #  if DEBUG: print "in", name
-  #  # Setup inputs (not strictly necessary, may scrap ...)
-  #  self.glob[name] = []
-  #  self.lengths[name] = None
-
   def add_gate(self, (gate_name, templ_name, templ_params, inputs, outputs)):
-    print gate_name, templ_name, list(templ_params), list(inputs), list(outputs)
     if DEBUG: print "gate", gate_name
     # Setup gates
     self.gates[gate_name] = this_gate = load_template(self.template[templ_name], templ_params)
@@ -59,7 +51,7 @@ class Circuit(PrintObject):
       template.output_nupack(gate_name+"-", outfile)
     # For each global sequence connecting gates constrain them to be be equal.
     # To force this constraint I make  them all complimentary to a single dummy strand
-    outfile.write("## Gate Connectors\n")
+    outfile.write("#\n#\n## Gate Connectors\n")
     for glob_name in self.glob:
       length = self.lengths[glob_name]
       outfile.write("## Global %s\n" % glob_name)
