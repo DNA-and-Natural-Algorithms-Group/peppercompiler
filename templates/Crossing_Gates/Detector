@@ -1,0 +1,25 @@
+function Detector: s ->
+
+## Sequences
+sequence s  =  ?N : 21
+
+## Strands
+# Inputs
+strand inS = s* ?N : 29
+# Gate sections
+strand Fluor = ?N : 15
+strand Bind  = ?N : 21
+
+## Structures/Complexes
+# Input
+structure InS = inS : U29
+# Gate
+structure Det = Fluor + Bind: H15(+ U6)
+# Paired inputs (waste)
+structure wasteDet = inS + Bind: H21(U8 +)
+# Outputs
+structure OutFluor = Fluor: U15
+
+## Kinetics
+kin InS + Det -> wasteDet OutFluor
+

@@ -1,13 +1,11 @@
-# 2 bit adder
 import HalfAdder
 import Adder
-import Adder(6, 3, 4, 20, 20)
 import Detector
 
-gate G0_00 = HalfAdder: nx0 + ny0 -> ns0 + nc1
-gate G0_01 = HalfAdder: nx0 +  y0 ->  s0 + nc1
-gate G0_10 = HalfAdder:  x0 + ny0 ->  s0 + nc1
-gate G0_11 = HalfAdder:  x0 +  y0 -> ns0 +  c1
+gate G0_00 = HalfAdder(6, 3, 4, 20): nx0 + ny0 -> ns0 + nc1
+gate G0_01 = HalfAdder(6, 3, 4, 20): nx0 +  y0 ->  s0 + nc1
+gate G0_10 = HalfAdder(6, 3, 4, 20):  x0 + ny0 ->  s0 + nc1
+gate G0_11 = HalfAdder(6, 3, 4, 20):  x0 +  y0 -> ns0 +  c1
 
 gate G1_000 = Adder(6, 3, 4, 20): nx1 + ny1 + nc1 -> ns1 + nc2
 gate G1_001 = Adder(6, 3, 4, 20): nx1 + ny1 +  c1 ->  s1 + nc2
@@ -18,9 +16,10 @@ gate G1_101 = Adder(6, 3, 4, 20):  x1 + ny1 +  c1 -> ns1 +  c2
 gate G1_110 = Adder(6, 3, 4, 20):  x1 +  y1 + nc1 -> ns1 +  c2
 gate G1_111 = Adder(6, 3, 4, 20):  x1 +  y1 +  c1 ->  s1 +  c2
 
-gate DNS0 = Detector: ns0 ->
-gate  DS0 = Detector:  s0 ->
-gate DNS1 = Detector: ns1 ->
-gate  DS1 = Detector:  s1 ->
-gate DNC2 = Detector: nc2 ->
-gate  DC2 = Detector:  c2 ->
+gate DNS0 = Detector(6, 16): ns0 ->
+gate  DS0 = Detector(6, 16):  s0 ->
+gate DNS1 = Detector(6, 16): ns1 ->
+gate  DS1 = Detector(6, 16):  s1 ->
+gate DNC2 = Detector(6, 16): nc2 ->
+gate  DC2 = Detector(6, 16):  c2 ->
+

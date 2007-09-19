@@ -1,0 +1,68 @@
+declare HalfAdder(t, c, cat_toe, i): x(InX) + y(InY) -> s(OutS) + c(OutC)
+
+# Default values
+# t = 6
+# c = 3
+# cat_toe = 4
+# i = 20
+
+# Derived values
+#!i2 = i3a = i3b  =  i
+#!i3 = os = oc  =  i3a - cat_toe
+
+## Sequences
+sequence tx =  ?N : <t>
+sequence ty =  ?N : <t>
+sequence ts =  ?N : <t>
+sequence tc =  ?N : <t>
+sequence dx =  S ?N S : <i2>
+sequence dy =  S ?N S : <i3>
+sequence ds =  S ?N S : <os>
+sequence dc =  S ?N S : <oc>
+
+## Super-sequences
+sequence x =  tx dx : <t+i2>
+sequence s =  ds ts : <t+os>
+sequence c =  dc tc : <t+oc>
+sequence y =  dy ty : <t+i3>
+
+
+## Strands
+# Inputs
+strand inX = x* : <t+i2>
+strand inY = y* : <t+i3>
+
+# Gate sections
+strand X = x  : <t+i2>
+strand S = ?N s* : <i3a-c+os>
+strand C = ?N c* : <i3b-c+oc>
+strand Y = y  ?N : <i3a+i3b+i2>
+strand fuel = ?N : <i3a+i3b>
+
+## Structures/Complexes
+# Input
+structure InX = inX : U<t+i2>
+structure InY = inY : U<t+i3>
+
+# Gate (and partial structures)
+structure [10nt] G  = X + S + C + Y     : U<t> H<i2>(+ H<i3a>(U<os-c> + H<i3b>(U<oc-c> +)))
+structure [10nt] Ga =     S + C + Y     :          H<i3a>(U<os-c> + H<i3b>(U<oc-c> +)) U<i2>
+structure [10nt] Gb =   inY + C + Y     :              H<t+i3>(+ H<i3b>(U<oc-c> +) U<cat_toe>) U<i2-t>
+structure [no-opt] wasteG = fuel + Y    : H<i3a+i3b>(+) U<i2>
+
+structure Fuel = fuel : U<i3a+i3b>
+
+# Paired inputs (waste)
+structure [no-opt] wasteX = inX + X : H<t+i2>(+)
+
+# Outputs
+structure OutS = S : U<i3a-c+os>
+structure OutC = C : U<i3b-c+oc>
+
+
+## Kinetics
+# Overall: InX + InY + G + Fuel  ->  wasteX + wasteG + InY + OutS + OutC
+kin InX + G   -> wasteX + Ga
+kin InY + Ga  -> Gb + OutS
+kin Gb + Fuel -> wasteG + InY + OutC
+

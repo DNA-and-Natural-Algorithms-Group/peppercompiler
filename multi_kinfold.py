@@ -67,7 +67,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   # Start 'num_proc' processes
   procs = []
   for i in range(num_proc):
-    command = 'echo "#Startseed=%s" | cat - %s | nice -n 19 Multistrand' % (random_seed(), in_name)
+    command = "echo '#Startseed=%s' | cat - %s | nice -n 19 Multistrand" % (random_seed(), in_name)
     if out_interval == -1:
       command += " > /dev/null"
     print command

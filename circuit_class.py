@@ -1,4 +1,4 @@
-import string
+import string, time
 from DNA_classes2 import Sequence
 from generic_classes import ordered_dict, PrintObject
 from template_parser import load_template
@@ -27,7 +27,7 @@ class Circuit(PrintObject):
 	    self.template[name] = path
 
   def add_gate(self, (gate_name, templ_name, templ_params, inputs, outputs)):
-    if DEBUG: print "gate", gate_name
+    if DEBUG: print "gate", gate_name, templ_name, templ_params, inputs, outputs
     # Setup gates
     self.gates[gate_name] = this_gate = load_template(self.template[templ_name], templ_params)
     assert len(inputs) == len(this_gate.inputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(inputs), len(this_gate.inputs))
@@ -45,16 +45,17 @@ class Circuit(PrintObject):
   def output_nupack(self, filename):
     """Compile data into NUPACK format and output it"""
     outfile = file(filename, "w")
+    outfile.write("## Specification compiled at %s\n" % time.ctime())
     # For each gate write it's contents in Zadeh's format with prefix "gatename-".
     for gate_name, template in self.gates.items():
-      outfile.write("## Gate %s\n" % gate_name)
+      outfile.write("#\n## Gate %s\n" % gate_name)
       template.output_nupack(gate_name+"-", outfile)
     # For each global sequence connecting gates constrain them to be be equal.
     # To force this constraint I make  them all complimentary to a single dummy strand
     outfile.write("#\n#\n## Gate Connectors\n")
     for glob_name in self.glob:
       length = self.lengths[glob_name]
-      outfile.write("## Global %s\n" % glob_name)
+      outfile.write("#\n## Global %s\n" % glob_name)
       outfile.write("sequence %s = %dN\n" % (glob_name, length))
       for loc_seq, gate_name in self.glob[glob_name]:
         dummy_name = "%s-%s" % (glob_name, gate_name)

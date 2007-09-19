@@ -1,0 +1,25 @@
+declare Detector(t, i): s(InS) ->
+
+## Sequences
+sequence s  =  ?N : <t+i>
+
+## Strands
+# Inputs
+strand inS = s* : <t+i>
+# Gate sections
+strand Fluor = ?N : <i>
+strand Bind  = ?N : <t+i>
+
+## Structures/Complexes
+# Input
+structure InS = inS : <t+i>
+# Gate
+structure Det = Fluor + Bind: H<i>(+ U<t>)
+# Paired inputs (waste)
+structure wasteDet = inS + Bind: H<t+i>(+)
+# Outputs
+structure OutFluor = Fluor: U<i>
+
+## Kinetics
+kin InS + Det -> wasteDet + OutFluor
+

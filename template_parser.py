@@ -1,5 +1,6 @@
 """Nucleic Acid template design grammar"""
 
+import sys
 from template_class import Gate
 from pyparsing import *
 from var_substitute import process
@@ -30,12 +31,12 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 
 ## Define Grammar
 var = Word(alphas, alphanums+"_") # Variable name
-var_list = List(var + S(O("+")))  # Space sep list of variable names optional plus
 integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
-out = var + S("(" + var + ")")
-out_list = List(out + S(O("+")))
+# Signals used in the declare line
+sig = var + S("(" + var + ")")
+sig_list = List(sig + S(O("+")))
 
 # Sequence const could be ?N, 3N or N
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes))
@@ -61,7 +62,7 @@ secondary_struct = Word( nums+"UH()+ " ) # I don't need to break it up
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
 # function <gate> = <func name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-func_stat = K(func) + var + params + S(":") + var_list + S("->") + out_list
+func_stat = K(func) + var + params + S(":") + sig_list + S("->") + sig_list
 
 # sequence <name> = <constraints> : <length>
 seq_stat  = K(seq)  + var + S("=") + seq_const_list + S(":") + integer
@@ -73,8 +74,9 @@ sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + var + S("=
 strand_stat  = K(strand)  + var + S("=") + strand_const_list + S(":") + integer
 
 # structure <optinoal mfe param> <name> = <strands> : <secondary structure>
-mfe_info = O(  K("--no-mfe").setParseAction(lambda s,t,l: False) | \
-               (S("--mfe=") + float_)  , default=1.0)
+mfe_info = O(     K("[no-opt]").setParseAction(lambda s,t,l: False) | \
+                  ( S("[") + float_ + S("nt]") ),
+              default=1.0)
 struct_stat = K(struct) + mfe_info + var + S("=") + strand_list + S(":") + secondary_struct
 
 # kin <inputs> -> <outputs>
@@ -92,7 +94,13 @@ def load_template(basename, args):
   gate = Gate()
 
   # Build data
-  statements = document.parseString(doc)
+  try:
+    statements = document.parseString(doc)
+  except ParseException, e:
+    print
+    print "Error in", basename
+    print e
+    sys.exit(1)
   for stat in statements:
     #print list(stat)
     if stat[0] == func:
@@ -117,10 +125,16 @@ def substitute(basename, args):
   filename = basename+".template"
   # Parse for function declaration
   #print filename
-  param_names = func_stat.parseFile(filename)[2]
+  try:
+    param_names = func_stat.parseFile(filename)[2]
+  except ParseException, e:
+    print
+    print "Error in", filename
+    print e
+    sys.exit(1)
   params = {}
   #print param_names, args
-  assert len(param_names) == len(args)
+  assert len(param_names) == len(args), (param_names, args)
   for name, val in zip(param_names, args):
     params[name] = val
   return process(params, filename)

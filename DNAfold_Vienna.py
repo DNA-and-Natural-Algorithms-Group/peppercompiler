@@ -1,5 +1,5 @@
 """Wrapper for Vienna RNAfold."""
-import os, tempfile
+import os, tempfile, subprocess
 
 import RNAfold_grammar as gram
 
@@ -16,7 +16,7 @@ def tempfilename(*args, **keys):
   return filename
 
 BREAK = "NNNNN" # Fake sequence used for strand break
-def DNAfold(seq, temp, pf=False):
+def DNAfold(seq, temp):
   """Runs Vienna RNAfold on sequence 'seq' at temp 'temp' (with partition function calc if 'pf' is True)."""
   infilename  = tempfilename(prefix="rna_in")
   outfilename = tempfilename(prefix="rna_out")
@@ -30,13 +30,8 @@ def DNAfold(seq, temp, pf=False):
   infile.close()
   
   # Call RNAfold
-  if pf:
-    command = "%s -p -T %f -P %s < %s > %s" % (RNAfold, temp, par_file, infilename, outfilename)
-  else:
-    command = "%s -T %f -P %s < %s > %s" % (RNAfold, temp, par_file, infilename, outfilename)
-  stat = os.system(command)
-  if stat != 0:
-    raise OSError, "RNAfold failed with status (%d)" % stat
+  command = "%s -T %f -P %s < %s > %s" % (RNAfold, temp, par_file, infilename, outfilename)
+  subprocess.check_call(command, shell=True)
   os.remove(infilename)
   
   # Read results

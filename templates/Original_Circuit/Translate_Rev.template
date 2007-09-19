@@ -1,4 +1,4 @@
-declare Translate_Rev(t, di, do, c): in -> out(OUT)
+declare Translate_Rev(t, di, do, c): in(IN) -> out(OUT)
 
 sequence toe_in = ?N : <t>
 sequence data_in = S ?N S : <di>

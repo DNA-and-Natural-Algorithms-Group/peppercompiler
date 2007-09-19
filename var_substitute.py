@@ -1,7 +1,9 @@
 """
 Does some simple processing:
  * <expr>  are evaluated
- * {a,b} are seperated (as in shell scripting)
+ * {a,b} are seperated onto multiple lines (as in shell scripting)
+ 
+Lines begining with #! may be used to set variables
 
 So, the string:
  I have {two,three,four} apples worth $<(3-5+17)/4>.
@@ -11,7 +13,7 @@ goes to
  I have four apples worth $3.
 """
 
-import re
+import string, re
 
 def process(params, infilename):
   if not params.has_key("__builtins__"):
@@ -20,10 +22,15 @@ def process(params, infilename):
   out = ""
   
   for line in f_in:
-    # Execute !! lines
-    #if line[:2] == "!!":
-    #  exec line[2:].lstrip()
-    #  continue
+    # Execute #! lines
+    if line[:2] == "#!":
+      m = string.split(line[2:], "=")
+      val = eval(m[-1], params)
+      del m[-1]
+      for x in m:
+        params[x.strip()] = val
+      out += line
+      continue
     
     def eval_brackets(s):
       return str(eval(s.group(1), params))
@@ -35,14 +42,12 @@ def process(params, infilename):
       m = re.search(r"{[^{}]*?}", line)
       if m:
         ops = m.group()[1:-1].split(",")
-        
         start = line[:m.start()]
         end = line[m.end():]
-        
-        out = ""
+        this_out = ""
         for op in ops:
-          out += duplicate(start+op+end)
-        return out
+          this_out += duplicate(start+op+end)
+        return this_out
       else:
         return line
     out += duplicate(line)

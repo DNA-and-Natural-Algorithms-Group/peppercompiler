@@ -1,8 +1,9 @@
+#!/usr/bin/env python
 """Designs a sequence randomly."""
 from __future__ import division
 
 import sys, random, string, re
-sys.path += ("../compiler", "../HU2dotParen")
+sys.path += ("..", "../HU2dotParen")
 from DNAfold import DNAfold
 from HU2dotParen import HU2dotParen
 from nupack_in_parser import load_design
@@ -180,7 +181,8 @@ def output_sequences(d, connect, fn):
   f.write("Total n(s*) = %f" % 0)
   f.close()
 
-in_name = sys.argv[1]
-out_name = re.sub(r"\.des\Z", "", in_name) + ".summary"
-design(in_name, out_name)
+if __name__ == "__main__":
+  in_name = sys.argv[1]
+  out_name = re.sub(r"\.des\Z", "", in_name) + ".mfe"
+  design(in_name, out_name)
 

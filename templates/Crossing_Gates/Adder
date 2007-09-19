@@ -1,0 +1,64 @@
+function Adder: x + y + c1 -> s + c2
+
+## Sequences
+sequence tx   =  ?N : 6
+sequence ty   =  ?N : 6
+sequence ts   =  ?N : 6
+sequence tc1  =  ?N : 6
+sequence tc2  =  ?N : 6
+sequence dx   =  S ?N S : 15
+sequence dy   =  S ?N S : 15
+sequence dc1  =  S ?N S : 30
+sequence ds   =  S ?N S : 15
+sequence dc2  =  S ?N S : 30
+
+## Super-sequences
+sup-sequence x  =  dx  tx  : 21
+sup-sequence y  =  ty  dy  : 21
+sup-sequence c1 =  dc1 tc1 : 36
+sup-sequence s  =  ts  ds  : 21
+sup-sequence c2 =  dc2 tc2 : 36
+
+
+## Strands
+# Inputs
+strand inX = x* : 21
+strand inY = y* : 21
+strand inC = ?N c1* : 44
+
+# Gate sections
+strand Y  = ?N y : 30
+strand C2 = ?N c2* : 44
+strand S  = s* ?N : 29
+strand C1 = c1 ?N : 45
+strand X  = x : 21
+
+
+## Structures/Complexes
+# Input
+structure --no-mfe InX = inX : U21
+structure --no-mfe InY = inY : U21
+structure --no-mfe InC = inC : U44
+
+# Gate (and partial structures)
+structure G  = Y + C2 + S + C1 + X : H15(H15(+ H15(U29 + U14 H15(+))) +) U6
+structure Ga = Y + C2 + S + C1     : U15 H15(+ H15(U29 + U14 H15(+)))
+structure Gb =     C2 + S + C1     :           H15(U29 + U14 H15(+)) U15
+
+# Paired inputs (waste)
+# We don't really care what the mfe struct is as long as they stay together
+structure --no-mfe Xa = inX + X : H21(+)
+structure --no-mfe Ya = inY + Y : H21(+ U9)
+structure --no-mfe Ca = inC + C1 : U8 H36(+) U9
+
+# Outputs
+structure OutC = C2 : U44
+structure OutS = S  : U29
+
+
+## Kinetics
+# Overall: InX + InY + InC + G  ->  Xa + Ya + Ca + OutS + OutC
+kin InX + G  -> Xa + Ga
+kin InY + Ga -> Ya + Gb
+kin InC + Gb -> Ca + OutS + OutC
+

@@ -1,4 +1,4 @@
-declare Translate_Loop(t, di, do, c, end): in -> out(OUT)
+declare Translate_Loop(t, di, do, c, end): in(IN) -> out(OUT)
 
 sequence toe_in = ?N : <t>
 sequence data_in = S ?N S : <di>

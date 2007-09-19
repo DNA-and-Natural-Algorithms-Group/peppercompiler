@@ -1,4 +1,4 @@
-declare And31(t, di1, di2, do, c, end): x + y -> out(OUT)
+declare And31(t, di1, di2, do, c, end): x(InX) + y(InY) -> out(OUT)
 
 sequence tx = ?N : <t>
 sequence dx = S ?N S : <di1>
