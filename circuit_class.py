@@ -1,5 +1,5 @@
 import string, time
-from DNA_classes2 import Sequence
+from DNA_classes import Sequence
 from generic_classes import ordered_dict, PrintObject
 from template_parser import load_template
 

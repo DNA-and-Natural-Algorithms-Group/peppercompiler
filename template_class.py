@@ -1,6 +1,6 @@
 import string
 from generic_classes import ordered_dict, PrintObject
-from DNA_classes2 import *
+from DNA_classes import *
 
 DEBUG = False
 
