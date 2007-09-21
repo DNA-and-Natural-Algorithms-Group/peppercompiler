@@ -1,13 +1,35 @@
-import string, time
-from DNA_classes import Sequence
+"""
+The Circuit class stores all of the information in a circuit file and loads
+  the gate/circuit temlates.
+"""
+
+import string, os
+
+import DNA_classes
 from generic_classes import ordered_dict, PrintObject
-from template_parser import load_template
 
 DEBUG = False
 
+def load_gate(basename, args):
+  from circuit_parser import load_circuit
+  from template_parser import load_template
+  if os.path.isfile(basename):
+    return load_circuit(basename, args)
+  else:
+    templ_name = basename+".template"
+    if os.path.isfile(templ_name):
+      return load_template(templ_name, args)
+    else:
+      raise IOError, "Neither '%s' nor '%s' exist" % (basename, templ_name)
+
 class Circuit(PrintObject):
   """Stores all the information in a circuit's connectivity file"""
-  def __init__(self):
+  def __init__(self, (name, params, inputs, outputs)):
+    """Initialized the cicuit with the declare statement"""
+    self.decl_name = name
+    self.inputs = list(inputs)
+    self.outputs = list(outputs)
+    
     self.template = ordered_dict()
     self.glob = ordered_dict()
     self.lengths = ordered_dict()
@@ -23,46 +45,79 @@ class Circuit(PrintObject):
 	      else:
 		      name = path[path.rfind("/")+1:]  # Strip off lower directories
 	    if DEBUG: print "import", name, path
-	    assert not self.template.has_key(name)
+	    assert not self.template.has_key(name), "Duplicate import %s" % name
 	    self.template[name] = path
 
-  def add_gate(self, (gate_name, templ_name, templ_params, inputs, outputs)):
-    if DEBUG: print "gate", gate_name, templ_name, templ_params, inputs, outputs
+  def add_gate(self, (gate_name, templ_name, templ_args, inputs, outputs)):
+    if DEBUG: print "gate", gate_name, templ_name, templ_args, inputs, outputs
     # Setup gates
-    self.gates[gate_name] = this_gate = load_template(self.template[templ_name], templ_params)
-    assert len(inputs) == len(this_gate.inputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(inputs), len(this_gate.inputs))
-    assert len(outputs) == len(this_gate.outputs)
+    self.gates[gate_name] = this_gate = load_gate(self.template[templ_name], templ_args)
+    assert len(inputs) == len(this_gate.inputs),   "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len( inputs), len(this_gate.inputs ))
+    assert len(outputs) == len(this_gate.outputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(outputs), len(this_gate.outputs))
     # Constrain all gate inputs and outputs
-    for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
-      loc_seq = this_gate.seqs[loc_name]
-      if not self.glob.has_key(glob_name):
-        self.glob[glob_name] = [(loc_seq, gate_name)]
-        self.lengths[glob_name] = loc_seq.length
-      else:
-        self.glob[glob_name].append((loc_seq, gate_name))
-        assert self.lengths[glob_name] == loc_seq.length
+    ### TODO: marry these 2 together in a more eligent way.
+    if isinstance(this_gate, Circuit):
+      for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+        if not self.glob.has_key(glob_name):
+          self.glob[glob_name] = [(loc_name, gate_name)]
+          self.lengths[glob_name] = this_gate.lengths[loc_name]
+        else:
+          self.glob[glob_name].append((loc_name, gate_name))
+          assert self.lengths[glob_name] == this_gate.lengths[loc_name]
+    else: # Otherwise it's a gate, so we want to constrain sequences
+      for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+        loc_seq = this_gate.seqs[loc_name]
+        if not self.glob.has_key(glob_name):
+          self.glob[glob_name] = [(loc_seq, gate_name)]
+          self.lengths[glob_name] = loc_seq.length
+        else:
+          self.glob[glob_name].append((loc_seq, gate_name))
+          assert self.lengths[glob_name] == loc_seq.length
   
-  def output_nupack(self, filename):
+  def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""
-    outfile = file(filename, "w")
-    outfile.write("## Specification compiled at %s\n" % time.ctime())
+    if prefix:
+      outfile.write("#\n## Subcircuit %s\n" % prefix[:-1])
+    else:
+      outfile.write("#\n## Top Circuit\n")
     # For each gate write it's contents in Zadeh's format with prefix "gatename-".
     for gate_name, template in self.gates.items():
-      outfile.write("#\n## Gate %s\n" % gate_name)
-      template.output_nupack(gate_name+"-", outfile)
+      template.output_nupack(prefix+gate_name+"-", outfile)
+    
     # For each global sequence connecting gates constrain them to be be equal.
     # To force this constraint I make  them all complimentary to a single dummy strand
-    outfile.write("#\n#\n## Gate Connectors\n")
-    for glob_name in self.glob:
-      length = self.lengths[glob_name]
+    if prefix:
+      outfile.write("#\n## Circuit %s Connectors\n" % prefix[:-1])
+    else: 
+      outfile.write("#\n## Top Circuit Connectors\n")
+    for glob in self.glob:
+      length = self.lengths[glob]
+      glob_name = prefix+glob
+      wc_name = glob_name + "-_WC"  # A dummy variable wc compliment to glob
+      
       outfile.write("#\n## Global %s\n" % glob_name)
       outfile.write("sequence %s = %dN\n" % (glob_name, length))
-      for loc_seq, gate_name in self.glob[glob_name]:
-        dummy_name = "%s-%s" % (glob_name, gate_name)
+      outfile.write("sequence %s = %dN\n" % (wc_name, length))
+      
+      dummy_name = "%s-_Self" % glob_name
+      outfile.write("structure %s = H%d(+)\n" % (dummy_name, length))
+      outfile.write("%s : %s %s\n" % (dummy_name, wc_name, glob_name))
+      
+      # For each instance of the global sequence, build a structure to 
+      #   constrain it to the global one
+      for loc_seq, gate_name in self.glob[glob]:
+        if isinstance(loc_seq, DNA_classes.Sequence):
+          sig_name = gate_name + "-" + loc_seq.name
+          seqs = prefix + sig_name
+        elif isinstance(loc_seq, DNA_classes.SuperSequence):
+          # If it's a super-seq, list the subsequences
+          sig_name = gate_name + "-" + loc_seq.name
+          seqs = string.join([prefix+gate_name+"-"+seq.name for seq in loc_seq.nupack_seqs])
+        else: # it's a circuit signal
+          sig_name = gate_name + "-" + loc_seq
+          seqs = prefix + sig_name
+        
+        dummy_name = glob_name + "-" + sig_name
         outfile.write("structure %s = H%d(+)\n" % (dummy_name, length))
-        if isinstance(loc_seq, Sequence):
-          seqs = gate_name+"-"+loc_seq.name
-        else:
-          seqs = string.join([gate_name+"-"+seq.name for seq in loc_seq.nupack_seqs])
-        outfile.write("%s : %s %s\n" % (dummy_name, glob_name, seqs))
+        outfile.write("%s : %s %s\n" % (dummy_name, wc_name, seqs))
 

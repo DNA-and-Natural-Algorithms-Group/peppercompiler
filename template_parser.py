@@ -1,9 +1,11 @@
 """Nucleic Acid template design grammar"""
 
 import sys
+
 from template_class import Gate
-from pyparsing import *
 from var_substitute import process
+
+from pyparsing import *
 
 ## Some globals
 # Pyparsing shortcuts
@@ -13,19 +15,22 @@ O = Optional
 H = Hidden = lambda x: Empty().setParseAction(lambda s,t,l: x)  # A hidden field, it tags an entry
 List = lambda x: Group(ZeroOrMore(x))
 Map = lambda func: (lambda s,l,t: map(func, t) )
+
 import string
 lowers = string.lowercase
 
 # Syntax names and sets
 # Codes for different subsets of nucleotides
 NAcodes = "ACGTUNSWRYMKVHBD"
-func = "declare"
+
+decl = "declare"
 seq = "sequence"
 sup_seq = "sequence"; sup_seq_key = "sup-sequence"
 strand = "strand"
 struct = "structure"
 kin = "kin"
 
+# Don't ignore newlines!
 ParserElement.setDefaultWhitespaceChars(" \t")
 
 
@@ -34,7 +39,7 @@ var = Word(alphas, alphanums+"_") # Variable name
 integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
-# Signals used in the declare line
+# Signals used in the declare line seq(Struct)
 sig = var + S("(" + var + ")")
 sig_list = List(sig + S(O("+")))
 
@@ -42,7 +47,8 @@ sig_list = List(sig + S(O("+")))
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes))
 seq_const_list = List(seq_const)
 
-seq_var = Group(H("Sequence") + Group(Word(lowers, alphas+"_") + Optional("*", default="")))
+seq_name = Word(lowers, alphas+"_") # Sequence name starts with lower case
+seq_var = Group(H("Sequence") + Group(seq_name + Optional("*", default="")))
 seq_list = List(seq_var)
 
 # Strand definition could be:
@@ -51,61 +57,57 @@ seq_list = List(seq_var)
 strand_const = seq_const | seq_var
 strand_const_list = List(strand_const)
 
-strand_var = var
-strand_list = List(strand_var + S(Optional("+")))
+strand_var = var;  strand_list = List(strand_var + S(Optional("+")))
+struct_var = var;  struct_list = List(struct_var + S(Optional("+")))
 
-struct_var = var
-struct_list = List(struct_var + S(Optional("+")))
-
+### TODO: accept other secondary structures
 secondary_struct = Word( nums+"UH()+ " ) # I don't need to break it up
 
+
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
-# function <gate> = <func name>(<params>): <inputs> -> <outputs>
+# declare <gate name> = <func name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-func_stat = K(func) + var + params + S(":") + sig_list + S("->") + sig_list
-
+decl_stat = K(decl) + var + params + S(":") + sig_list + S("->") + sig_list
 # sequence <name> = <constraints> : <length>
-seq_stat  = K(seq)  + var + S("=") + seq_const_list + S(":") + integer
-
+seq_stat  = K(seq)  + seq_name + S("=") + seq_const_list + S(":") + integer
 # sup-sequence <name> = <constraints / sequences> : <length>
-sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + var + S("=") + strand_const_list + S(":") + integer
-
+sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + \
+               seq_name + S("=") + strand_const_list + S(":") + integer
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand)  + var + S("=") + strand_const_list + S(":") + integer
-
+strand_stat  = K(strand)  + strand_var + S("=") + strand_const_list + S(":") + integer
 # structure <optinoal mfe param> <name> = <strands> : <secondary structure>
 mfe_info = O(     K("[no-opt]").setParseAction(lambda s,t,l: False) | \
                   ( S("[") + float_ + S("nt]") ),
               default=1.0)
-struct_stat = K(struct) + mfe_info + var + S("=") + strand_list + S(":") + secondary_struct
-
+struct_stat = K(struct) + mfe_info + struct_var + S("=") + strand_list + S(":") + secondary_struct
 # kin <inputs> -> <outputs>
 kin_stat = K(kin) + struct_list + S("->") + struct_list
 
-statement = func_stat | seq_stat | sup_seq_stat | strand_stat | struct_stat | kin_stat
-
-document = StringStart() + delimitedList(O(Group(statement)), "\n") + StringEnd()
+statement = seq_stat | sup_seq_stat | strand_stat | struct_stat | kin_stat
+document = StringStart() + ZeroOrMore(S("\n")) + Group(decl_stat) + S("\n") + \
+           Group(delimitedList(O(Group(statement)), "\n")) + StringEnd()
 document.ignore(pythonStyleComment)
 
-def load_template(basename, args):
-  ## replace args
-  doc = substitute(basename, args)
-  global gate # DEBUG
-  gate = Gate()
 
-  # Build data
+def load_template(filename, args):
+  """Load component template file"""
   try:
-    statements = document.parseString(doc)
+    # Open file and do parameter substition
+    doc = substitute(filename, args)
+    # Load data
+    decl_val, statements = document.parseString(doc)
+  
   except ParseException, e:
     print
-    print "Error in", basename
+    print "Parsing error in template:", filename
     print e
     sys.exit(1)
+  
+  # Build data
+  gate = Gate(decl_val[1:])
   for stat in statements:
     #print list(stat)
-    if stat[0] == func:
-      gate.add_function(stat[1:])
-    elif stat[0] == seq:
+    if stat[0] == seq:
       gate.add_sequence(stat[1:])
     elif stat[0] == sup_seq_key:
       gate.add_super_sequence(stat[1:])
@@ -118,29 +120,14 @@ def load_template(basename, args):
     else:
       print stat
       raise Exception
-  assert gate.def_func
   return gate
 
-def substitute(basename, args):
-  filename = basename+".template"
+def substitute(filename, args):
   # Parse for function declaration
-  #print filename
-  try:
-    param_names = func_stat.parseFile(filename)[2]
-  except ParseException, e:
-    print
-    print "Error in", filename
-    print e
-    sys.exit(1)
+  param_names = decl_stat.parseFile(filename)[2]
   params = {}
-  #print param_names, args
   assert len(param_names) == len(args), (param_names, args)
   for name, val in zip(param_names, args):
     params[name] = val
   return process(params, filename)
-
-
-
-
-
 

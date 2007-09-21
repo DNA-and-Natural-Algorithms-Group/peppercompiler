@@ -5,8 +5,12 @@ from DNA_classes import *
 DEBUG = False
 
 class Gate(PrintObject):
-  def __init__(self):
-    self.def_func = False
+  def __init__(self, (name, params, inputs, outputs)):
+    """Initialized the gate with the declare statement"""
+    self.decl_name = name
+    self.inputs = list(inputs)
+    self.outputs = list(outputs)
+    
     self.seqs = ordered_dict()
     self.reg_seqs = ordered_dict()
     self.sup_seqs = ordered_dict()
@@ -16,13 +20,6 @@ class Gate(PrintObject):
     self.kin_num = 0
   
   ## Add information from document statements to object
-  def add_function(self, (name, params, inputs, outputs)):
-    if DEBUG: print "function", name
-    assert not self.def_func, "Multiple function declarations"
-    self.def_func = True
-    self.func_name = name
-    self.inputs = list(inputs)
-    self.outputs = list(outputs)
   def add_sequence(self, (name, const, length)):
     if DEBUG: print "sequence", name
     assert not self.seqs.has_key(name), "Duplicate sequence definition"
@@ -66,6 +63,10 @@ class Gate(PrintObject):
   
   def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""
+    if prefix:
+      outfile.write("#\n## Gate %s\n" % prefix[:-1])
+    else:
+      outfile.write("#\n## Top Gate\n")
     # Define structures
     used_seqs = set()
     for struct in self.structs.values():

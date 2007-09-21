@@ -1,3 +1,5 @@
+declare Adder_2Bit: ->
+
 import HalfAdder
 import Adder
 import Detector

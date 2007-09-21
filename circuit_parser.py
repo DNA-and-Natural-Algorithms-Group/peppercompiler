@@ -1,4 +1,9 @@
+import sys
+
 from circuit_class import Circuit
+from template_parser import substitute, decl
+from var_substitute import process
+
 from pyparsing import *
 
 ## Some globals
@@ -11,6 +16,7 @@ Map = lambda func: (lambda s,l,t: map(func, t) )  # A useful mapping function
 import_ = "import"
 gate = "gate"
 
+# Don't ignore newlines!
 ParserElement.setDefaultWhitespaceChars(" \t")
 
 
@@ -21,22 +27,37 @@ path_chars = printables.replace(",", "")
 path = Word(path_chars) # Path name in a directory structure
 integer = Word(nums).setParseAction(Map(int))
 
+# declare <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
+params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
+decl_stat = K(decl) + var + params + S(":") + var_list + S("->") + var_list
 # import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
+# gate <name> = <template name>(<params>): <inputs> -> <outputs>
 params = O( S("(") + Group(delimitedList(integer)) + S(")") , default=[])
 gate_stat = K(gate) + var + S("=") + var + params + S(":") + var_list + S("->") + var_list
 
 statement = import_stat | gate_stat
 
-document = StringStart() + delimitedList(O(Group(statement)), delim="\n") + StringEnd()
+document = StringStart() + Group(decl_stat) + S("\n") + \
+           Group(delimitedList(O(Group(statement)), delim="\n")) + StringEnd()
 document.ignore(pythonStyleComment)
 
-def load_circuit(filename):
+def load_circuit(filename, args):
   """Load circuit connectivity file"""
-  circuit = Circuit()
+  try:
+    # Open file and do parameter substitution
+    doc = substitute(filename, args)
+    # Load data
+    decl_val, statements = document.parseString(doc)
+  
+  except ParseException, e:
+    print
+    print "Parsing error in circuit:", filename
+    print e
+    sys.exit(1)
   
   # Build data
-  statements = document.parseFile(filename)
+  circuit = Circuit(decl_val[1:])
   for stat in statements:
     #print list(stat)
     if stat[0] == import_:
@@ -47,4 +68,13 @@ def load_circuit(filename):
       print stat
       raise Exception
   return circuit
+
+def substitute(filename, args):
+  # Parse for function declaration
+  param_names = decl_stat.parseFile(filename)[2]
+  params = {}
+  assert len(param_names) == len(args), (param_names, args)
+  for name, val in zip(param_names, args):
+    params[name] = val
+  return process(params, filename)
 

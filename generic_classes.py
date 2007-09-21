@@ -3,7 +3,7 @@ import string
 
 class ordered_dict(dict):
   """A standard dictionary that remembers the order you added items in.
-     don't use methods __delitem__, clear, copy, iter*, pop*, update, fromkeys."""
+     don't use methods clear, copy, iter*, pop*, update, fromkeys."""
   def __init__(self):
     self.order = []
     dict.__init__(self)
@@ -24,7 +24,7 @@ class ordered_dict(dict):
   def __delitem__(self, key):
     self.order.remove(key)
     dict.__delitem__(self, key)
-  ### TODO-maybe: impliment __delitem__, clear, copy, iter*, ...
+  ### TODO-maybe: impliment clear, copy, iter*, ...
   def _dummy(*args, **kw):
     raise Exception, "methods not available"
   clear = copy = iteritems = iterkeys = itervalues = pop \
