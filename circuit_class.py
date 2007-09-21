@@ -37,6 +37,7 @@ class Circuit(PrintObject):
   
   ## Add information from document statements to object
   def add_import(self, imports):
+    if DEBUG: print "import", imports
     for path, name in imports:
 	    if name == None:
 	      # filename is used as the internal name by default
@@ -45,12 +46,14 @@ class Circuit(PrintObject):
 	      else:
 		      name = path[path.rfind("/")+1:]  # Strip off lower directories
 	    if DEBUG: print "import", name, path
-	    assert not self.template.has_key(name), "Duplicate import %s" % name
+	    assert name not in self.template, "Duplicate import %s" % name
 	    self.template[name] = path
 
   def add_gate(self, (gate_name, templ_name, templ_args, inputs, outputs)):
     if DEBUG: print "gate", gate_name, templ_name, templ_args, inputs, outputs
     # Setup gates
+    assert templ_name in self.template, "Template referenced before import: " + templ_name
+    assert gate_name not in self.gates, "Duplicate gate definition: " + gate_name
     self.gates[gate_name] = this_gate = load_gate(self.template[templ_name], templ_args)
     assert len(inputs) == len(this_gate.inputs),   "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len( inputs), len(this_gate.inputs ))
     assert len(outputs) == len(this_gate.outputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(outputs), len(this_gate.outputs))
@@ -58,7 +61,7 @@ class Circuit(PrintObject):
     ### TODO: marry these 2 together in a more eligent way.
     if isinstance(this_gate, Circuit):
       for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
-        if not self.glob.has_key(glob_name):
+        if glob_name not in self.glob:
           self.glob[glob_name] = [(loc_name, gate_name)]
           self.lengths[glob_name] = this_gate.lengths[loc_name]
         else:
@@ -67,7 +70,7 @@ class Circuit(PrintObject):
     else: # Otherwise it's a gate, so we want to constrain sequences
       for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
         loc_seq = this_gate.seqs[loc_name]
-        if not self.glob.has_key(glob_name):
+        if glob_name not in self.glob:
           self.glob[glob_name] = [(loc_seq, gate_name)]
           self.lengths[glob_name] = loc_seq.length
         else:

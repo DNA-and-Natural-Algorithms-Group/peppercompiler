@@ -8,8 +8,11 @@ class Gate(PrintObject):
   def __init__(self, (name, params, inputs, outputs)):
     """Initialized the gate with the declare statement"""
     self.decl_name = name
-    self.inputs = list(inputs)
-    self.outputs = list(outputs)
+    self.params = params
+    self.in_sigs  = list(inputs)
+    self.out_sigs = list(outputs)
+    self.inputs  = [x for (x,y) in self.in_sigs]
+    self.outputs = [x for (x,y) in self.out_sigs]
     
     self.seqs = ordered_dict()
     self.reg_seqs = ordered_dict()
@@ -25,6 +28,7 @@ class Gate(PrintObject):
     assert not self.seqs.has_key(name), "Duplicate sequence definition"
     self.seqs[name] = Sequence(name, length, *const)
     self.reg_seqs[name] = self.seqs[name]
+  
   def add_super_sequence(self, (name, const, length)):
     if DEBUG: print "sup-sequence", name
     assert not self.seqs.has_key(name), "Duplicate sequence definition"
@@ -36,6 +40,7 @@ class Gate(PrintObject):
           const[n] = ~self.seqs[item[1][0]]
     self.seqs[name] = SuperSequence(name, length, *const)
     self.sup_seqs[name] = self.seqs[name]
+  
   def add_strand(self, (name, const, length)):
     if DEBUG: print "strand", name
     assert not self.strands.has_key(name), "Duplicate strand definition"
@@ -46,12 +51,14 @@ class Gate(PrintObject):
         else:
           const[n] = ~self.seqs[item[1][0]]
     self.strands[name] = Strand(name, length, *const)
+  
   def add_structure(self, (mfe, name, strands, struct)):
     if DEBUG: print "struct", name
     assert not self.structs.has_key(name), "Duplicate structure definition"
     for n, strand in enumerate(strands):
       strands[n] = self.strands[strand]
     self.structs[name] = Structure(name, mfe, struct, *strands)
+  
   def add_kinetics(self, (inputs, outputs)):
     if DEBUG: print "kin", self.kin_num
     for n, struct in enumerate(inputs):
@@ -60,6 +67,7 @@ class Gate(PrintObject):
       outputs[n] = self.structs[struct]
     self.kinetics[self.kin_num] = Kinetics(self.kin_num, list(inputs), list(outputs))
     self.kin_num += 1
+  
   
   def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""

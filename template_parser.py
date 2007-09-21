@@ -40,11 +40,11 @@ integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
 # Signals used in the declare line seq(Struct)
-sig = var + S("(" + var + ")")
+sig = Group( var + S("(") + var + S(")") )
 sig_list = List(sig + S(O("+")))
 
 # Sequence const could be ?N, 3N or N
-seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes))
+seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes, exact=1))
 seq_const_list = List(seq_const)
 
 seq_name = Word(lowers, alphas+"_") # Sequence name starts with lower case
@@ -99,6 +99,7 @@ def load_template(filename, args):
   
   except ParseException, e:
     print
+    print doc
     print "Parsing error in template:", filename
     print e
     sys.exit(1)

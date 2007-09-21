@@ -61,6 +61,6 @@ if __name__ == "__main__":
   if p:
     finish(p.group(1)) # Finish started process
   else:
-    args = [ int(x) for x in sys.argv[2:] ]
+    args = map(eval, sys.argv[2:])
     compiler(filename, args) # Start process
 

@@ -1,15 +1,15 @@
 declare Circuit: ->
 
-import Translate, Translate_Rev, Translate_Loop
+import Input_Strand, Translate, Translate_Rev, Translate_Loop
 import And21_Rev, And31, Threshold, Detector
 
 # Inputs
-#strand let_7c   = TGAGGTAGTAGGTTGTATGGT  : 21  # 15nt data region
-#strand miR_124a = TAAGGCACGCGGTGAATGCC   : 20  # 14nt "
-#strand miR_15a  = TAGCAGCACATAATGGTTTGTG : 22  # 16nt "
-#strand miR_10b  = CCCTGTAGAACCGAATTTGTGT : 22  # ---"---
-#strand miR_143  = TGAGATGAAGCACTGTAGCTCA : 22
-#strand miR_122a = TGGAGTGTGACAATGGTGTTTG : 22
+gate In1 = Input_Strand("TGAGGTAGTAGGTTGTATGGT",  21): -> let_7c   # 15nt data region
+gate In2 = Input_Strand("TAAGGCACGCGGTGAATGCC",   20): -> miR_124a # 14nt "
+gate In3 = Input_Strand("TAGCAGCACATAATGGTTTGTG", 22): -> miR_15a  # 16nt "
+gate In4 = Input_Strand("CCCTGTAGAACCGAATTTGTGT", 22): -> miR_10b  # ---"---
+gate In5 = Input_Strand("TGAGATGAAGCACTGTAGCTCA", 22): -> miR_143
+gate In6 = Input_Strand("TGGAGTGTGACAATGGTGTTTG", 22): -> miR_122a
 
 # Translation
 gate Trans1 = Translate(6, 15, 30, 3): let_7c -> Jout

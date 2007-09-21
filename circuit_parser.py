@@ -23,18 +23,18 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 ## Define Grammar
 var = Word(alphas, alphanums+"_") # Variable name
 var_list = List(var + S(O("+")))  # Space sep list of variable names
-path_chars = printables.replace(",", "")
-path = Word(path_chars) # Path name in a directory structure
-integer = Word(nums).setParseAction(Map(int))
+path = Word(alphanums+".-_/~") # Path name in a directory structure
+py_chars = printables.replace(",", "").replace(")", "")
+python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
 
 # declare <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
-params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-decl_stat = K(decl) + var + params + S(":") + var_list + S("->") + var_list
+decl_params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
+decl_stat = K(decl) + var + decl_params + S(":") + var_list + S("->") + var_list
 # import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
 # gate <name> = <template name>(<params>): <inputs> -> <outputs>
-params = O( S("(") + Group(delimitedList(integer)) + S(")") , default=[])
-gate_stat = K(gate) + var + S("=") + var + params + S(":") + var_list + S("->") + var_list
+gate_params = O( S("(") + Group(delimitedList(python_object)) + S(")") , default=[])
+gate_stat = K(gate) + var + S("=") + var + gate_params + S(":") + var_list + S("->") + var_list
 
 statement = import_stat | gate_stat
 
@@ -52,6 +52,7 @@ def load_circuit(filename, args):
   
   except ParseException, e:
     print
+    print doc
     print "Parsing error in circuit:", filename
     print e
     sys.exit(1)
