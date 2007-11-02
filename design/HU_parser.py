@@ -30,16 +30,23 @@ class stack(list):
   def pop(self):
     return list.pop(self, -1)
 
+class Bonds(object):
+  def __init__(self):
+    self.index = 0
+    self.bonds = []
+
 def get_bonds(struct):
-  get_bonds.index = 0  # Hack: make it an attribute so that it's mutable in the nested function.
-  bonds = []
+  bonds = Bonds()
   ## Recursive function for finding bonds
   def recurse(p):
     for foo in p:
+      # case foo = ["+"]
       if foo[0] == "+":
         continue
+      # case foo = ["U", num]
       elif foo[0] == "U":
         get_bonds.index += foo[1]  # pass over unpaired 
+      # case foo = ["H", num, sub_expr]
       else: # foo[0] == "H":
         start_index = get_bonds.index
         num_bonds = foo[1]

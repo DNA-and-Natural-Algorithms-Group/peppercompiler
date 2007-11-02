@@ -2,7 +2,6 @@
 from __future__ import division
 
 import sys, pickle, re, time
-assert sys.version_info >= (2, 5), "compiler.py requires Python 2.5+"
 
 from circuit_class import load_gate
 from kinetics import read_nupack, test_kinetics
@@ -32,7 +31,10 @@ def finish(infilename):
       # Call Multistrand instances
       ### TODO: deal with "muliple inputs" where c2 could be any of 4 strands
       frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs)
-      ave =  ( sum(times) / len(times) if times else 0 )
+      if times:
+        ave = sum(times) / len(times)
+      else:
+        ave = 0
       # TODO: process results
       print "kin", gate_name,
       for compl in kin.inputs:
