@@ -3,6 +3,17 @@ import os, tempfile, subprocess
 
 import nupack_mfe_grammar as gram
 
+class CalledProcessError(Exception): pass
+
+def check_call(*args):
+  try:
+    stat = subprocess.call(*args)
+  except OSError:
+    raise CalledProcessError, 0
+  if stat != 0:
+    raise CalledProcessError, stat
+  return
+
 #Globals
 nupack_mfe = "mfe"
 
@@ -32,7 +43,7 @@ def DNAfold(seq, temp):
   # Call RNAfold
   command = "%s -T %f -material dna -multi %s" % (nupack_mfe, temp, prefix)
   #print command
-  subprocess.check_call(command, shell=True)
+  check_call(command, shell=True)
   os.remove(infilename)
   
   # Read results

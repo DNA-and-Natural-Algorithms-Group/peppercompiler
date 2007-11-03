@@ -1,8 +1,5 @@
 """Selector for DNAfold."""
 
-from subprocess import *
-
-#CalledProcessError
 import DNAfold_Nupack, DNAfold_Vienna
 
 def DNAfold(seq, temp):

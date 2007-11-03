@@ -45,19 +45,19 @@ def get_bonds(struct):
         continue
       # case foo = ["U", num]
       elif foo[0] == "U":
-        get_bonds.index += foo[1]  # pass over unpaired 
+        bonds.index += foo[1]  # pass over unpaired 
       # case foo = ["H", num, sub_expr]
       else: # foo[0] == "H":
-        start_index = get_bonds.index
+        start_index = bonds.index
         num_bonds = foo[1]
-        get_bonds.index += num_bonds
+        bonds.index += num_bonds
         # Pass the helix to look inside
         recurse(foo[2])
         # Close the helix
-        get_bonds.index += num_bonds
-        end_index = get_bonds.index
+        bonds.index += num_bonds
+        end_index = bonds.index
         for n in range(num_bonds):
-          bonds.append( (start_index + n, end_index-1 - n) )
+          bonds.bonds.append( (start_index + n, end_index-1 - n) )
   ## End of recursive function
   par = statement.parseString(struct)
   recurse(par)

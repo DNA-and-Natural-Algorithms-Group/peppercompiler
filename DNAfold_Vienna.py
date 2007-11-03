@@ -3,6 +3,17 @@ import os, tempfile, subprocess
 
 import RNAfold_grammar as gram
 
+class CalledProcessError(Exception): pass
+
+def check_call(*args):
+  try:
+    stat = subprocess.call(*args)
+  except OSError:
+    raise CalledProcessError, 0
+  if stat != 0:
+    raise CalledProcessError, stat
+  return
+
 #Globals
 #par_file = "/research/src/ViennaRNA-1.4/dna.par"
 #RNAfold  = "/research/bin/RNAfold";
@@ -31,7 +42,7 @@ def DNAfold(seq, temp):
   
   # Call RNAfold
   command = "%s -T %f -P %s < %s > %s" % (RNAfold, temp, par_file, infilename, outfilename)
-  subprocess.check_call(command, shell=True)
+  check_call(command, shell=True)
   os.remove(infilename)
   
   # Read results
