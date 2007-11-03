@@ -54,6 +54,13 @@ statement = struct_stat | seq_stat | prevent_stat | apply_stat | obj_stat
 document = StringStart() + delimitedList(O(statement), "\n") + StringEnd()
 document.ignore(pythonStyleComment)
 
+def ifelse(cond, true_part, false_part):
+  if cond:
+    return true_part()
+  else:
+    return false_part()
+                                  
+
 def load_design(filename):
   spec = Spec()
 
@@ -62,11 +69,12 @@ def load_design(filename):
   seq_stat.setParseAction(lambda s,t,l: spec.add_sequence(l))
   apply_stat.setParseAction(lambda s,t,l: spec.add_apply(l))
   # ignore the prevent and objective statements ...
-  
-  seq_var.setParseAction(lambda s,t,l: (spec.seqs[l[0][0]] if l[0][1] == "" else ~spec.seqs[l[0][0]]))
+  seq_var.setParseAction(lambda s,t,l: ifelse(l[0][1] == "", lambda: spec.seqs[l[0][0]], lambda: ~spec.seqs[l[0][0]]))
+  # Python 2.5 is ok with: seq_var.setParseAction(lambda s,t,l: (spec.seqs[l[0][0]] if l[0][1] == "" else ~spec.seqs[l[0][0]]))
   struct_var.setParseAction(lambda s,t,l: spec.structs[l[0]])
   
   # Build data
   document.parseFile(filename)
   return spec
+
 
