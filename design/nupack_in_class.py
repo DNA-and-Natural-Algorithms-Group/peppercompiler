@@ -14,6 +14,16 @@ class Spec(PrintObject):
     assert not self.seqs.has_key(name), "Duplicate sequence definition"
     num = len(self.seqs)
     self.seqs[name] = Sequence(name, const, num)
-  def add_apply(self, (struct, seqs)):
+  def add_apply(self, (struct_name, seq_names)):
+    #print self.structs
+    struct = self.structs[struct_name]
+    seqs = [self.load_seq(seq_name) for seq_name in seq_names]
     struct.set_seqs(seqs)
+  
+  def load_seq(self, foo):
+    name, parity = foo
+    if parity == "":
+      return self.seqs[name]
+    else: # parity == "*"
+      return ~self.seqs[name]
 

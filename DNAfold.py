@@ -1,5 +1,6 @@
 """Selector for DNAfold."""
 
+from mySubprocess import CalledProcessError
 import DNAfold_Nupack, DNAfold_Vienna
 
 def DNAfold(seq, temp):
@@ -10,5 +11,7 @@ def DNAfold(seq, temp):
     try:
       return DNAfold_Vienna.DNAfold(seq, temp)
     except CalledProcessError, e2:
-      raise Exception, "NUPACK mfe and Vienna RNAfold both failed.\n%s\n%s" % (e1, e2)
+      raise Exception, "NUPACK mfe and Vienna RNAfold both failed.\n" \
+                       "NUPACK with status %s\n" \
+                       "RNAfold with status %s" % (e1, e2)
 

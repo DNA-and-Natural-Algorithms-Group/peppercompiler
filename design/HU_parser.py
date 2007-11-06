@@ -61,5 +61,5 @@ def get_bonds(struct):
   ## End of recursive function
   par = statement.parseString(struct)
   recurse(par)
-  return bonds
+  return bonds.bonds
 

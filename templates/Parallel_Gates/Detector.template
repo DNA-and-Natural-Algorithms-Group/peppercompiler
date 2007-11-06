@@ -12,7 +12,7 @@ strand Bind  = ?N : <t+i>
 
 ## Structures/Complexes
 # Input
-structure InS = inS : <t+i>
+structure InS = inS : U<t+i>
 # Gate
 structure Det = Fluor + Bind: H<i>(+ U<t>)
 # Paired inputs (waste)

@@ -8,6 +8,7 @@ from pyparsing import *
 K = CaselessKeyword
 S = Suppress
 O = Optional
+H = Hidden = lambda x: Empty().setParseAction(lambda s,t,l: x)  # A hidden field, it tags an entry
 List = lambda x: Group(OneOrMore(x))
 Map = lambda func: (lambda s,l,t: map(func, t) )
 # syntax names and sets
@@ -15,66 +16,67 @@ Map = lambda func: (lambda s,l,t: map(func, t) )
 NAcodes = "ACGTUNSWRYMKVHBD"
 struct = "structure"
 seq = "sequence"
+prevent = "prevent"
+app = "apply"
+obj = "objective"
 
 ParserElement.setDefaultWhitespaceChars(" \t")
 
 
 ## Define Grammar
 var = Word(alphas+"_-", alphanums+"_-") # Variable name
+var_list = List(var)
 
 integer = Word(nums).setParseAction(Map(int))
-float_ = Word(nums+"-.").setParseAction(Map(float))
+float_ = Word(nums+"-.eE").setParseAction(Map(float))
 
 # Sequence const could be ?N, 3N or N
 seq_const = Group(Optional(integer, default=1) + Word(NAcodes))
 seq_const_list = List(seq_const)
 
-seq_var = Group(var+Optional("*", default=""))
+seq_var = Group(var + Optional("*", default=""))
 seq_list = List(seq_var)
-
-struct_var = var.copy()
-struct_list = List(struct_var)
 
 ### TODO: Break it up
 secondary_struct = Word( nums+"UH()+ " )
 
 # structure <name> = <secondary structure>
-struct_stat = S(K(struct)) + var + S("=") + secondary_struct
+struct_stat = K(struct) + var + S("=") + secondary_struct
 # sequence <name> = <constraints>
-seq_stat  = S(K(seq))  + var + S("=") + seq_const_list
+seq_stat  = K(seq)  + var + S("=") + seq_const_list
 # prevent <list of structs> < <float>
-prevent_stat = S(K("prevent")) + struct_list + S("<") + float_
+prevent_stat = K(prevent) + var_list + S("<") + float_
 # <struct name> : <list of seqs>
-apply_stat = struct_var + S(":") + seq_list
+apply_stat = H(app) + var + S(":") + seq_list
 # <struct name> < <float>
-obj_stat = struct_var + S("<") + float_
+obj_stat = H(obj) + var + S("<") + float_
 
 statement = struct_stat | seq_stat | prevent_stat | apply_stat | obj_stat
 
-document = StringStart() + delimitedList(O(statement), "\n") + StringEnd()
+document = StringStart() + delimitedList(O(Group(statement)), "\n") + StringEnd()
 document.ignore(pythonStyleComment)
 
-def ifelse(cond, true_part, false_part):
-  if cond:
-    return true_part()
-  else:
-    return false_part()
-                                  
-
 def load_design(filename):
-  spec = Spec()
-
-  # Set parse actions to build data
-  struct_stat.setParseAction(lambda s,t,l: spec.add_structure(l))
-  seq_stat.setParseAction(lambda s,t,l: spec.add_sequence(l))
-  apply_stat.setParseAction(lambda s,t,l: spec.add_apply(l))
-  # ignore the prevent and objective statements ...
-  seq_var.setParseAction(lambda s,t,l: ifelse(l[0][1] == "", lambda: spec.seqs[l[0][0]], lambda: ~spec.seqs[l[0][0]]))
-  # Python 2.5 is ok with: seq_var.setParseAction(lambda s,t,l: (spec.seqs[l[0][0]] if l[0][1] == "" else ~spec.seqs[l[0][0]]))
-  struct_var.setParseAction(lambda s,t,l: spec.structs[l[0]])
+  """Load component design file"""
+  try:
+    # Load data
+    statements = document.parseFile(filename)
+  
+  except ParseException, e:
+    print
+    print "Parsing error in template:", filename
+    print e
+    sys.exit(1)
   
   # Build data
-  document.parseFile(filename)
+  spec = Spec()
+  for stat in statements:
+    #print list(stat)
+    if stat[0] == struct:
+      spec.add_structure(stat[1:])
+    elif stat[0] == seq:
+      spec.add_sequence(stat[1:])
+    elif stat[0] == app:
+      spec.add_apply(stat[1:])
   return spec
-
 
