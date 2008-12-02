@@ -8,7 +8,7 @@ class ordered_dict(dict):
     self.order = []
     dict.__init__(self)
   def __setitem__(self, key, value):
-    if not self.has_key(key):
+    if key not in self:
       self.order.append(key)
     dict.__setitem__(self, key, value)
   def __iter__(self):

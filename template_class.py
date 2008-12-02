@@ -25,13 +25,13 @@ class Gate(PrintObject):
   ## Add information from document statements to object
   def add_sequence(self, (name, const, length)):
     if DEBUG: print "sequence", name
-    assert not self.seqs.has_key(name), "Duplicate sequence definition"
+    assert name not in self.seqs, "Duplicate sequence definition"
     self.seqs[name] = Sequence(name, length, *const)
     self.reg_seqs[name] = self.seqs[name]
   
   def add_super_sequence(self, (name, const, length)):
     if DEBUG: print "sup-sequence", name
-    assert not self.seqs.has_key(name), "Duplicate sequence definition"
+    assert name not in self.seqs, "Duplicate sequence definition"
     for n, item in enumerate(const):
       if item[0] == "Sequence":
         if item[1][1] == "":
@@ -43,7 +43,7 @@ class Gate(PrintObject):
   
   def add_strand(self, (name, const, length)):
     if DEBUG: print "strand", name
-    assert not self.strands.has_key(name), "Duplicate strand definition"
+    assert name not in self.strands, "Duplicate strand definition"
     for n, item in enumerate(const):
       if item[0] == "Sequence":
         if item[1][1] == "":
@@ -54,7 +54,7 @@ class Gate(PrintObject):
   
   def add_structure(self, (mfe, name, strands, struct)):
     if DEBUG: print "struct", name
-    assert not self.structs.has_key(name), "Duplicate structure definition"
+    assert name not in self.structs, "Duplicate structure definition"
     for n, strand in enumerate(strands):
       strands[n] = self.strands[strand]
     self.structs[name] = Structure(name, mfe, struct, *strands)

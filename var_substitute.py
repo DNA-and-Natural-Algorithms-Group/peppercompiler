@@ -16,7 +16,7 @@ goes to
 import string, re
 
 def process(params, infilename):
-  if not params.has_key("__builtins__"):
+  if "__builtins__" not in params:
     params["__builtins__"] = None
   f_in = file(infilename, "r")
   out = ""
