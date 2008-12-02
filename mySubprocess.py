@@ -1,3 +1,5 @@
+"""Provides check_call() for Python 2.4 (a Python 2.5 addition)"""
+
 import subprocess
 
 class CalledProcessError(Exception): pass
