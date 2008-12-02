@@ -105,19 +105,19 @@ def load_template(filename, args):
     sys.exit(1)
   
   # Build data
-  gate = Gate(decl_val[1:])
+  gate = Gate(*decl_val[1:])
   for stat in statements:
     #print list(stat)
     if stat[0] == seq:
-      gate.add_sequence(stat[1:])
+      gate.add_sequence(*stat[1:])
     elif stat[0] == sup_seq_key:
-      gate.add_super_sequence(stat[1:])
+      gate.add_super_sequence(*stat[1:])
     elif stat[0] == strand:
-      gate.add_strand(stat[1:])
+      gate.add_strand(*stat[1:])
     elif stat[0] == struct:
-      gate.add_structure(stat[1:])
+      gate.add_structure(*stat[1:])
     elif stat[0] == kin:
-      gate.add_kinetics(stat[1:])
+      gate.add_kinetics(*stat[1:])
     else:
       print stat
       raise Exception

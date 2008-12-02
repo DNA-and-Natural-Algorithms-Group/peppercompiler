@@ -58,13 +58,13 @@ def load_circuit(filename, args):
     sys.exit(1)
   
   # Build data
-  circuit = Circuit(decl_val[1:])
+  circuit = Circuit(*decl_val[1:])
   for stat in statements:
     #print list(stat)
     if stat[0] == import_:
-      circuit.add_import(stat[1:])
+      circuit.add_import(*stat[1:])
     elif stat[0] == gate:
-      circuit.add_gate(stat[1:])
+      circuit.add_gate(*stat[1:])
     else:
       print stat
       raise Exception

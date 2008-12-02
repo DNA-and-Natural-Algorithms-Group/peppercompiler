@@ -24,7 +24,7 @@ def load_gate(basename, args):
 
 class Circuit(PrintObject):
   """Stores all the information in a circuit's connectivity file"""
-  def __init__(self, (name, params, inputs, outputs)):
+  def __init__(self, name, params, inputs, outputs):
     """Initialized the cicuit with the declare statement"""
     self.decl_name = name
     self.inputs = list(inputs)
@@ -36,7 +36,7 @@ class Circuit(PrintObject):
     self.gates = ordered_dict()
   
   ## Add information from document statements to object
-  def add_import(self, imports):
+  def add_import(self, *imports):
     if DEBUG: print "import", imports
     for path, name in imports:
 	    if name == None:
@@ -49,7 +49,7 @@ class Circuit(PrintObject):
 	    assert name not in self.template, "Duplicate import %s" % name
 	    self.template[name] = path
 
-  def add_gate(self, (gate_name, templ_name, templ_args, inputs, outputs)):
+  def add_gate(self, gate_name, templ_name, templ_args, inputs, outputs):
     if DEBUG: print "gate", gate_name, templ_name, templ_args, inputs, outputs
     # Setup gates
     assert templ_name in self.template, "Template referenced before import: " + templ_name

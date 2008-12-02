@@ -5,7 +5,7 @@ from DNA_classes import *
 DEBUG = False
 
 class Gate(PrintObject):
-  def __init__(self, (name, params, inputs, outputs)):
+  def __init__(self, name, params, inputs, outputs):
     """Initialized the gate with the declare statement"""
     self.decl_name = name
     self.params = params
@@ -23,13 +23,13 @@ class Gate(PrintObject):
     self.kin_num = 0
   
   ## Add information from document statements to object
-  def add_sequence(self, (name, const, length)):
+  def add_sequence(self, name, const, length):
     if DEBUG: print "sequence", name
     assert name not in self.seqs, "Duplicate sequence definition"
     self.seqs[name] = Sequence(name, length, *const)
     self.reg_seqs[name] = self.seqs[name]
   
-  def add_super_sequence(self, (name, const, length)):
+  def add_super_sequence(self, name, const, length):
     if DEBUG: print "sup-sequence", name
     assert name not in self.seqs, "Duplicate sequence definition"
     for n, item in enumerate(const):
@@ -41,7 +41,7 @@ class Gate(PrintObject):
     self.seqs[name] = SuperSequence(name, length, *const)
     self.sup_seqs[name] = self.seqs[name]
   
-  def add_strand(self, (name, const, length)):
+  def add_strand(self, name, const, length):
     if DEBUG: print "strand", name
     assert name not in self.strands, "Duplicate strand definition"
     for n, item in enumerate(const):
@@ -52,14 +52,14 @@ class Gate(PrintObject):
           const[n] = ~self.seqs[item[1][0]]
     self.strands[name] = Strand(name, length, *const)
   
-  def add_structure(self, (mfe, name, strands, struct)):
+  def add_structure(self, mfe, name, strands, struct):
     if DEBUG: print "struct", name
     assert name not in self.structs, "Duplicate structure definition"
     for n, strand in enumerate(strands):
       strands[n] = self.strands[strand]
     self.structs[name] = Structure(name, mfe, struct, *strands)
   
-  def add_kinetics(self, (inputs, outputs)):
+  def add_kinetics(self, inputs, outputs):
     if DEBUG: print "kin", self.kin_num
     for n, struct in enumerate(inputs):
       inputs[n] = self.structs[struct]
