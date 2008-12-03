@@ -1,9 +1,12 @@
 """Useful classes"""
 import string
 
+def _dummy(*args, **kw):
+  raise Exception, "methods not available"
+
 class ordered_dict(dict):
   """A standard dictionary that remembers the order you added items in.
-     don't use methods clear, copy, iter*, pop*, update, fromkeys."""
+     Only supports __setitem__, __iter__, keys, values, items and read-only ops."""
   def __init__(self):
     self.order = []
     dict.__init__(self)
@@ -25,8 +28,6 @@ class ordered_dict(dict):
     self.order.remove(key)
     dict.__delitem__(self, key)
   ### TODO-maybe: impliment clear, copy, iter*, ...
-  def _dummy(*args, **kw):
-    raise Exception, "methods not available"
   clear = copy = iteritems = iterkeys = itervalues = pop \
         = popitem = update = fromkeys = _dummy
 
@@ -42,6 +43,28 @@ class default_ordered_dict(ordered_dict):
       return self.get(key, self.default)
     else:
       return self.get(key, self.default())
+
+class ordered_set(set):
+  """A standard set that remembers the order you added items in.
+     Only supports add, update, __iter__ and read-only ops."""
+  def __init__(self):
+    self.order = []
+    set.__init__(self)
+  def add(self, value):
+    if value not in self:
+      self.order.append(value)
+      set.add(self, value)
+  def update(self, other):
+  	for value in other:
+  		self.add(value)
+  def __iter__(self):
+    for value in self.order:
+      yield value
+  
+  ### TODO-maybe: impliment clear, copy, ...
+  clear = copy = difference = difference_update = discard = intersection \
+  			= intersection_update = pop = remove = symmetric_difference \
+        = symmetric_difference_update = union = _dummy
 
 class PrintObject(object):
   """Generic default-printable object."""

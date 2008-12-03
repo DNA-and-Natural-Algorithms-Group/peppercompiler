@@ -1,5 +1,5 @@
 import string
-from generic_classes import ordered_dict, PrintObject
+from generic_classes import ordered_dict, ordered_set, PrintObject
 from DNA_classes import *
 
 DEBUG = False
@@ -76,7 +76,7 @@ class Gate(PrintObject):
     else:
       outfile.write("#\n## Top Gate\n")
     # Define structures
-    used_seqs = set()
+    used_seqs = ordered_set()
     for struct in self.structs.values():
       name = prefix + struct.name
       outfile.write("structure %s = %s\n" % (name, struct.struct))
