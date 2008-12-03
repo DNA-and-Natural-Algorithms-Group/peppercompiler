@@ -47,9 +47,15 @@ def load_circuit(filename, args):
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
+  except ParseException, e:
+    print
+    print "Parsing error in circuit:", filename
+    print e
+    sys.exit(1)
+    
+  try:
     # Load data
     decl_val, statements = document.parseString(doc)
-  
   except ParseException, e:
     print
     print doc

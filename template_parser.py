@@ -40,7 +40,7 @@ integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
 # Signals used in the declare line seq(Struct)
-sig = Group( var + S("(") + var + S(")") )
+sig = Group( var - S("(") + var + S(")") )
 sig_list = List(sig + S(O("+")))
 
 # Sequence const could be ?N, 3N or N
@@ -65,7 +65,7 @@ secondary_struct = Word( nums+"UH()+ " ) # I don't need to break it up
 
 
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
-# declare <gate name> = <func name>(<params>): <inputs> -> <outputs>
+# declare <gate name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
 decl_stat = K(decl) + var + params + S(":") + sig_list + S("->") + sig_list
 # sequence <name> = <constraints> : <length>
@@ -92,11 +92,17 @@ document.ignore(pythonStyleComment)
 def load_template(filename, args):
   """Load component template file"""
   try:
-    # Open file and do parameter substition
+    # Open file and do parameter substitution
     doc = substitute(filename, args)
+  except ParseException, e:
+    print
+    print "Parsing error in template:", filename
+    print e
+    sys.exit(1)
+    
+  try:
     # Load data
     decl_val, statements = document.parseString(doc)
-  
   except ParseException, e:
     print
     print doc
