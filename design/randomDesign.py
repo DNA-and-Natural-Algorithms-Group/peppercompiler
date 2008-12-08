@@ -3,7 +3,9 @@
 from __future__ import division
 
 import sys, random, string, re
-sys.path += ("..", "../../", "../../design/", "../../HU2dotParen")
+
+# Extend path to see compiler library and the HU2dotParen library
+sys.path += ("..", "../HU2dotParen")
 from DNAfold import DNAfold
 from HU2dotParen import HU2dotParen
 from nupack_in_parser import load_design
