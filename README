@@ -1,0 +1,32 @@
+== Basic usage ==
+
+Run
+	python compile.py circuit
+
+to compile "circuit" or "circuit.template" and produce "circuit.des" (for 
+Joe's designer).
+
+Process "circuit.des" with a designer. There is a simple random designer 
+provided in "design/". Run
+  python randomDesign.py circuit.des
+
+to produce "circuit.mfe".
+
+Then,
+	python compiler.py circuit.save
+
+to run Multisim on the designed sequences.
+
+== Examples ==
+
+The "templates/" directory has some example input files for relatively
+complicated systems.
+
+TODO: The "examples/" directory will have some instructive examples.
+
+== Requirements ==
+
+Code works with Python 2.4.3+.
+Suggested using 2.5+ so that parse errors are more readable.
+
+Requires pyparsing 1.5.1+ (currently included in package).
