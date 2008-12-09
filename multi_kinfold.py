@@ -3,6 +3,8 @@ from __future__ import division
 
 import string, os, subprocess, math, time, random
 
+from utils import mktemp
+
 def random_seed():
   """Return a (mostly) random seed x uniform random [0 <= x < 2**31]"""
   rand_bytes = os.urandom(4)
@@ -12,7 +14,9 @@ def random_seed():
   seed %= 2**31
   return hex(seed).rstrip("L")
 
+# Constant for use in Multistrand
 STOP_FLAG = "Stop_Flag"
+
 def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1, out_interval=-1):
   """strands = dict of strand_name : sequence used in structs
      *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
@@ -23,14 +27,10 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   assert start_struct != stop_struct
   trials_each = int(math.ceil(trials / num_proc))
   trials = trials_each * num_proc
-  # TODO: use a standard method to make non-coliding names in /tmp once Multistrand accepts paths.
-  t = time.time()
-  r = random.random()
-  in_name  = ".tmp.multi.in_%r-%r" % (t, r)
-  out_name = ".tmp.multi.out_%r-%r" % (t, r)
+  f, in_name = mktemp(mode="w", prefix="multi_", suffix=".in")
+  out_name = in_name[:-3] + ".out"
   
   # Print input file for Multistrand
-  f = file(in_name, "w")
   # Strand Definitions
   f.write("#Strands\n")
   for name, seq in strands.items():
@@ -39,7 +39,6 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   f.write("#StartStructure\n")
   for compl in start_struct:
     struct = compl.struct.replace("+", "_")
-    struct = struct.replace("_", ".") # TODO: leave "_" as soon as that works
     s = ["strand_"+x for x in compl.strands]
     f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     f.write(struct + "\n")                        # ((...._..((_))..)..(_..)...)
@@ -47,7 +46,6 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   f.write("#StopStructures\n")
   for compl in stop_struct:
     struct = compl.struct.replace("+", "_")
-    struct = struct.replace("_", ".") # TODO: leave "_" as soon as that works
     s = ["strand_"+x for x in compl.strands]
     f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     f.write(struct + "\n")
@@ -68,6 +66,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   procs = []
   for i in range(num_proc):
     command = "echo '#Startseed=%s' | cat - %s | nice -n 19 Multistrand" % (random_seed(), in_name)
+    # If we asked for quiet, keep it quiet.
     if out_interval == -1:
       command += " > /dev/null"
     print command
@@ -79,7 +78,6 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
     if return_code != 0:
       print
       raise OSError, "Multistrand failed with status (%d)" % return_code
-  #os.remove(in_name)
   
   # Read back results
   f = file(out_name, "r")
@@ -92,7 +90,10 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
     if STOP_FLAG in line:
       start = line.find(STOP_FLAG) + len(STOP_FLAG)
       times.append(float(line[start:]))
-  #os.remove(out_name)
+  
+  # Clean up
+  os.remove(in_name)
+  os.remove(out_name)
   
   return frac, times, res
 
