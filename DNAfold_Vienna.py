@@ -1,4 +1,6 @@
 """Wrapper for Vienna RNAfold."""
+import os
+
 import RNAfold_grammar as gram
 import mySubprocess as subprocess
 from utils import mktemp

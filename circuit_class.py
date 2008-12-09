@@ -3,10 +3,11 @@ The Circuit class stores all of the information in a circuit file and loads
   the gate/circuit temlates.
 """
 
-import string, os
+import string
+import os
 
 import DNA_classes
-from generic_classes import ordered_dict, PrintObject
+from utils import ordered_dict, PrintObject
 
 DEBUG = False
 

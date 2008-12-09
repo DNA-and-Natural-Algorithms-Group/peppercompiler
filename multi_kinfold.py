@@ -1,7 +1,10 @@
 """Multistrand wrapper"""
 from __future__ import division
 
-import string, os, subprocess, math, time, random
+import string
+import math
+import os
+import subprocess
 
 from utils import mktemp
 

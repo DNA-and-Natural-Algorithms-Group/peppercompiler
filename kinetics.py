@@ -1,7 +1,9 @@
 from __future__ import division
 
-import sys, string
-from generic_classes import ordered_dict
+import sys
+import string
+
+from utils import ordered_dict
 import nupack_out_grammar as ngram
 from DNAfold import DNAfold
 from multi_kinfold import DNAkinfold
