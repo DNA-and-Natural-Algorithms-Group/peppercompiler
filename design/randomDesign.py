@@ -5,7 +5,8 @@ from __future__ import division
 import sys, random, string, re
 
 # Extend path to see compiler library and the HU2dotParen library
-sys.path += ("..", "../HU2dotParen")
+here = sys.path[0] # System path to this module.
+sys.path += (here+"/..", here+"/../HU2dotParen")
 from DNAfold import DNAfold
 from HU2dotParen import HU2dotParen
 from nupack_in_parser import load_design
