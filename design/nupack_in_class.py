@@ -4,7 +4,7 @@ from DNA_classes import *
 
 class Spec(PrintObject):
   def __init__(self):
-    self.complexes = self.structs = ordered_dict()
+    self.structs = ordered_dict()
     self.seqs = ordered_dict()
   
   def add_structure(self, (name, struct)):

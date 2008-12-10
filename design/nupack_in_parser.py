@@ -37,7 +37,7 @@ seq_const_list = List(seq_const)
 seq_var = Group(var + Optional("*", default=""))
 seq_list = List(seq_var)
 
-### TODO: Break it up
+### TODO-maybe: Actually parse it.
 secondary_struct = Word( nums+"UH()+ " )
 
 # structure <name> = <secondary structure>

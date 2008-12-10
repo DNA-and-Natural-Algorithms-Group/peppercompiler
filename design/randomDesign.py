@@ -48,10 +48,10 @@ def str_replace(string, i, val):
 class Connect(object):
   def __init__(self):
     self.data = default_list(lambda a: default_list(lambda b: [cool_set(), cool_set([(a,b)])]))
-  def add(self, compl, x, y):
+  def add(self, struct, x, y):
     # sequence number, location on sequence, parity (answers: is not wc compliment?)
-    seq_x, loc_x, par_x = compl.seq_loc(x)
-    seq_y, loc_y, par_y = compl.seq_loc(y)
+    seq_x, loc_x, par_x = struct.seq_loc(x)
+    seq_y, loc_y, par_y = struct.seq_loc(y)
     ### TODO: if seq_x, loc_x, par_x == seq_y, loc_y, par_y: return  # Speedup
     data_x = self.data[seq_x][loc_x]
     data_y = self.data[seq_y][loc_y]
@@ -72,9 +72,9 @@ def design(infilename, outfile):
   
   # Create complementarity matrix
   connect = Connect()
-  for compl in d.complexes.values():
-    for x,y in compl.bonds:
-      connect.add(compl, x, y)
+  for struct in d.structs.values():
+    for x,y in struct.bonds:
+      connect.add(struct, x, y)
   # Randomly color sequences
   for i, seq in enumerate(d.seqs.values()):
     for j, symb in enumerate(seq.seq):
@@ -94,14 +94,14 @@ def design(infilename, outfile):
       seq.seq = str_replace(seq.seq, j, data[True].base)
 
   # Test thermo and redesign to improve structure
-  build_structs(d.complexes)
-  res = score(d.complexes)
+  build_structs(d.structs)
+  res = score(d.structs)
   print len(res)
   good_enough = True
   while not good_enough:
     # Randomly mutate all bad structure
-    for compl, index in res:
-      seq_num, loc, par = compl.seq_loc(index)
+    for struct, index in res:
+      seq_num, loc, par = struct.seq_loc(index)
       data = connect.data[seq_num][loc]
       data[True].base = random_choice(data[True].const)
       data[False].base = compliment[ data[True].base ]
@@ -109,7 +109,7 @@ def design(infilename, outfile):
     for i, seq in enumerate(d.seqs.values()):
       for j, symb in enumerate(seq.seq):
         seq.seq = str_replace(seq.seq, j, connect.data[i][j][True].base)
-    new_res = score(d.complexes)
+    new_res = score(d.structs)
     print len(new_res), len(res), len(best_res)
     res = new_res
     best_res = min(best_res, res)
@@ -117,29 +117,29 @@ def design(infilename, outfile):
     
   output_sequences(d, connect, outfile)
 
-def build_structs(complexes):
-  for compl in complexes.values():
-    compl.dp_struct = HU2dotParen(compl.struct)
-    breaks = [i for i, symb in enumerate(compl.dp_struct) if symb == "+"]
-    lengths = [y - x - 1 for x, y in zip([-1] + breaks, breaks + [len(compl.dp_struct)])] # = diffs of breaks
+def build_structs(structs):
+  for struct in structs.values():
+    struct.dp_struct = HU2dotParen(struct.struct)
+    breaks = [i for i, symb in enumerate(struct.dp_struct) if symb == "+"]
+    lengths = [y - x - 1 for x, y in zip([-1] + breaks, breaks + [len(struct.dp_struct)])] # = diffs of breaks
     #print breaks, lengths
     lengths = iter(lengths)
     # Build strands list
     strand = []
-    compl.strands = [strand]
+    struct.strands = [strand]
     l = lengths.next()
-    #print compl.seqs
-    for seq in compl.seqs:
+    #print struct.seqs
+    for seq in struct.seqs:
       if l == 0:
         l = lengths.next()
         strand = []
-        compl.strands.append(strand)
+        struct.strands.append(strand)
       if seq.length <= l:
         strand.append(seq)
-        #print compl.name, seq.name, l, type(l)
+        #print struct.name, seq.name, l, type(l)
         l -= seq.length
       else:
-        #print compl.name, seq.name, l, seq.length
+        #print struct.name, seq.name, l, seq.length
         raise ValueError, "Sequences do not match structure"
     assert l == 0 and end_iter(lengths)
 
@@ -151,18 +151,18 @@ def end_iter(foo):
   except StopIteration:
     return True
 
-def build_seq(compl):
-  """Produce flat sequence for a structure/complex by expanding out the strands and subsequences/subdomains."""
-  return string.join([ string.join([seq.get_seq() for seq in strand], "") for strand in compl.strands], "+")
+def build_seq(struct):
+  """Produce flat sequence for a structure by expanding out the strands and subsequences/subdomains."""
+  return string.join([ string.join([seq.get_seq() for seq in strand], "") for strand in struct.strands], "+")
 
-def score(complexes):
+def score(structs):
   """Find unwanted base-pairing"""
   diffs = []
-  for compl in complexes.values():
-    compl.seq = build_seq(compl)
-    #print compl.name, compl.seq
-    compl.mfe_struct, dG = DNAfold(compl.seq, 25)
-    diffs += diff(compl, compl.dp_struct, compl.mfe_struct)
+  for struct in structs.values():
+    struct.seq = build_seq(struct)
+    #print struct.name, struct.seq
+    struct.mfe_struct, dG = DNAfold(struct.seq, 25)
+    diffs += diff(struct, struct.dp_struct, struct.mfe_struct)
   return diffs
 
 def diff(lable, str_a, str_b):
@@ -178,31 +178,31 @@ def diff(lable, str_a, str_b):
 def output_sequences(d, connect, fn):
   """Output sequences in Joe's format."""
   f = file(fn, "w")
-  for compl in d.complexes.values():
-    # Write structure/complex (with dummy content)
-    f.write("%d:%s\n" % (0, compl.name))
-    gc_content = (compl.seq.count("C") + compl.seq.count("G")) / (len(compl.seq) - len(compl.strands)) # - len(compl.strands) because of the +'s in the compl.seq
-    f.write("%s %f %f %d\n" % (compl.seq, 0, gc_content, 0))
-    f.write("%s\n" % compl.dp_struct)   # Target structure
-    f.write("%s\n" % compl.mfe_struct)  # MFE structure of chosen sequences
+  for struct in d.structs.values():
+    # Write structure (with dummy content)
+    f.write("%d:%s\n" % (0, struct.name))
+    gc_content = (struct.seq.count("C") + struct.seq.count("G")) / (len(struct.seq) - len(struct.strands)) # - len(struct.strands) because of the +'s in the struct.seq
+    f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
+    f.write("%s\n" % struct.dp_struct)   # Target structure
+    f.write("%s\n" % struct.mfe_struct)  # MFE structure of chosen sequences
   for seq in d.seqs.values():
     # Write sequence (with dummy content)
     f.write("%d:%s\n" % (0, seq.name))
     gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
     f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
-    f.write(("."*seq.length+"\n")*2)
+    f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
     # Write wc of sequence (with dummy content)
     seq = seq.wc
     f.write("%d:%s\n" % (0, seq.name))
     #wc_seq = string.join([compliment[symb] for symb in seq.seq[::-1]], "")
     f.write("%s %f %f %d\n" % (seq.get_seq(), 0, gc_content, 0))
-    f.write(("."*seq.length+"\n")*2)
+    f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
   f.write("Total n(s*) = %f" % 0)
   f.close()
 
 if __name__ == "__main__":
   import re
   in_name = sys.argv[1]
-  out_name = re.sub(r"\.des\Z", r"\.mfe", in_name) # Makes foo.des => foo.mfe
+  out_name = re.sub(r"\.des\Z", r".mfe", in_name) # Makes foo.des => foo.mfe
   design(in_name, out_name)
 
