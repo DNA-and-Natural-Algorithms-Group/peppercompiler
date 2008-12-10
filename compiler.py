@@ -47,7 +47,7 @@ def finish(infilename):
 def save(obj, filename):
   """Save an object for later finishing."""
   f = file(filename, "w")
-  pickle.dump(obj, f)
+  pickle.dump(obj, f, protocol=2)
   f.close()
 
 def load(filename):
