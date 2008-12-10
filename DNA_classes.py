@@ -4,7 +4,7 @@ WILDCARD = "?"
 
 class Sequence(object):
   """Container for sequences"""
-  def __init__(self, name, length, *constraints, **keys):
+  def __init__(self, name, length, *constraints):
     self.name = name
     self.length = length
     self.const = list(constraints)
