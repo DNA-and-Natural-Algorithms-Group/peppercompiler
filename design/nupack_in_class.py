@@ -7,14 +7,14 @@ class Spec(PrintObject):
     self.structs = ordered_dict()
     self.seqs = ordered_dict()
   
-  def add_structure(self, (name, struct)):
+  def add_structure(self, name, struct):
     assert not self.structs.has_key(name), "Duplicate structure definition"
     self.structs[name] = Structure(name, struct)
-  def add_sequence(self, (name, const)):
+  def add_sequence(self, name, const):
     assert not self.seqs.has_key(name), "Duplicate sequence definition"
     num = len(self.seqs)
     self.seqs[name] = Sequence(name, const, num)
-  def add_apply(self, (struct_name, seq_names)):
+  def add_apply(self, struct_name, seq_names):
     #print self.structs
     struct = self.structs[struct_name]
     seqs = [self.load_seq(seq_name) for seq_name in seq_names]

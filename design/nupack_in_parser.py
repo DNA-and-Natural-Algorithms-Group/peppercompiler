@@ -73,10 +73,10 @@ def load_design(filename):
   for stat in statements:
     #print list(stat)
     if stat[0] == struct:
-      spec.add_structure(stat[1:])
+      spec.add_structure(*stat[1:])
     elif stat[0] == seq:
-      spec.add_sequence(stat[1:])
+      spec.add_sequence(*stat[1:])
     elif stat[0] == app:
-      spec.add_apply(stat[1:])
+      spec.add_apply(*stat[1:])
   return spec
 
