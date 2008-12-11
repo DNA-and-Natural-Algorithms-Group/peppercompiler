@@ -8,10 +8,10 @@ class Spec(PrintObject):
     self.seqs = ordered_dict()
   
   def add_structure(self, name, struct):
-    assert not self.structs.has_key(name), "Duplicate structure definition"
+    assert name not in self.structs, "Duplicate structure definition"
     self.structs[name] = Structure(name, struct)
   def add_sequence(self, name, const):
-    assert not self.seqs.has_key(name), "Duplicate sequence definition"
+    assert name not in self.seqs, "Duplicate sequence definition"
     num = len(self.seqs)
     self.seqs[name] = Sequence(name, const, num)
   def add_apply(self, struct_name, seq_names):
