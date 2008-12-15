@@ -12,7 +12,7 @@ structure DNS0  =  H15(+ U6)
 structure  DS0  =  H15(+ U6)
 #structure DNC1  =  H30(+) U6
 #structure  DC1  =  H30(+) U6
-
+#
 # Data regions
 sequence nx0  =  6N S 13N S
 sequence  x0  =  6N S 13N S
@@ -33,7 +33,7 @@ sequence jdns0 =  15N
 sequence  jds0 =  15N
 #sequence jdnc1 =  30N
 #sequence  jdc1 =  30N
-
+#
 # Inputs
 NX0 : nx0*
  X0 :  x0*
@@ -49,8 +49,8 @@ DNS0 : jdns0  ns0
  DS0 :  jds0   s0
 #DNC1 : jdnc1  nc1
 # DC1 :  jnc1   c1
-
-
+#
+#
 #objective function
 NX0 < 1.0
  X0 < 1.0
@@ -62,10 +62,10 @@ G0_10 < 1.0
 G0_11 < 1.0
 DNS0 < 1.0
  DS0 < 1.0
-
+#
 prevent NX0 X0 NY0 Y0 < 1.0
- 
-
+#
+#
 ## Layer 1
 # Structures
 structure NX1    =  U21
@@ -84,7 +84,7 @@ structure DNS1   =  H15(+ U6)
 structure  DS1   =  H15(+ U6)
 #structure DNC2   =  H30(+) U6
 #structure  DC2   =  H30(+) U6
-
+#
 # Data regions
 sequence nx1  =     S 13N S 6N
 sequence  x1  =     S 13N S 6N
@@ -107,7 +107,7 @@ sequence jdns1 =  15N
 sequence  jds1 =  15N
 #sequence jdnc2 =  30N
 #sequence  jdc2 =  30N
-
+#
 # Inputs
 NX1 : nx1*
  X1 :  x1*
@@ -127,7 +127,7 @@ DNS1 : jdns1  ns1
  DS1 :  jds1   s1
 #DNC2 : jdnc2  nc2
 # DC2 :  jnc2   c2
-
+#
 #objective function
 NX1 < 1.0
  X1 < 1.0
@@ -143,10 +143,10 @@ G1_110 < 1.0
 G1_111 < 1.0
 DNS1 < 1.0
  DS1 < 1.0
-
+#
 prevent NX1 X1 NY1 Y1 < 1.0
-
-
+#
+#
 ## Layer 2
 # Structures
 structure NX2    =  U21
@@ -165,7 +165,7 @@ structure DNS2   =  H15(+ U6)
 structure  DS2   =  H15(+ U6)
 structure DNC3   =  H15(+) U6
 structure  DC3   =  H15(+) U6
-
+#
 # Data regions
 sequence nx2  =     S 13N S 6N
 sequence  x2  =     S 13N S 6N
@@ -188,7 +188,7 @@ sequence jdns2 =  15N
 sequence  jds2 =  15N
 sequence jdnc3 =  15N
 sequence  jdc3 =  15N
-
+#
 # Inputs
 NX2 : nx2*
  X2 :  x2*
@@ -208,7 +208,7 @@ DNS2 : jdns2  ns2
  DS2 :  jds2   s2
 DNC3 : jdnc3  nc3
  DC3 :  jdc3   c3
-
+#
 NX2 < 1.0
  X2 < 1.0
 NY2 < 1.0
@@ -227,5 +227,5 @@ DNS2 < 1.0
  DS2 < 1.0
 DNC3 < 1.0
  DC3 < 1.0
- 
+#
 prevent NX2 X2 NY2 Y2 < 1.0
