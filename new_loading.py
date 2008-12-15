@@ -91,7 +91,7 @@ def load_system(doc, name, ins, outs):
     """Build a system object from the commands in the file."""
     system = circuit_class.Circuit(name, None, ins, outs)
     for line in doc:
-        command, rest = line.split(None, 1) # Split off first word
+        command, rest = line.split(None, 1) # Split off first word # TODO: Put in try/except for when this fails
         if command == "import":
             path, name = parse_import(rest)
             system.add_import((path, name)) # TODO: Check rest ... and fix
@@ -115,7 +115,7 @@ def parse_seq(rest):
     const_temp = split(const)
     const = []
     for item in const_temp:
-        p = re.match(r"(\d+|\?)?(\w)", item)
+        p = re.match(r"(\d+|\?)?(\w)", item) # TODO: Catch parse error
         num, code = p.groups(1) # No number means 1
         const.append((num, code))
     

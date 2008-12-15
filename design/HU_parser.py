@@ -1,5 +1,9 @@
 """Grammar for Joe Zadeh's Helix Unpaired format"""
 
+# Extend path to see compiler library and the HU2dotParen library
+import sys
+here = sys.path[0] # System path to this module.
+sys.path += [here+"/.."]
 from pyparsing import *
 
 Map = lambda f: (lambda s,t,l: map(f, l))
