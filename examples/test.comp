@@ -8,7 +8,7 @@ sequence s =  ?N : <t+i>#Foobar
 strand inS = s* : <t+i>
 # Gate sections
 strand Fluor = ?N : <i>
-strand Bind  = ?N : <t+i>
+strand Bind = ?N : <t+i>
 
 ## Structures/Complexes
 # Input
@@ -21,5 +21,5 @@ structure wasteDet = inS  Bind: H<t+i>(+)
 structure OutFluor = Fluor: U<i>
 
 ## Kinetics
-kin InS  Det -> wasteDet  OutFluor
+kin    InS  Det -> wasteDet  OutFluor
 

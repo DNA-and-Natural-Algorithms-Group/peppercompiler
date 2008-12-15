@@ -3,16 +3,23 @@ import re
 import circuit_class
 import template_class
 
+def split(string):
+    #return string.split()
+    return re.findall(r"[\w?*]+", string)
+
 def parse_declare(line):
     # TODO: allow comments and variable spacing. Maybe use re.VERBOSE
-    p = re.match(r"declare (system|component) (\w+)(?:\((.*?)\))?: (.*) ?-> ?(.*)\n", line)
+    p = re.match(r"""declare\ (system|component)\ 
+                     (\w+)              # Declare name
+                     (?:\((.*?)\))?:    # Parameter names
+                     (.*) -> (.*)\n     # Ins and outs""", line, re.VERBOSE)
     assert p, "First line of file must declare system/component.\n" + line # TODO: add line and syntax
     type_, name, param_names, ins, outs = p.groups("")
     
     # Expand out the lists
-    param_names = param_names.split()
-    ins  = ins.split()
-    outs = outs.split()
+    param_names = split(param_names)
+    ins  = split(ins)
+    outs = split(outs)
     
     return type_, name, param_names, ins, outs
 
@@ -44,11 +51,13 @@ def load_file(filename, args):
     # Read first line.
     type_, name, param_names, ins, outs = parse_declare(line)
     # TODO: check that name matches filename
-    assert len(args) == len(param_names), "Argument length mismatch" # TODO: more info
+    assert len(args) == len(param_names), "Argument length mismatch.\n%d Params: %r\n%d Args: %r\n" % (len(param_names), param_names, len(args), args) # TODO: more info
     
     # Do parameter substitution.
     params = dict(zip(param_names, args))
     doc = preprocess(f, params)
+    
+    print doc
     
     if type_ == "system":
         return load_system(doc, name, ins, outs)
@@ -72,9 +81,9 @@ def parse_gate(rest):
     gate_name, templ_name, templ_args, ins, outs = p.groups("")
     
     # Expand out the lists
-    templ_args = templ_args.split()
-    ins  = ins.split()
-    outs = outs.split()
+    templ_args = split(templ_args)
+    ins  = split(ins)
+    outs = split(outs)
     
     return gate_name, templ_name, templ_args, ins, outs
 
@@ -97,13 +106,13 @@ def load_system(doc, name, ins, outs):
 ## Component stuff
 def parse_seq(rest):
     # TODO: allow variable spacing. Maybe use re.VERBOSE
-    p = re.match(r"(\w+) = (.*) : (\d*)\n", rest)
+    p = re.match(r"(\w+) = (.+) : (\d+)\n", rest)
     assert p, "Sequence syntax incorrect.\n" + `rest` # TODO: add line and syntax
     name, const, length = p.groups("")
     
     length = int(length)
     #Process constraint list
-    const_temp = const.split()
+    const_temp = split(const)
     const = []
     for item in const_temp:
         p = re.match(r"(\d+|\?)?(\w)", item)
@@ -112,6 +121,27 @@ def parse_seq(rest):
     
     return name, const, length
 
+def parse_strand(rest):
+    # TODO: allow variable spacing. Maybe use re.VERBOSE
+    p = re.match(r"(\w+) = (.+) : (\d+)\n", rest)
+    assert p, "Strand syntax incorrect.\n" + `rest` # TODO: add line and syntax
+    name, const, length = p.groups("")
+    
+    length = int(length)
+    #Process constraint list
+    const_temp = split(const)    # TODO: More processing necessary
+    const = []
+    for item in const_temp:
+        p = re.match(r"(\d+|\?)?([ACGTUNSWRYMKVHBD])", item)
+        if p: # It's an anonymous constraint
+            num, code = p.groups(1) # No number means 1
+            const.append((num, code))
+        else: # It's a sequence name
+            p = re.match(r"(\w+)(\*)?", item)
+            seq_name, wc = p.groups("")
+            const.append(("Sequence", (seq_name, wc)))
+    
+    return name, const, length
 
 def load_component(doc, name, ins, outs):
     """Build a component object from the commands in the file."""
@@ -124,8 +154,21 @@ def load_component(doc, name, ins, outs):
         if command == "sequence":
             name, const, length = parse_seq(rest)
             component.add_sequence(name, const, length)
+        # TODO: Add super sequence
+        elif command == "strand":
+            name, const, length = parse_strand(rest)
+            component.add_strand(name, const, length)
         # TODO: rest of commands
         else:
-            assert False, "Command " + command + " not defined in component." # TODO: where
+            assert False, "Command " + command + " not defined in component.\n" + line # TODO: where
     return component
+
+if __name__ == "__main__":
+    import sys
+    
+    template_class.DEBUG = circuit_class.DEBUG = True
+    
+    filename = sys.argv[1]
+    args = map(eval, sys.argv[2:])
+    print load_file(filename, args)
 
