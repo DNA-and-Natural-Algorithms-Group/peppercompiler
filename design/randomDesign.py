@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Designs sequences randomly constrained to the forced WC-complimentarity by basepairing.
-Uses Joe Zadah's input and output formats to work with compiler.
+Uses Joe Zadah's input and output formats for compatibility with compiler.
 """
 from __future__ import division
 
@@ -201,7 +201,9 @@ def output_sequences(d, connect, fn):
   f.close()
 
 if __name__ == "__main__":
+  import sys
   import re
+  
   in_name = sys.argv[1]
   out_name = re.sub(r"\.des\Z", r".mfe", in_name) # Makes foo.des => foo.mfe
   design(in_name, out_name)

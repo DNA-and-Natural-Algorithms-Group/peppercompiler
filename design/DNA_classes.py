@@ -1,5 +1,7 @@
 """DNA design container classes"""
-import HU_parser, string
+import string
+
+import HU_parser
 
 # Global DNA nt groups
 group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
@@ -16,7 +18,7 @@ class Sequence(object):
     # Get sequence and length
     self.seq = ""
     for num, symb in constraints:
-      self.seq += symb*num
+      self.seq += symb * num  # Thus "5N" -> "N" * 5 -> "NNNNN"
     self.length = len(self.seq)
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
@@ -47,11 +49,14 @@ class Structure(object):
     self.name = name
     self.struct = struct
     self.bonds = HU_parser.get_bonds(struct)
+    self.seqs = None
   def set_seqs(self, seqs):
-    assert not self.__dict__.has_key("seqs")
+    """Set the sequences for a structure."""
+    assert not self.seqs, "Sequences have already been set for this structure."
     self.seqs = tuple(seqs)
 
   def seq_loc(self, index):
+    """Find out which sequence of the structure that the index falls into."""
     num = 0  # Current seq number
     #print self.name, index
     while self.seqs[num].length  <=  index:

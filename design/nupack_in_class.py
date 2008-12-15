@@ -12,7 +12,7 @@ class Spec(PrintObject):
     self.structs[name] = Structure(name, struct)
   def add_sequence(self, name, const):
     assert name not in self.seqs, "Duplicate sequence definition"
-    num = len(self.seqs)
+    num = len(self.seqs) # Number the sequences consecutively.
     self.seqs[name] = Sequence(name, const, num)
   def add_apply(self, struct_name, seq_names):
     #print self.structs
