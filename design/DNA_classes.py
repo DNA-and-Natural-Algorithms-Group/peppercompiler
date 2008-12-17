@@ -6,7 +6,11 @@ import HU_parser
 # Global DNA nt groups
 group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
          "W": "AT", "S": "CG", "N": "ATCG"} #... Others can be put later if needed ...
-compliment = {"A": "T", "T": "A", "C": "G", "G": "C"}
+complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
+
+def seq_comp(seq):
+  """The Watson-Crick complement of a nt sequence."""
+  return string.join([complement[symb] for symb in reversed(seq)], "")
 
 class Sequence(object):
   """Container for sequences"""
@@ -39,7 +43,7 @@ class ReverseSequence(Sequence):
     self.reversed = True
     self.wc = wc
   def get_seq(self):
-    return string.join([compliment[symb] for symb in self.wc.seq[::-1]], "")
+    return seq_comp(self.wc.seq)
   def __repr__(self):
     return "~Sequence(%(name)r, %(constr)r)" % self.wc.__dict__
 
