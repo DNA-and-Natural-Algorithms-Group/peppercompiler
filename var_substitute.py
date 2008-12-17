@@ -55,3 +55,7 @@ def process(params, infilename):
   f_in.close()
   return out
 
+if __name__ == "__main__":
+  import sys
+  print process({}, sys.argv[1])
+

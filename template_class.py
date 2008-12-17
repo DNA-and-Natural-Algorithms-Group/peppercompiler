@@ -10,10 +10,8 @@ class Gate(PrintObject):
     """Initialized the gate with the declare statement"""
     self.decl_name = name
     self.params = params
-    self.in_sigs  = list(inputs)
-    self.out_sigs = list(outputs)
-    self.inputs  = [x for (x,y) in self.in_sigs]
-    self.outputs = [x for (x,y) in self.out_sigs]
+    self.inputs  = list(inputs)
+    self.outputs = list(outputs)
     
     self.seqs = ordered_dict()
     self.reg_seqs = ordered_dict()

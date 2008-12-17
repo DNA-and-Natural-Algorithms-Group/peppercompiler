@@ -14,14 +14,15 @@ DEBUG = False
 def load_gate(basename, args):
   from circuit_parser import load_circuit
   from template_parser import load_template
-  if os.path.isfile(basename):
-    return load_circuit(basename, args)
+  sys_name = basename+".sys"
+  if os.path.isfile(sys_name):
+    return load_circuit(sys_name, args)
   else:
-    templ_name = basename+".template"
-    if os.path.isfile(templ_name):
-      return load_template(templ_name, args)
+    comp_name = basename+".comp"
+    if os.path.isfile(comp_name):
+      return load_template(comp_name, args)
     else:
-      raise IOError, "Neither '%s' nor '%s' exist" % (basename, templ_name)
+      raise IOError, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
 
 class Circuit(PrintObject):
   """Stores all the information in a circuit's connectivity file"""

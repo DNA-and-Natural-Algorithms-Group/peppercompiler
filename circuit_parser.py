@@ -1,7 +1,7 @@
 import sys
 
 from circuit_class import Circuit
-from template_parser import substitute, decl
+from template_parser import substitute
 from var_substitute import process
 
 from pyparsing import *
@@ -13,8 +13,10 @@ O = Optional
 List = lambda x: Group(ZeroOrMore(x))  # A grouped list
 Map = lambda func: (lambda s,l,t: map(func, t) )  # A useful mapping function
 
+decl = "declare"
+system = "system"
 import_ = "import"
-gate = "gate"
+gate = "component"
 
 # Don't ignore newlines!
 ParserElement.setDefaultWhitespaceChars(" \t")
@@ -27,9 +29,9 @@ path = Word(alphanums+".-_/~") # Path name in a directory structure
 py_chars = printables.replace(",", "").replace(")", "")
 python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
 
-# declare <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
+# declare system <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
 decl_params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-decl_stat = K(decl) + var + decl_params + S(":") + var_list + S("->") + var_list
+decl_stat = K(decl) + S(system) + var + decl_params + S(":") + var_list + S("->") + var_list
 # import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
 # gate <name> = <template name>(<params>): <inputs> -> <outputs>
@@ -47,7 +49,7 @@ def load_circuit(filename, args):
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
-  except ParseException, e:
+  except ParseBaseException, e:
     print
     print "Parsing error in circuit:", filename
     print e
@@ -56,7 +58,7 @@ def load_circuit(filename, args):
   try:
     # Load data
     decl_val, statements = document.parseString(doc)
-  except ParseException, e:
+  except ParseBaseException, e:
     print
     print doc
     print "Parsing error in circuit:", filename

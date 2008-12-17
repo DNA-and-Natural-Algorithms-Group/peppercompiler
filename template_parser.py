@@ -24,11 +24,12 @@ lowers = string.lowercase
 NAcodes = "ACGTUNSWRYMKVHBD"
 
 decl = "declare"
+comp = "component"
 seq = "sequence"
 sup_seq = "sequence"; sup_seq_key = "sup-sequence"
 strand = "strand"
 struct = "structure"
-kin = "kin"
+kin = "kinetic"
 
 # Don't ignore newlines!
 ParserElement.setDefaultWhitespaceChars(" \t")
@@ -39,9 +40,8 @@ var = Word(alphas, alphanums+"_") # Variable name
 integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
-# Signals used in the declare line seq(Struct)
-sig = Group( var - S("(") + var + S(")") )
-sig_list = List(sig + S(O("+")))
+# Signals used in the declare line seq
+sig_list = List(var + S(O("+")))
 
 # Sequence const could be ?N, 3N or N
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes, exact=1))
@@ -65,9 +65,9 @@ secondary_struct = Word( nums+"UH()+ " ) # I don't need to break it up
 
 
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
-# declare <gate name>(<params>): <inputs> -> <outputs>
+# declare component <gate name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-decl_stat = K(decl) + var + params + S(":") + sig_list + S("->") + sig_list
+decl_stat = K(decl) + S(comp) + var + params + S(":") + sig_list + S("->") + sig_list
 # sequence <name> = <constraints> : <length>
 seq_stat  = K(seq)  + seq_name + S("=") + seq_const_list + S(":") + integer
 # sup-sequence <name> = <constraints / sequences> : <length>
@@ -94,7 +94,7 @@ def load_template(filename, args):
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
-  except ParseException, e:
+  except ParseBaseException, e:
     print
     print "Parsing error in template:", filename
     print e
@@ -103,7 +103,7 @@ def load_template(filename, args):
   try:
     # Load data
     decl_val, statements = document.parseString(doc)
-  except ParseException, e:
+  except ParseBaseException, e:
     print
     print doc
     print "Parsing error in template:", filename
