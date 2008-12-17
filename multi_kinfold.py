@@ -9,7 +9,8 @@ import subprocess
 from utils import mktemp
 
 def random_seed():
-  """Return a (mostly) random seed x uniform random [0 <= x < 2**31]"""
+  """Return a random seed x uniform random [0 <= x < 2**31].
+     We use os.urandom to get a more random result than random.getrandbits."""
   rand_bytes = os.urandom(4)
   seed = 0
   for byte in rand_bytes:
