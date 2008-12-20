@@ -6,7 +6,8 @@ import HU_parser
 # Global DNA nt groups
 group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
          "W": "AT", "S": "CG", "N": "ATCG"} #... Others can be put later if needed ...
-complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
+complement = {"A": "T", "T": "A", "C": "G", "G": "C",
+              "N": "N", "S": "S", "W": "W"} #... Others can be put later if needed ...
 
 def seq_comp(seq):
   """The Watson-Crick complement of a nt sequence."""
