@@ -4,6 +4,7 @@ Designs sequences using Winfree's SpuriousDesign/spuriousC.c algorithm.
 Uses Joe Zadah's input and output formats for compatibility with compiler.
 """
 
+import string
 import subprocess
 
 from new_loading import load_file
@@ -117,16 +118,16 @@ def prepare(in_name):
       # and convert them
       eq.append(eq_si)
       wc.append(wc_si)
-      st += struct.seq
     # Double spaces between structures
     eq += [NOTHING, NOTHING]
     wc += [NOTHING, NOTHING]
+    st += struct.seq
     st += "  "
   
   # Update using the conversion function
-  eq = [f[x] for x in eq]
-  wc = [f[x] for x in wc]
-  st = string.join(st, "") # Finally, st should be a string.
+  eq = [f[x] for x in eq[:-2]]
+  wc = [f[x] for x in wc[:-2]]
+  st = string.join(st, "").strip() # Finally, st should be a string.
   
   # Print SpuriousC style files
   return st, eq, wc
@@ -151,7 +152,8 @@ def design(in_name, basename):
   
   # Run SpuriousC and process results
   # TODO: take care of prevents.
-  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq quiet=TRUE > %s.out" % (basename, basename, basename, basename)
+  command = "SpuriousDesign/spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq quiet=TRUE > %s.out" % (basename, basename, basename, basename)
+  print command
   subprocess.check_call(command, shell=True)
   
   # TODO: Read results
