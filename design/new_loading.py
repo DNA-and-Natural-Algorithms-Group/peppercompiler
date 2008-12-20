@@ -64,7 +64,7 @@ def parse_apply(line):
     temp = seqs.split()
     seqs = []
     for item in temp:
-        p = re.match(r"(\w+)(\*)?", item)
+        p = re.match(r"([\w_-]+)(\*)?", item)
         seq_name, wc = p.groups("")     # wc = "*" if this is the compliment, or "" otherwise
         seqs.append((seq_name, wc))
     

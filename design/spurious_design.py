@@ -164,23 +164,11 @@ if __name__ == "__main__":
   
   try:
     in_name = sys.argv[1]
-    assert re.match(r"\.des\Z", in_name)
+    assert re.search(r"\.des\Z", in_name)
     basename = re.sub(r"\.des\Z", "", in_name) # Makes *.des => *
-  except e:
+  except:
     print "Usage: python spurious_design.py infilename.des"
     sys.exit(1)
 
   design(in_name, basename)
-
-if __name__ == "__main__":
-  import sys
-  
-  try:
-    in_name = sys.argv[1]
-    k = int(sys.argv[2])
-  except e:
-    print "Usage: python avoid_design.py infilename k"
-    sys.exit(1)
-  
-  design(in_name, k)
 

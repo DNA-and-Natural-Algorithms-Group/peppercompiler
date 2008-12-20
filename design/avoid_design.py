@@ -10,7 +10,8 @@ from spurious_design import prepare
 def design(in_name, k):
   st, eq, wc = prepare(in_name)
   d = avoid.Design(st, eq, wc)
-  return d.avoid(k)
+  print d.avoid(k)
+  # TODO: something with these sequences.
 
 if __name__ == "__main__":
   import sys
@@ -18,7 +19,7 @@ if __name__ == "__main__":
   try:
     in_name = sys.argv[1]
     k = int(sys.argv[2])
-  except e:
+  except:
     print "Usage: python avoid_design.py infilename k"
     sys.exit(1)
   
