@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Designs sequences randomly constrained to the forced WC-complimentarity by basepairing.
+Designs sequences randomly constrained to the forced WC-complementarity by basepairing.
 Uses Joe Zadah's input and output formats for compatibility with compiler.
 """
 from __future__ import division
@@ -16,7 +16,7 @@ sys.path += (here+"/..", here+"/../HU2dotParen")
 from DNAfold import DNAfold
 from HU2dotParen import HU2dotParen
 from nupack_in_parser import load_design
-from DNA_classes import group, compliment
+from DNA_classes import group, complement
 
 def random_choice(group):
   """Randomly chooses an element (and gives sensical error if group has size 0)."""
@@ -49,7 +49,7 @@ class Connect(object):
   def __init__(self):
     self.data = default_list(lambda a: default_list(lambda b: [cool_set(), cool_set([(a,b)])]))
   def add(self, struct, x, y):
-    # sequence number, location on sequence, parity (answers: is not wc compliment?)
+    # sequence number, location on sequence, parity (answers: is not wc complement?)
     seq_x, loc_x, par_x = struct.seq_loc(x)
     seq_y, loc_y, par_y = struct.seq_loc(y)
     ### TODO: if seq_x, loc_x, par_x == seq_y, loc_y, par_y: return  # Speedup
@@ -84,12 +84,12 @@ def design(infilename, outfile):
         for (x,y) in data[True]:
           grp.intersection_update(group[d.seqs.get_index(x).seq[y]])
         for (x,y) in data[False]:
-          grp.intersection_update( [compliment[symb] for symb in group[d.seqs.get_index(x).seq[y]]] )
+          grp.intersection_update( [complement[symb] for symb in group[d.seqs.get_index(x).seq[y]]] )
         # Set constraints and choose random base
         data[True].const = tuple(grp)
-        data[False].const = [compliment[symb] for symb in grp]
+        data[False].const = [complement[symb] for symb in grp]
         data[True].base = random_choice(data[True].const)
-        data[False].base = compliment[ data[True].base ]
+        data[False].base = complement[ data[True].base ]
       
       seq.seq = str_replace(seq.seq, j, data[True].base)
 
@@ -104,7 +104,7 @@ def design(infilename, outfile):
       seq_num, loc, par = struct.seq_loc(index)
       data = connect.data[seq_num][loc]
       data[True].base = random_choice(data[True].const)
-      data[False].base = compliment[ data[True].base ]
+      data[False].base = complement[ data[True].base ]
     # Propogate mutations
     for i, seq in enumerate(d.seqs.values()):
       for j, symb in enumerate(seq.seq):
@@ -194,7 +194,7 @@ def output_sequences(d, connect, fn):
     # Write wc of sequence (with dummy content)
     seq = seq.wc
     f.write("%d:%s\n" % (0, seq.name))
-    #wc_seq = string.join([compliment[symb] for symb in seq.seq[::-1]], "")
+    #wc_seq = string.join([complement[symb] for symb in seq.seq[::-1]], "")
     f.write("%s %f %f %d\n" % (seq.get_seq(), 0, gc_content, 0))
     f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
   f.write("Total n(s*) = %f" % 0)
