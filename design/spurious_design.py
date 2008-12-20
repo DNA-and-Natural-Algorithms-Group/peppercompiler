@@ -4,6 +4,8 @@ Designs sequences using Winfree's SpuriousDesign/spuriousC.c algorithm.
 Uses Joe Zadah's input and output formats for compatibility with compiler.
 """
 
+import subprocess
+
 from new_loading import load_file
 
 # SpuriousC notation for nothing (specifically, there being no wc compliment).
@@ -20,13 +22,6 @@ def min_rep(*terms):
   """Return the minimum representative. Where NOTHING is no representative."""
   terms = [x for x in terms if x != NOTHING]
   return min_(terms)
-
-def print_list(foo, filename):
-  """Prints a list to a file using space seperation format."""
-  f = open(filename, "w")
-  for x in foo:
-    f.write("%r " % x)
-  f.close()
 
 class Connections(object):
   """
@@ -89,7 +84,7 @@ class Connections(object):
         print (s, i), eq, wc
     print
 
-def prepare(in_name, basename):
+def prepare(in_name):
   # Load specification from input file.
   spec = load_file(in_name)
   
@@ -113,6 +108,7 @@ def prepare(in_name, basename):
   f = {NOTHING: NOTHING}
   eq = []
   wc = []
+  st = []  # We start it as a list because python strings aren't mutable
   for s, struct in enumerate(spec.structs.values()):
     for i in xrange(c.struct_length[s]):
       f[(s, i)] = len(eq)
@@ -121,22 +117,44 @@ def prepare(in_name, basename):
       # and convert them
       eq.append(eq_si)
       wc.append(wc_si)
+      st += struct.seq
     # Double spaces between structures
     eq += [NOTHING, NOTHING]
     wc += [NOTHING, NOTHING]
+    st += "  "
   
   # Update using the conversion function
   eq = [f[x] for x in eq]
   wc = [f[x] for x in wc]
+  st = string.join(st, "") # Finally, st should be a string.
   
   # Print SpuriousC style files
-  print_list(eq, basename + ".eq")
-  print_list(wc, basename + ".wc")
-  # TODO: deal with St (sequence constraints)
+  return st, eq, wc
+  #print_list(eq, basename + ".eq")
+  #print_list(wc, basename + ".wc")
+
+def print_list(foo, filename, format):
+  """Prints a list to a file using space seperation format."""
+  f = open(filename, "w")
+  for x in foo:
+    f.write(format % x)
+  f.close()
 
 def design(in_name, basename):
-  prepare(in_name, basename)
-  # TODO: run SpuriousC and process results
+  # Prepare the constraints
+  st, eq, wc = prepare(in_name)
+  
+  # Print them to files
+  print_list(st, basename + ".st", "%c")
+  print_list(eq, basename + ".eq", "%d ")
+  print_list(wc, basename + ".wc", "%d ")
+  
+  # Run SpuriousC and process results
+  # TODO: take care of prevents.
+  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq quiet=TRUE > %s.out" % (basename, basename, basename, basename)
+  subprocess.check_call(command, shell=True)
+  
+  # TODO: Read results
 
 if __name__ == "__main__":
   import sys

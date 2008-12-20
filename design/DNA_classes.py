@@ -54,10 +54,12 @@ class Structure(object):
     self.struct = struct
     self.bonds = HU_parser.get_bonds(struct)
     self.seqs = None
+    self.seq = None
   def set_seqs(self, seqs):
     """Set the sequences for a structure."""
     assert not self.seqs, "Sequences have already been set for this structure."
     self.seqs = tuple(seqs)
+    self.seq = string.join([seq.get_seq() for seq in self.seqs], "")
 
   def seq_loc(self, index):
     """Find out which sequence of the structure that the index falls into."""
