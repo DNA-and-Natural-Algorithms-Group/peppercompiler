@@ -3,8 +3,9 @@ The k-sequence avoidance algorithm attempts to construct sequences which avoid
 having any subsequences of length k which are complimentary unless explicitly
 forced to be so.
 
-Allows complementarity on overlapping regions.
-Thus k=3 allows ACGT even though ACG ~ CGT
+Considered extension:
+  Allow complementarity on overlapping regions.
+  Thus k=3 would allow ACGT even though ACG ~ CGT
 
 Uses the input format from Winfree's SpuriousC algorithm.
 """
@@ -29,37 +30,45 @@ def get_group(s):
   else:
     return DNA_classes.group[s]
 
-def avoid(k, st, eq, wc):
-  """
-  Avoid k-subsequence repeats or complementarity 
-  with constraints that nt be in st, and 
-  eq and wc specify representatives for equality and complimentarity.
-  """
-  assert len(st) == len(eq) == len(wc)
-  n = len(st)
-  sys.setrecursionlimit(max(10*n, 1000)) # Might fail on to.dna for >25,000 recursion
-  st = map(get_group, st)  # Get the groups from the letter.
+class Design(object):
+  def __init__(self, st, eq, wc):
+    """Load in the parameters for the system."""
+    assert len(st) == len(eq) == len(wc)
+    self.n = len(st)
+    self.st = map(get_group, st)  # Get the groups from the letter.
+    self.eq = eq
+    self.wc = wc
   
-  
-  def step(i, part_seq, bad_seqs):
-    """Step the algorithm at position i avoiding bad_sequences."""
+  def avoid(self, k):
+    """
+    Avoid k-subsequence repeats or complementarity 
+    with constraints that nt be in st, and 
+    eq and wc specify representatives for equality and complimentarity.
+    """
+    # We will recurse at least self.n times.
+    # This might fail on to.dna for >25,000 recursion with Seg Fault!
+    sys.setrecursionlimit(max(10*self.n, 1000))
+    return self.avoid_rec(k, 0, "", {})
+    
+  def avoid_rec(self, k, i, part_seq, bad_seqs):
+    """Recursively steps through the algorithm at position i avoiding bad_sequences."""
     # If we've assigned all bases, we're done.
-    if i >= len(st):
+    if i >= self.n:
       return part_seq
     
     # If it's a strand break, pop it on and keep going.
-    if st[i] == " ":
-      return step(i+1, part_seq + " ", bad_seqs)
+    if self.st[i] == " ":
+      return self.avoid_rec(k, i+1, part_seq + " ", bad_seqs)
     
     # If we've already assigned an equal or wc constraint we must respect it
-    if eq[i] < i:
-      order = [part_seq[eq[i]]] # There is only one choice
-    elif wc[i] != NOTHING and wc[i] < i:
-      order = [DNA_classes.complement[part_seq[wc[i]]]] # There is only one choice
+    if self.eq[i] < i:
+      order = [part_seq[self.eq[i]]] # There is only one choice
+    elif self.wc[i] != NOTHING and self.wc[i] < i:
+      order = [DNA_classes.complement[part_seq[self.wc[i]]]] # There is only one choice
     
     # Otherwise, randomly order the allowed nts
     else:
-      order = list(st[i])
+      order = list(self.st[i])
       random.shuffle(order)
 
     # Try each nucleotide in group until one works
@@ -71,7 +80,7 @@ def avoid(k, st, eq, wc):
         if new_end in bad_seqs:
           j = bad_seqs[new_end]
           # ... and they aren't suposed to be, fail
-          if eq[i+1-k:i+1] != eq[j+1-k:j+1]:
+          if self.eq[i+1-k:i+1] != self.eq[j+1-k:j+1]:
             continue
         
         comp_end = DNA_classes.seq_comp(new_end)  # Complement
@@ -81,8 +90,8 @@ def avoid(k, st, eq, wc):
           # ... and they aren't suposed to be, fail.
           # Note: we have reversed the indexing to wc.
           # TODO-test: ignore overlapping regions (j > i-k) because they will not bond.
-          #if j <= i-k and wc[i:i-k:-1] != eq[j+1-k:j+1]:
-          if wc[i:i-k:-1] != eq[j+1-k:j+1]:
+          #if j <= i-k and self.wc[i:i-k:-1] != self.eq[j+1-k:j+1]:
+          if self.wc[i:i-k:-1] != self.eq[j+1-k:j+1]:
             continue
       
       # Otherwise, use nt and step deeper.
@@ -90,19 +99,20 @@ def avoid(k, st, eq, wc):
       new_bad[new_end] = i
       
       # Try using this nt
-      res = step(i+1, part_seq + nt, new_bad)
+      res = self.avoid_rec(k, i+1, part_seq + nt, new_bad)
       if res:
         return res
       # Otherwise continue trying
       
     return None # All nucleotides fail
   
-  return step(0, "", {})
 
 def testU(k, n):
   """Try to find a k-sequence avoiding assignment for a length n unpaired single strand."""
-  return avoid(k, "N"*n, range(n), [-1]*n)
+  d = Design("N"*n, range(n), [-1]*n)
+  return d.avoid(k)
 
 def testH(k, n):
   """Try to find a k-sequence avoiding assignment for a length n helix."""
-  return avoid(k, "N"*n + " " + "N"*n, range(2*n+1), range(2*n, -1, -1))
+  d = Design("N"*n + " " + "N"*n, range(2*n+1), range(2*n, -1, -1))
+  return d.avoid(k)
