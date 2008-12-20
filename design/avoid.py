@@ -116,3 +116,4 @@ def testH(k, n):
   """Try to find a k-sequence avoiding assignment for a length n helix."""
   d = Design("N"*n + " " + "N"*n, range(2*n+1), range(2*n, -1, -1))
   return d.avoid(k)
+

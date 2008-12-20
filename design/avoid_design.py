@@ -4,16 +4,23 @@ Designs sequences using a k-sequence avoiding algorithm.
 Uses Joe Zadah's input and output formats for compatibility with compiler.
 """
 
+import avoid
 from spurious_design import prepare
 
-def design(in_name, basename):
-  prepare(in_name, basename)
-  # TODO: run sequence avoider and process results
+def design(in_name, k):
+  st, eq, wc = prepare(in_name)
+  d = avoid.Design(st, eq, wc)
+  return d.avoid(k)
 
 if __name__ == "__main__":
   import sys
-  import re
   
-  in_name = sys.argv[1]
-  basename = re.sub(r"\.des\Z", "", in_name) # Makes *.des => *
-  design(in_name, basename)
+  try:
+    in_name = sys.argv[1]
+    k = int(sys.argv[2])
+  except e:
+    print "Usage: python avoid_design.py infilename k"
+    sys.exit(1)
+  
+  design(in_name, k)
+

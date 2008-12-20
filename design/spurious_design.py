@@ -125,7 +125,7 @@ def prepare(in_name):
     st += "  "
   
   # Update using the conversion function
-  eq = [f[x] for x in eq[:-2]]
+  eq = [f[x] for x in eq[:-2]]  # eq[:-2] to get rid of the [NOTHING, NOTHING] at the end
   wc = [f[x] for x in wc[:-2]]
   st = string.join(st, "").strip() # Finally, st should be a string.
   
@@ -162,6 +162,25 @@ if __name__ == "__main__":
   import sys
   import re
   
-  in_name = sys.argv[1]
-  basename = re.sub(r"\.des\Z", "", in_name) # Makes *.des => *
+  try:
+    in_name = sys.argv[1]
+    assert re.match(r"\.des\Z", in_name)
+    basename = re.sub(r"\.des\Z", "", in_name) # Makes *.des => *
+  except e:
+    print "Usage: python spurious_design.py infilename.des"
+    sys.exit(1)
+
   design(in_name, basename)
+
+if __name__ == "__main__":
+  import sys
+  
+  try:
+    in_name = sys.argv[1]
+    k = int(sys.argv[2])
+  except e:
+    print "Usage: python avoid_design.py infilename k"
+    sys.exit(1)
+  
+  design(in_name, k)
+
