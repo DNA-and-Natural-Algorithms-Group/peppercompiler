@@ -12,5 +12,5 @@ strand cX = x* : 26
 strand cY = y* : 26
 
 ## Structures/Complexes
-structure X = wX + cX : H26
-structure Y = wY + cY : H26
+structure X = wX + cX : H26(+)
+structure Y = wY + cY : H26(+)
