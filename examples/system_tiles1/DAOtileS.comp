@@ -1,26 +1,26 @@
-declare component DAOtileS: LL + LR -> UL + UR
+declare component DAOtileS: sLL + sLR -> sUL + sUR
 
 ## should just be 
 ## import DAOtileR
-## component S = DAOtileR: UL* + UR* -> LL* + LR*
+## component S = DAOtileR: sUL* + sUR* -> sLL* + sLR*
 
 
 ## sticky end sequences
-sequence LL = 5N
-sequence UL = 5N
-sequence LR = 5N
-sequence UR = 5N
+sequence sLL = 5N : 5
+sequence sUL = 5N : 5
+sequence sLR = 5N : 5
+sequence sUR = 5N : 5
 
 ## core sequences
-sequence ULarm = S 7N 
-sequence Ucore = S 14N S
-sequence URarm = 7N S
-sequence LLarm = S 7N 
-sequence Lcore = S 14N S
-sequence LRarm = 7N S
+sequence sULarm = S 7N :8
+sequence sUcore = S 14N S : 16
+sequence sURarm = 7N S : 8
+sequence sLLarm = S 7N : 8
+sequence sLcore = S 14N S : 16
+sequence sLRarm = 7N S : 8
 
 ## Strands
-strand longLeft   = ULarm Ucore Lcore* LLarm*
-strand longRight  = URarm* Ucore* Lcore LRarm
-strand shortLeft  = LL LLarm ULarm* UL*
-strand shortRight = LR LRarm* URarm UR*
+strand longLeft   = sULarm sUcore sLcore* sLLarm* : 48
+strand longRight  = sURarm* sUcore* sLcore sLRarm : 48
+strand shortLeft  = sLL sLLarm sULarm* sUL* : 26
+strand shortRight = sLR sLRarm* sURarm sUR* : 26
