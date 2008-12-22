@@ -144,8 +144,12 @@ def print_list(foo, filename, format):
 def design(in_name, basename):
   # Prepare the constraints
   st, eq, wc = prepare(in_name)
+  
+  # Fix divergent specifications
   eq = [x+1 for x in eq]
-  wc = [x+1 for x in wc]
+  for i, x in enumerate(wc):
+    if x != -1:
+      wc[i] += 1
   
   # Print them to files
   print_list(st, basename + ".st", "%c")
