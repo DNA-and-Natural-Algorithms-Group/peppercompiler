@@ -144,19 +144,21 @@ def print_list(foo, filename, format):
 def design(in_name, basename):
   # Prepare the constraints
   st, eq, wc = prepare(in_name)
+  eq = [x+1 for x in eq]
+  wc = [x+1 for x in wc]
   
   # Print them to files
   print_list(st, basename + ".st", "%c")
   print_list(eq, basename + ".eq", "%d ")
   print_list(wc, basename + ".wc", "%d ")
   
-  # Run SpuriousC and process results
+  # Run SpuriousC
   # TODO: take care of prevents.
-  command = "SpuriousDesign/spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq quiet=TRUE > %s.out" % (basename, basename, basename, basename)
+  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq quiet=TRUE > %s.out" % (basename, basename, basename, basename)
   print command
   subprocess.check_call(command, shell=True)
   
-  # TODO: Read results
+  # TODO: Process results
 
 if __name__ == "__main__":
   import sys
