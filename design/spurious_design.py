@@ -141,7 +141,45 @@ def print_list(foo, filename, format):
     f.write(format % x)
   f.close()
 
-def design(in_name, basename):
+#def output_sequences(d, connect, fn):
+def read_result(spec, c, inname, outname):
+  """Output sequences in Joe's format."""
+  # Read spuriousC's output.
+  f = open(inname, "r")
+  nts = f.read()
+  f.close()
+  # And seperate structures.
+  seqs = string.split(nts, "  ")
+  
+  f = open(outname, "w")
+  for s, struct in enumerate(spec.structs.values()):
+    # Save the sequence
+    struct.seq = seqs[s]
+    
+    # Write structure (with dummy content)
+    f.write("%d:%s\n" % (0, struct.name))
+    gc_content = (struct.seq.count("C") + struct.seq.count("G")) / (len(struct.seq) - len(struct.strands)) # - len(struct.strands) because of the +'s in the struct.seq
+    f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
+    f.write("%s\n" % struct.dp_struct)   # Target structure
+    f.write("%s\n" % struct.mfe_struct)  # MFE structure of chosen sequences
+  
+  # TODO: get sequence seqs set.
+  for seq in spec.seqs.values():
+    # Write sequence (with dummy content)
+    f.write("%d:%s\n" % (0, seq.name))
+    gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
+    f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
+    f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+    # Write wc of sequence (with dummy content)
+    seq = seq.wc
+    f.write("%d:%s\n" % (0, seq.name))
+    #wc_seq = string.join([complement[symb] for symb in seq.seq[::-1]], "")
+    f.write("%s %f %f %d\n" % (seq.get_seq(), 0, gc_content, 0))
+    f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+  f.write("Total n(s*) = %f" % 0)
+  f.close()
+
+def design(in_name, basename, verbose=False):
   # Prepare the constraints
   st, eq, wc = prepare(in_name)
   
@@ -158,23 +196,33 @@ def design(in_name, basename):
   
   # Run SpuriousC
   # TODO: take care of prevents.
-  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq quiet=TRUE > %s.out" % (basename, basename, basename, basename)
+  if verbose:
+    quiet = "quiet=ALL"
+  else:
+    quiet = "quiet=TRUE"
+  
+  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s > %s.out" % (basename, basename, basename, quiet, basename)
   print command
   subprocess.check_call(command, shell=True)
   
   # TODO: Process results
+  # = read_result(basename + ".out", basename + ".mfe")
 
 if __name__ == "__main__":
   import sys
   import re
+  
+  verbose = ("-v" in sys.argv)
+  if verbose:
+    sys.argv.remove("-v")
   
   try:
     in_name = sys.argv[1]
     assert re.search(r"\.des\Z", in_name)
     basename = re.sub(r"\.des\Z", "", in_name) # Makes *.des => *
   except:
-    print "Usage: python spurious_design.py infilename.des"
+    print "Usage: python spurious_design.py [-v] infilename.des"
     sys.exit(1)
 
-  design(in_name, basename)
+  design(in_name, basename, verbose)
 
