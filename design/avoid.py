@@ -81,6 +81,7 @@ class Design(object):
           j = bad_seqs[new_end]
           # ... and they aren't suposed to be, fail
           if self.eq[i+1-k:i+1] != self.eq[j+1-k:j+1]:
+            #print "eq", j, i, part_seq + nt
             continue
         
         comp_end = DNA_classes.seq_comp(new_end)  # Complement
@@ -92,18 +93,27 @@ class Design(object):
           # TODO-test: ignore overlapping regions (j > i-k) because they will not bond.
           #if j <= i-k and self.wc[i:i-k:-1] != self.eq[j+1-k:j+1]:
           if self.wc[i:i-k:-1] != self.eq[j+1-k:j+1]:
+            #print "wc", j, i, part_seq + nt
             continue
       
       # Otherwise, use nt and step deeper.
-      new_bad = bad_seqs.copy() # Don't mutate bad_seqs
-      new_bad[new_end] = i
+      #new_bad = bad_seqs.copy() # Don't mutate bad_seqs
+      # We mutate bad_seqs and then correct it.
+      modify = new_end not in bad_seqs
+      if modify:
+        bad_seqs[new_end] = i
       
       # Try using this nt
-      res = self.avoid_rec(k, i+1, part_seq + nt, new_bad)
+      res = self.avoid_rec(k, i+1, part_seq + nt, bad_seqs)
+      
+      # Correct bad_seqs.
+      if modify:
+        del bad_seqs[new_end]
+      
       if res:
         return res
       # Otherwise continue trying
-      
+    
     return None # All nucleotides fail
   
 
