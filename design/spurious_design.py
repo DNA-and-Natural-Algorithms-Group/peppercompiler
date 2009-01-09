@@ -7,7 +7,24 @@ Uses Joe Zadah's input and output formats for compatibility with compiler.
 import string
 import subprocess
 
+# Extend path to see compiler library and the HU2dotParen library
+import sys
+here = sys.path[0] # System path to this module.
+sys.path += (here+"/..", here+"/../HU2dotParen")
+
 from new_loading import load_file
+from DNAfold import DNAfold
+from HU2dotParen import HU2dotParen
+from DNA_classes import group, rev_group, complement
+
+def intersect_groups(x1, x2):
+  g1 = group[x1]; g2 = group[x2]
+  inter = set(g1).intersection(set(g2))
+  assert len(inter) > 0, "System overconstrained. %s and %s cannot be equal." % (x1, x2)
+  inter = list(inter)
+  inter.sort()
+  inter = string.join(inter, "")
+  return rev_group[inter]
 
 # SpuriousC notation for nothing (specifically, there being no wc compliment).
 NOTHING = -1
@@ -30,20 +47,37 @@ class Connections(object):
   complimentary to which other parts.
   """
   def __init__(self, spec):
+    # TODO: split strands in a structure.
+    
     # seq_const[n][0] = list of (s, i) where spec.structs[s].seq[m] is spec.seqs[n]
     # seq_const[n][1] = list of (s, i) where it's the compliment
     seq_const = [([], []) for seq in spec.seqs]
     
-    self.num_structs = len(spec.structs.values())
+    self.structs = spec.structs.values()
+    self.seqs = spec.seqs.values()
+    
+    # Get the dot-paren structure for all structures
+    for struct in self.structs:
+      struct.dp_struct = HU2dotParen(struct.struct)
+    
+    # HACK: Adding psuedo-structures for sequences
+    self.num_structs = len(self.structs) + len(self.seqs)
+    
     self.struct_length = [None] * self.num_structs
-    # Build these sets.
-    for s, struct in enumerate(spec.structs.values()):
+    
+    # Create seq_const and find lengths of each structure.
+    for s, struct in enumerate(self.structs):
       i = 0
       for seq in struct.seqs:
         # Add this struct, index to the appropriate set.
         seq_const[seq.num][seq.reversed].append((s, i))
         i += seq.length
       self.struct_length[s] = i
+    # And for each sequence psuedo-structure
+    for seq_num, seq in enumerate(self.seqs):
+      s = len(self.structs) + seq_num
+      seq_const[seq.num][seq.reversed].append((s, 0))
+      self.struct_length[s] = seq.length
     
     self.table = {NOTHING: (NOTHING, NOTHING)}
     # Expand these sets for specific nucleotides ...
@@ -86,23 +120,18 @@ class Connections(object):
     print
 
 def prepare(in_name):
+  """Create eq, wc and sequence template lists in spuriousC format."""
   # Load specification from input file.
   spec = load_file(in_name)
   
   # Load structures and subsequences into Connections object
-  # and connect sequences that are equal and complimentary.
+  # and connect subsequences that are equal and complimentary.
   c = Connections(spec)
   
-  #c.printf()
-  
   # Connect regions that are constrained to helixes.
-  for s, struct in enumerate(spec.structs.values()):
+  for s, struct in enumerate(c.structs):
     for start, stop in struct.bonds:
       c.apply_wc((s, start), (s, stop))
-  
-  #c.printf()
-  
-  # Update the sequence constraints. TODO
   
   # Convert from (strand, index) format to multi_index format
   # Create the conversion function
@@ -110,7 +139,29 @@ def prepare(in_name):
   eq = []
   wc = []
   st = []  # We start it as a list because python strings aren't mutable
-  for s, struct in enumerate(spec.structs.values()):
+  for s, struct in enumerate(c.structs):
+    start = len(eq)
+    for i in xrange(c.struct_length[s]):
+      this = len(eq)
+      if struct.dp_struct[this-start] == "+":
+        # Single spaces between strands.
+        eq += [NOTHING]
+        wc += [NOTHING]
+        st += [" "]
+      f[(s, i)] = len(eq)
+      # Get the representatives for (s, i)
+      eq_si, wc_si = c.table[(s, i)]
+      # and convert them
+      eq.append(eq_si)
+      wc.append(wc_si)
+      st.append(struct.seq[i])
+    # Double spaces between structures
+    eq += [NOTHING, NOTHING]
+    wc += [NOTHING, NOTHING]
+    st += [" ", " "]
+  # The psuedo-structures.
+  for seq_num, seq in enumerate(c.seqs):
+    s = len(c.structs) + seq_num
     for i in xrange(c.struct_length[s]):
       f[(s, i)] = len(eq)
       # Get the representatives for (s, i)
@@ -121,16 +172,42 @@ def prepare(in_name):
     # Double spaces between structures
     eq += [NOTHING, NOTHING]
     wc += [NOTHING, NOTHING]
-    st += struct.seq
-    st += "  "
+    st += seq.seq
+    st += [" ", " "]
+    
   
   # Update using the conversion function
   eq = [f[x] for x in eq[:-2]]  # eq[:-2] to get rid of the [NOTHING, NOTHING] at the end
   wc = [f[x] for x in wc[:-2]]
-  st = string.join(st, "").strip() # Finally, st should be a string.
+  #st = string.join(st[:-2], "") # Finally, st should be a string.
+  st = st[:-2]
+  
+  # Constrain st appropriately
+  for i in xrange(len(eq)):
+    #print st[i],
+    # Skip strand breaks
+    if eq[i] == NOTHING:
+      continue
+    if eq[i] < i:
+      j = eq[i]
+      st[j] = intersect_groups(st[j], st[i])
+    if wc[i] != NOTHING and wc[i] < i:
+      j = wc[i]
+      #print
+      #print i, j, st[i], st[j]
+      st[j] = intersect_groups(st[j], complement[st[i]])
+  # Propogate the changes
+  for i in xrange(len(eq)):
+    if eq[i] < i:
+      j = eq[i]
+      st[i] = st[j]
+    if wc[i] != NOTHING:
+      j = wc[i]
+      st[i] = complement(st[j])
+  
   
   # Print SpuriousC style files
-  return st, eq, wc
+  return st, eq, wc, c
   #print_list(eq, basename + ".eq")
   #print_list(wc, basename + ".wc")
 
@@ -141,30 +218,36 @@ def print_list(foo, filename, format):
     f.write(format % x)
   f.close()
 
-#def output_sequences(d, connect, fn):
-def read_result(spec, c, inname, outname):
+def process_result(c, inname, outname):
   """Output sequences in Joe's format."""
   # Read spuriousC's output.
   f = open(inname, "r")
   nts = f.read()
   f.close()
-  # And seperate structures.
+  # Find and seperate structures. Sequences are stored on the last line.
+  nts = nts.split("\n")[-2]
+  #print repr(nts)
   seqs = string.split(nts, "  ")
   
   f = open(outname, "w")
-  for s, struct in enumerate(spec.structs.values()):
+  for s, struct in enumerate(c.structs):
     # Save the sequence
-    struct.seq = seqs[s]
+    struct.seq = seqs[s].replace(" ", "+")
+    struct.mfe_struct, dG = DNAfold(struct.seq)
+    #print repr(struct.seq)
     
     # Write structure (with dummy content)
     f.write("%d:%s\n" % (0, struct.name))
-    gc_content = (struct.seq.count("C") + struct.seq.count("G")) / (len(struct.seq) - len(struct.strands)) # - len(struct.strands) because of the +'s in the struct.seq
+    gc_content = (struct.seq.count("C") + struct.seq.count("G")) / len(struct.seq)
     f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
     f.write("%s\n" % struct.dp_struct)   # Target structure
-    f.write("%s\n" % struct.mfe_struct)  # MFE structure of chosen sequences
+    f.write("%s\n" % struct.mfe_struct)  # Dummy MFE structure
   
-  # TODO: get sequence seqs set.
-  for seq in spec.seqs.values():
+  # HACK: we stored the sequences as structures.
+  for seq_num, seq in enumerate(c.seqs):
+    s = len(c.structs) + seq_num
+    seq.seq = seqs[s]
+    
     # Write sequence (with dummy content)
     f.write("%d:%s\n" % (0, seq.name))
     gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
@@ -181,7 +264,7 @@ def read_result(spec, c, inname, outname):
 
 def design(in_name, basename, verbose=False):
   # Prepare the constraints
-  st, eq, wc = prepare(in_name)
+  st, eq, wc, c = prepare(in_name)
   
   # Fix divergent specifications
   eq = [x+1 for x in eq]
@@ -197,16 +280,18 @@ def design(in_name, basename, verbose=False):
   # Run SpuriousC
   # TODO: take care of prevents.
   if verbose:
-    quiet = "quiet=ALL"
+    quiet = "quiet=ALL | tee %s.out" % basename
   else:
-    quiet = "quiet=TRUE"
+    quiet = "quiet=TRUE > %s.out" % basename
   
-  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s > %s.out" % (basename, basename, basename, quiet, basename)
+  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s" % (basename, basename, basename, quiet)
   print command
-  subprocess.check_call(command, shell=True)
+  # HACK: spuriousC returns 1
+  #subprocess.check_call(command, shell=True)
+  subprocess.call(command, shell=True)
   
-  # TODO: Process results
-  # = read_result(basename + ".out", basename + ".mfe")
+  # Process results
+  process_result(c, basename + ".out", basename + ".mfe")
 
 if __name__ == "__main__":
   import sys

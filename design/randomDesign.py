@@ -161,7 +161,7 @@ def score(structs):
   for struct in structs.values():
     struct.seq = build_seq(struct)
     #print struct.name, struct.seq
-    struct.mfe_struct, dG = DNAfold(struct.seq, 25)
+    struct.mfe_struct, dG = DNAfold(struct.seq)
     diffs += diff(struct, struct.dp_struct, struct.mfe_struct)
   return diffs
 

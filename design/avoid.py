@@ -98,6 +98,7 @@ class Design(object):
       
       # Otherwise, use nt and step deeper.
       #new_bad = bad_seqs.copy() # Don't mutate bad_seqs
+      
       # We mutate bad_seqs and then correct it.
       modify = new_end not in bad_seqs
       if modify:
@@ -106,7 +107,7 @@ class Design(object):
       # Try using this nt
       res = self.avoid_rec(k, i+1, part_seq + nt, bad_seqs)
       
-      # Correct bad_seqs.
+      # Correct bad_seqs
       if modify:
         del bad_seqs[new_end]
       
@@ -118,12 +119,12 @@ class Design(object):
   
 
 def testU(k, n):
-  """Try to find a k-sequence avoiding assignment for a length n unpaired single strand."""
+  """Test for a length n unpaired single strand."""
   d = Design("N"*n, range(n), [-1]*n)
   return d.avoid(k)
 
 def testH(k, n):
-  """Try to find a k-sequence avoiding assignment for a length n helix."""
+  """Test for a length n helix."""
   d = Design("N"*n + " " + "N"*n, range(2*n+1), range(2*n, -1, -1))
   return d.avoid(k)
 
