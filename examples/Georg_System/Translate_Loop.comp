@@ -1,0 +1,22 @@
+declare component Translate_Loop(t, di, do, c, end): in -> out
+
+sequence toe_in = ?N : <t>
+sequence data_in = S ?N S : <di>
+sequence toe_out = ?N : <t>
+sequence data_out = S ?N S : <do>
+
+sequence in = toe_in data_in : <t+di>
+sequence out = toe_out data_out : <t+do>
+
+strand In = in : <t+di>
+strand Base = ?N : <t+di>
+strand Out = ?N out S <end-1>N : <do+(di-c)>
+
+## Structures
+structure IN = In : U<t+di>
+structure Gate = Out + Base : H<di-end>(U<do-c> H<end>(+)) U<t>
+
+structure IN_waste = In + Base : H<t+di>(+)
+structure OUT = Out : U<do+di-c>
+
+kinetic IN + Gate -> OUT + IN_waste
