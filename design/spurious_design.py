@@ -203,7 +203,7 @@ def prepare(in_name):
       st[i] = st[j]
     if wc[i] != NOTHING:
       j = wc[i]
-      st[i] = complement(st[j])
+      st[i] = complement[st[j]]
   
   
   # Print SpuriousC style files
@@ -262,7 +262,7 @@ def process_result(c, inname, outname):
   f.write("Total n(s*) = %f" % 0)
   f.close()
 
-def design(in_name, basename, verbose=False):
+def design(in_name, basename, verbose=False, extra_par=""):
   # Prepare the constraints
   st, eq, wc, c = prepare(in_name)
   
@@ -284,7 +284,7 @@ def design(in_name, basename, verbose=False):
   else:
     quiet = "quiet=TRUE > %s.out" % basename
   
-  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s" % (basename, basename, basename, quiet)
+  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s %s" % (basename, basename, basename, extra_par, quiet)
   print command
   # HACK: spuriousC returns 1
   #subprocess.check_call(command, shell=True)
@@ -308,6 +308,10 @@ if __name__ == "__main__":
   except:
     print "Usage: python spurious_design.py [-v] infilename.des"
     sys.exit(1)
-
-  design(in_name, basename, verbose)
+  
+  extra_par = ""
+  if len(sys.argv) > 2:
+    extra_par = string.join(sys.argv[2:], " ")
+  
+  design(in_name, basename, verbose, extra_par)
 
