@@ -3,7 +3,7 @@
 from mySubprocess import CalledProcessError
 import DNAfold_Nupack, DNAfold_Vienna
 
-def DNAfold(seq, temp):
+def DNAfold(seq, temp=25):
   """Run the installed thermodynamic mfe package"""
   try:
     return DNAfold_Nupack.DNAfold(seq, temp)

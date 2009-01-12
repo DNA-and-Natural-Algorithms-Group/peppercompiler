@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 from __future__ import division
 
-import sys, pickle, re, time
+import sys
+import pickle
+import re
+import time
 
-from circuit_class import load_gate
+from circuit_class import load_gate, Circuit
 from kinetics import read_nupack, test_kinetics
 
 def compiler(infilename, args):
   # Read in circuit design
   circuit = load_gate(infilename, args)
+  # TODO: allow circuit to be a gate
+  if not isinstance(circuit, Circuit):
+    print "Warning: compiling Gates are not completely supported yet."
 
   # Write the Zadeh-style design file
   outfile = file(filename+".des", "w")
@@ -25,7 +31,10 @@ def finish(infilename):
   circuit = load(infilename+".save")
   # Read results
   seqs, mfe_structs = read_nupack(infilename+".mfe")
+  
   # Prepare for Schaffer's Multistrand
+  # TODO: allow circuit to be a gate
+  assert isinstance(circuit, Circuit)
   for gate_name, gate in circuit.gates.items():
     for kin in gate.kinetics.values():
       # Call Multistrand instances
