@@ -21,3 +21,8 @@ strand longRight  = sLRarm* sLcore* sUcore sURarm : 48
 strand shortLeft  = sUL* sULarm sLLarm* sLL : 26
 strand shortRight = sUR* sURarm* sLRarm sLR : 26
 
+# Dummy Structures
+structure [no-opt] LongLeft = longLeft : U48
+structure [no-opt] LongRight = longRight : U48
+structure [no-opt] ShortLeft = shortLeft : U26
+structure [no-opt] ShortRight = shortRight : U26
