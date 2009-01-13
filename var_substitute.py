@@ -13,9 +13,10 @@ goes to
  I have four apples worth $3.
 """
 
-import string, re
+import string
+import re
 
-def process(params, infilename):
+def process(infilename, params):
   if "__builtins__" not in params:
     params["__builtins__"] = None
   f_in = file(infilename, "r")
@@ -55,7 +56,29 @@ def process(params, infilename):
   f_in.close()
   return out
 
+
 if __name__ == "__main__":
   import sys
-  print process({}, sys.argv[1])
+  
+  import circuit_parser
+  import template_parser
+  
+  def substitute(filename, args):
+    # Parse for function declaration
+    if re.match(r".*\.sys\Z", filename):
+      param_names = circuit_parser.decl_stat.parseFile(filename)[2]
+    elif re.match(r".*\.comp\Z", filename):
+      param_names = template_parser.decl_stat.parseFile(filename)[2]
+    else:
+      raise ValueError, "File %s is neither system nor component type." % filename
+        
+    params = {}
+    assert len(param_names) == len(args), (param_names, args)
+    for name, val in zip(param_names, args):
+      params[name] = val
+    return process(filename, params)
+
+  filename = sys.argv[1]
+  args = map(eval, sys.argv[2:])
+  print substitute(filename, args)
 

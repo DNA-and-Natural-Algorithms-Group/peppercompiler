@@ -9,48 +9,54 @@ import time
 from circuit_class import load_gate, Circuit
 from kinetics import read_nupack, test_kinetics
 
-def compiler(infilename, args):
+def compiler(basename, args):
+  print "Compiling %s ..." % basename
   # Read in circuit design
-  circuit = load_gate(infilename, args)
+  circuit = load_gate(basename, args)
   # TODO: allow circuit to be a gate
   if not isinstance(circuit, Circuit):
     print "Warning: compiling Gates are not completely supported yet."
 
   # Write the Zadeh-style design file
-  outfile = file(filename+".des", "w")
-  outfile.write("## Specification for %s compiled at: %s\n" % (infilename, time.ctime()))
+  outfile = file(basename+".des", "w")
+  outfile.write("## Specification for %s compiled at: %s\n" % (basename, time.ctime()))
   circuit.output_nupack("", outfile)
   outfile.close()
 
   # Save compiler state to be reloaded when designer finishes
-  save(circuit, infilename+".save")
-  ### TODO: Work out automatic way of running designer with Joe Zadeh.
-  #raw_input("Run %s.des in NUPACK, save the result in %s.summary and press enter to continue." % (infilename, infilename))
+  save(circuit, basename+".save")
+  print "System/component compiled into %s.des" % basename
+  print "Run a designer on this and get an %s.mfe output" % basename
+  print 'Finally run "python compiler.py %s.save" to finish compiling and run kinetics' % basename
 
-def finish(infilename):
-  circuit = load(infilename+".save")
+def finish(basename):
+  print "Finishing compilation of %s ..." % basename
+  circuit = load(basename+".save")
   # Read results
-  seqs, mfe_structs = read_nupack(infilename+".mfe")
+  seqs, mfe_structs = read_nupack(basename+".mfe")
   
   # Prepare for Schaffer's Multistrand
   # TODO: allow circuit to be a gate
-  assert isinstance(circuit, Circuit)
+  if not isinstance(circuit, Circuit):
+    print "Error: compiling Gates is not completely supported yet."
+    return 1
   for gate_name, gate in circuit.gates.items():
     for kin in gate.kinetics.values():
-      # Call Multistrand instances
-      ### TODO: deal with "muliple inputs" where c2 could be any of 4 strands
-      frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs)
-      if times:
-        ave = sum(times) / len(times)
-      else:
-        ave = 0
-      # TODO: process results
+      # Print testing info
       print "kin", gate_name,
       for compl in kin.inputs:
         print compl.name,
       print "->",
       for compl in kin.outputs:
         print compl.name,
+      sys.stdout.flush()
+      # Call Multistrand instances
+      frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs)
+      if times:
+        ave = sum(times) / len(times)
+      else:
+        ave = 0
+      # TODO: process results
       print ":", frac, ave
 
 def save(obj, filename):
@@ -68,10 +74,17 @@ def load(filename):
 
 if __name__ == "__main__":
   filename = sys.argv[1]
-  p = re.match(r"(.*)\.save", filename)
+  args = map(eval, sys.argv[2:])
+  
+  ## If we are starting compile specifying the entire filename
+  p = re.match(r"(.*)\.(sys|comp)\Z", filename)
   if p:
-    finish(p.group(1)) # Finish started process
-  else:
-    args = map(eval, sys.argv[2:])
-    compiler(filename, args) # Start process
-
+    compiler(p.group(1), args)
+  
+  else: # If we are finishing compile
+    p = re.match(r"(.*)\.save\Z", filename)
+    if p:
+      finish(p.group(1)) # Finish started process
+    
+    else: # If we are starting a compile with just the basename
+      compiler(filename, args)

@@ -136,5 +136,5 @@ def substitute(filename, args):
   assert len(param_names) == len(args), (param_names, args)
   for name, val in zip(param_names, args):
     params[name] = val
-  return process(params, filename)
+  return process(filename, params)
 
