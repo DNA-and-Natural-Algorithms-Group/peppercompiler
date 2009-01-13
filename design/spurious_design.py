@@ -17,6 +17,11 @@ from DNAfold import DNAfold
 from HU2dotParen import HU2dotParen
 from DNA_classes import group, rev_group, complement
 
+# HACK
+#group["_"] = ""
+#rev_group[""] = "_"
+#complement["_"] = "_"
+
 def intersect_groups(x1, x2):
   g1 = group[x1]; g2 = group[x2]
   inter = set(g1).intersection(set(g2))
@@ -184,18 +189,25 @@ def prepare(in_name):
   
   # Constrain st appropriately
   for i in xrange(len(eq)):
-    #print st[i],
+    #sys.stdout.write(st[i])
     # Skip strand breaks
     if eq[i] == NOTHING:
       continue
     if eq[i] < i:
       j = eq[i]
+      #temp = st[j]
       st[j] = intersect_groups(st[j], st[i])
+      #if st[j] == "_" and "_" not in (st[i], temp):
+      #  print
+      #  print i, j, st[i], temp
+        
     if wc[i] != NOTHING and wc[i] < i:
       j = wc[i]
-      #print
-      #print i, j, st[i], st[j]
+      #temp = st[j]
       st[j] = intersect_groups(st[j], complement[st[i]])
+      #if st[j] == "_" and "_" not in (st[i], temp):
+      #  print
+      #  print i, j, st[i], temp
   # Propogate the changes
   for i in xrange(len(eq)):
     if eq[i] < i:
@@ -208,8 +220,6 @@ def prepare(in_name):
   
   # Print SpuriousC style files
   return st, eq, wc, c
-  #print_list(eq, basename + ".eq")
-  #print_list(wc, basename + ".wc")
 
 def print_list(foo, filename, format):
   """Prints a list to a file using space seperation format."""
@@ -277,6 +287,10 @@ def design(in_name, basename, verbose=False, extra_par=""):
   print_list(eq, basename + ".eq", "%d ")
   print_list(wc, basename + ".wc", "%d ")
   
+  if "_" in st:
+    print "System overconstrained."
+    sys.exit(1)
+  
   # Run SpuriousC
   # TODO: take care of prevents.
   if verbose:
@@ -314,4 +328,3 @@ if __name__ == "__main__":
     extra_par = string.join(sys.argv[2:], " ")
   
   design(in_name, basename, verbose, extra_par)
-
