@@ -14,8 +14,8 @@ component In6 = Input_Strand("TGGAGTGTGACAATGGTGTTTG", 22): -> miR_122a
 # Translation
 component Trans1 = Translate(6, 15, 30, 3): let_7c -> Jout
 component Trans2 = Translate_Rev(6, 14, 30, 3): miR_124a -> Mout
-component Trans3 = Translate(6, 16, 30, 1): miR_15a -> Sout
-component Trans4 = Translate(6, 16, 30, 0): miR_10b -> Sout
+component Trans3 = Translate(6, 16, 30, 0): miR_15a -> Sout
+component Trans4 = Translate(6, 16, 30, 1): miR_10b -> Sout
 component Trans5 = Translate(6, 16, 30, 3): miR_143 -> Rout  # Can't design the actual psuedoknotted gate
 
 component Trans6 = Translate(6, 16, 30, 3): miR_122a -> Nout

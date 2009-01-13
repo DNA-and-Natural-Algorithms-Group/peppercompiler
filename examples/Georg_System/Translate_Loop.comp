@@ -1,16 +1,16 @@
 declare component Translate_Loop(t, di, do, c, end): in -> out
 
 sequence toe_in = ?N : <t>
-sequence data_in = S ?N S : <di>
+sequence data_in = ?N : <di>
 sequence toe_out = ?N : <t>
-sequence data_out = S ?N S : <do>
+sequence data_out = ?N : <do>
 
 sequence in = toe_in data_in : <t+di>
 sequence out = toe_out data_out : <t+do>
 
 strand In = in : <t+di>
 strand Base = ?N : <t+di>
-strand Out = ?N out S <end-1>N : <do+(di-c)>
+strand Out = ?N out <end>N : <do+(di-c)>
 
 ## Structures
 structure IN = In : U<t+di>
