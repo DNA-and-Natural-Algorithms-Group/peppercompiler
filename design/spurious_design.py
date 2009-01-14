@@ -272,9 +272,11 @@ def process_result(c, inname, outname):
   f.write("Total n(s*) = %f" % 0)
   f.close()
 
-def design(in_name, basename, verbose=False, extra_par=""):
+def design(basename, verbose=False, extra_par=""):
+  
+  print "Preparing constraints files for spuriousC."
   # Prepare the constraints
-  st, eq, wc, c = prepare(in_name)
+  st, eq, wc, c = prepare(basename + ".des")
   
   # Fix divergent specifications
   eq = [x+1 for x in eq]
@@ -300,12 +302,13 @@ def design(in_name, basename, verbose=False, extra_par=""):
   
   command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s %s" % (basename, basename, basename, extra_par, quiet)
   print command
-  # HACK: spuriousC returns 1
-  #subprocess.check_call(command, shell=True)
-  subprocess.call(command, shell=True)
+  subprocess.check_call(command, shell=True)
+  #subprocess.call(command, shell=True)
   
+  print "Processing results of spruriousC."
   # Process results
   process_result(c, basename + ".out", basename + ".mfe")
+  print "Done, results saved to %s.mfe" % basename
 
 if __name__ == "__main__":
   import sys
@@ -316,9 +319,10 @@ if __name__ == "__main__":
     sys.argv.remove("-v")
   
   try:
-    in_name = sys.argv[1]
-    assert re.search(r"\.des\Z", in_name)
-    basename = re.sub(r"\.des\Z", "", in_name) # Makes *.des => *
+    basename = sys.argv[1]
+    p = re.match(r"(.*)\.des\Z", basename)
+    if p:
+      basename = p.groups(1)
   except:
     print "Usage: python spurious_design.py [-v] infilename.des"
     sys.exit(1)
@@ -327,4 +331,4 @@ if __name__ == "__main__":
   if len(sys.argv) > 2:
     extra_par = string.join(sys.argv[2:], " ")
   
-  design(in_name, basename, verbose, extra_par)
+  design(basename, verbose, extra_par)
