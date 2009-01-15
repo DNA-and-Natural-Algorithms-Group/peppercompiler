@@ -69,6 +69,9 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=24, time=100000, tem
   ## End Subroutine
   ins = convert(kin.inputs)
   outs = convert(kin.outputs)
+  #HACK
+  outs = outs[0:1]
+  outs[0].struct = "DISASSOC"
   return DNAkinfold(used_strands, ins, outs, trials, time, temp, conc, num_proc, out_interval)
 
 

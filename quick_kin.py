@@ -7,12 +7,12 @@ from kinetics import read_nupack, test_kinetics
 def finish(infilename, gate_name, kin_num):
   circuit = load(infilename+".save")
   # Read results
-  seqs, mfe_structs = read_nupack(infilename+".summary")
-  # Prepare for Schaffer's Multistrand
+  seqs, mfe_structs = read_nupack(infilename+".mfe")
+  # Prepare for Schaeffer's Multistrand
   gate = circuit.gates[gate_name]
   kin = gate.kinetics[kin_num]
   # Call Multistrand instances
-  frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs, out_interval=1000, trials=1, num_proc=1)
+  frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs, out_interval=10000, trials=1, num_proc=1)
   ave =  ( sum(times) / len(times) if times else 0 )
   # TODO: process results
   print "kin", gate_name,

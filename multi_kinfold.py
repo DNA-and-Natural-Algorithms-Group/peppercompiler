@@ -22,11 +22,13 @@ def random_seed():
 STOP_FLAG = "Stop_Flag"
 
 def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1, out_interval=-1):
-  """strands = dict of strand_name : sequence used in structs
-     *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
-     temp = temperature (deg C)   conc = concentration
-     sim_time = max time of sim   trials = number of trials
-     num_proc = number of processes to start (trials devided between them)."""
+  """
+  strands = dict of strand_name : sequence used in structs
+  *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
+  temp = temperature (deg C)   conc = concentration
+  sim_time = max time of sim   trials = number of trials
+  num_proc = number of processes to start (trials devided between them).
+  """
   # Assumes that structures are connected complexes
   assert start_struct != stop_struct
   trials_each = int(math.ceil(trials / num_proc))
@@ -42,16 +44,16 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   # Start Structure
   f.write("#StartStructure\n")
   for compl in start_struct:
-    struct = compl.struct.replace("+", "_")
     s = ["strand_"+x for x in compl.strands]
     f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    struct = compl.struct.replace("+", "_")
     f.write(struct + "\n")                        # ((...._..((_))..)..(_..)...)
   # Stop Structure
   f.write("#StopStructures\n")
   for compl in stop_struct:
-    struct = compl.struct.replace("+", "_")
     s = ["strand_"+x for x in compl.strands]
     f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    struct = compl.struct.replace("+", "_")
     f.write(struct + "\n")
   f.write("TAG: %s\n" % STOP_FLAG)
   # Other params

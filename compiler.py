@@ -29,13 +29,14 @@ def compiler(basename, args):
   print "Run a designer on this and get an %s.mfe output" % basename
   print 'Finally run "python compiler.py %s.save" to finish compiling and run kinetics' % basename
 
-def finish(basename):
+def finish(basename, trials=24, num_proc=4, time=100000):
   print "Finishing compilation of %s ..." % basename
+  print "Running %d trials across %d processes with max_time of %d." % (trials, num_proc, time)
   circuit = load(basename+".save")
   # Read results
   seqs, mfe_structs = read_nupack(basename+".mfe")
   
-  # Prepare for Schaffer's Multistrand
+  # Prepare for Schaeffer's Multistrand
   # TODO: allow circuit to be a gate
   if not isinstance(circuit, Circuit):
     print "Error: compiling Gates is not completely supported yet."
@@ -43,21 +44,22 @@ def finish(basename):
   for gate_name, gate in circuit.gates.items():
     for kin in gate.kinetics.values():
       # Print testing info
-      print "kin", gate_name,
+      print "kinetic", gate_name, ":",
       for compl in kin.inputs:
         print compl.name,
       print "->",
       for compl in kin.outputs:
         print compl.name,
+      print
       sys.stdout.flush()
       # Call Multistrand instances
-      frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs)
+      frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs, trials=trials, num_proc=num+proc, time=time)
       if times:
         ave = sum(times) / len(times)
       else:
         ave = 0
       # TODO: process results
-      print ":", frac, ave
+      print "Result:", frac, ave
 
 def save(obj, filename):
   """Save an object for later finishing."""
@@ -73,8 +75,9 @@ def load(filename):
   return obj
 
 if __name__ == "__main__":
+  import quickargs
   filename = sys.argv[1]
-  args = map(eval, sys.argv[2:])
+  args, keys = quickargs.get_args(sys.argv[2:])
   
   ## If we are starting compile specifying the entire filename
   p = re.match(r"(.*)\.(sys|comp)\Z", filename)
@@ -84,7 +87,7 @@ if __name__ == "__main__":
   else: # If we are finishing compile
     p = re.match(r"(.*)\.save\Z", filename)
     if p:
-      finish(p.group(1)) # Finish started process
+      finish(p.group(1), **keys) # Finish started process
     
     else: # If we are starting a compile with just the basename
       compiler(filename, args)
