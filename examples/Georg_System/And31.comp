@@ -26,14 +26,14 @@ strand Out = ?N out <end>N : <do+(di3-c)>
 ## Structures
 structure InX = inX : U<t+di1>
 structure InY = inY : U<t+di2>
-structure InZ = inX : U<t+di3>
+structure InZ = inZ : U<t+di3>
 
 structure Gate = Y + Out + Z + X : H<di1>(H<di2>(+ H<di3-end>(U<do-c> H<end>(+))) +) U<t>
 structure Gate_inter1 = Y + Out + Z : U<di1> H<di2>(+ H<di3-end>(U<do-c> H<end>(+)))
 structure Gate_inter2 =     Out + Z :                 H<di3-end>(U<do-c> H<end>(+)) U<di2>
 
 structure X_waste = inX + X : H<t+di1>(+)
-structure Y_waste = inY + Y : H<t+di2>(+) U<di1-t>
+structure Y_waste = inY + Y : H<t+di2>(+ U<di1-t>)
 structure Z_waste = inZ + Z : H<t+di3>(+) U<di2-t>
 
 structure OUT = Out : U<do+(di3-c)>
