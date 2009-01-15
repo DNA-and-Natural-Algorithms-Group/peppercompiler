@@ -61,7 +61,7 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   f.write("#NumSims=%d\n" % trials_each)
   f.write("#Logfile=%s\n" % out_name)
   f.write("#OutputInterval=%d\n" % out_interval)   # -1 = Suppress output
-  f.write("#StopOption=2\n")        # Stop on stop structures defined above
+  f.write("#StopOptions=2\n")        # Stop on stop structures defined above
   # Done
   f.close()
   
