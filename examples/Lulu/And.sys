@@ -1,0 +1,9 @@
+declare system And(toe, base): a + b -> out
+
+import Seesaw
+
+component s4 = Seesaw(<toe>, <base>): a  -> i1
+component s8 = Seesaw(<toe>, <base>): i1 -> x1
+component s2 = Seesaw(<toe>, <base>): b  -> i1
+component s5 = Seesaw(<toe>, <base>): i1 -> out
+

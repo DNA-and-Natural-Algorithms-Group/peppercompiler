@@ -1,0 +1,24 @@
+declare component Seesaw(toe, base): ltoe -> rtoe
+
+## Sequences
+sequence ltoe = ?N : <toe>
+sequence base = ?N : <base>
+sequence rtoe = ?N : <toe>
+
+## Strands
+strand Base = ltoe* base* rtoe* : <2*toe + base>
+strand Left  = <base>N ltoe base : <2*base + toe>
+strand Right = base rtoe <base>N : <2*base + toe>
+
+## Single-stranded input/output structures
+structure LEFT  = Left  : U<2*base + toe>
+structure RIGHT = Right : U<2*base + toe>
+
+## Bound gate structures
+structure SEESAW_RIGHT = Right + Base : H<base+toe>(U<base> +) U<toe>
+structure SEESAW_LEFT  = Base + Left : U<toe> H<base+toe>(+ U<base>)
+
+## Kinetic pathways
+kinetic LEFT + SEESAW_RIGHT -> RIGHT + SEESAW_LEFT
+kinetic RIGHT + SEESAW_RIGHT -> LEFT + SEESAW_LEFT
+
