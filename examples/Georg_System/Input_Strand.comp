@@ -1,5 +1,5 @@
-declare component Input_Strand(seq, length): -> out
+declare component Input_Strand(seq, length): -> self
 
-sequence  out = <seq> : <length>
-strand    Out = out : <length>
-structure OUT = Out : U<length>
+sequence  self = <seq> : <length>
+strand    Self = self : <length>
+structure SELF = Self : U<length>
