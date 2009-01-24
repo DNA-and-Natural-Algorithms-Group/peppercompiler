@@ -97,7 +97,7 @@ class Circuit(PrintObject):
       outfile.write("#\n## Top Circuit Connectors\n")
     for glob in self.glob:
       length = self.lengths[glob]
-      glob_name = prefix+glob
+      glob_name = prefix + glob
       wc_name = glob_name + "-_WC"  # A dummy variable wc compliment to glob
       
       outfile.write("#\n## Global %s\n" % glob_name)

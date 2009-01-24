@@ -26,7 +26,7 @@ class Complex(object):
   def __init__(self, strands, struct):
     self.strands = strands; self.struct = struct
 
-def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=24, time=100000, temp=25, conc=10., num_proc=1, out_interval=-1):
+def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=25, conc=10., num_proc=1, out_interval=-1):
   """Test times for inputs to combine/seperate into outputs"""
   used_strands = ordered_dict()
   ## Subroutine
@@ -34,7 +34,7 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=24, time=100000, tem
     bar = []
     for compl in foo:
       # Load seq/struct with encoded name
-      name = gate_name+"-"+compl.name
+      name = prefix + compl.name
 
       if seqs.has_key(name): # The standard easy method
         seq = seqs[name]
@@ -44,7 +44,7 @@ def test_kinetics(gate_name, kin, seqs, mfe_structs, trials=24, time=100000, tem
         for strand in compl.strands:
           # For each strand combine sequences
           for small_seq in strand.nupack_seqs:
-            seq += seqs[gate_name+"-"+small_seq.name]
+            seq += seqs[prefix + small_seq.name]
           seq += "+" # With strand break between strands
         seq = seq.rstrip("+")
         struct, dG = DNAfold(seq, temp) # We ignore the dG

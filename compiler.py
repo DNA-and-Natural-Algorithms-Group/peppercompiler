@@ -5,8 +5,10 @@ import sys
 import pickle
 import re
 import time
+import myStat as stat
 
 from circuit_class import load_gate, Circuit
+from template_class import Gate
 from kinetics import read_nupack, test_kinetics
 
 def compiler(basename, args):
@@ -32,19 +34,31 @@ def compiler(basename, args):
 def finish(basename, trials=24, num_proc=4, time=100000):
   print "Finishing compilation of %s ..." % basename
   print "Running %d trials across %d processes with max_time of %d." % (trials, num_proc, time)
-  circuit = load(basename+".save")
+  obj = load(basename+".save")
   # Read results
   seqs, mfe_structs = read_nupack(basename+".mfe")
   
-  # Prepare for Schaeffer's Multistrand
-  # TODO: allow circuit to be a gate
-  if not isinstance(circuit, Circuit):
-    print "Error: compiling Gates is not completely supported yet."
-    return 1
-  for gate_name, gate in circuit.gates.items():
+  # Helper functions
+  def kin(obj, prefix=""):
+    """Run kinetic tests on object (could be ciruit or gate)."""
+    if isinstance(obj, Circuit):
+      return kin_circuit(obj, prefix)
+    elif isinstance(obj, Gate):
+      return kin_gate(obj, prefix)
+    else:
+      raise Exception
+
+  def kin_circuit(circuit, prefix):
+    """Run kinetics on all gates (and subcircuits) a given circuit."""
+    for obj_name, obj in circuit.gates.items():
+      kin(obj, prefix + obj_name + "-")
+
+  def kin_gate(gate, prefix):
+    """Test all kinetic pathways in a gate."""
     for kin in gate.kinetics.values():
       # Print testing info
-      print "kinetic", gate_name, ":",
+      print
+      print "kinetic", prefix, ":",
       for compl in kin.inputs:
         print compl.name,
       print "->",
@@ -53,13 +67,14 @@ def finish(basename, trials=24, num_proc=4, time=100000):
       print
       sys.stdout.flush()
       # Call Multistrand instances
-      frac, times, res = test_kinetics(gate_name, kin, seqs, mfe_structs, trials=trials, num_proc=num+proc, time=time)
-      if times:
-        ave = sum(times) / len(times)
-      else:
-        ave = 0
+      frac, times, res = test_kinetics(prefix, kin, seqs, mfe_structs, trials=trials, num_proc=num_proc, time=time)
       # TODO: process results
-      print "Result:", frac, ave
+      print times
+      print "Result:", frac, stat.mean(times), stat.stddev(times)
+  # End of helper functions
+  
+  # Prepare for Schaeffer's Multistrand
+  kin(obj)
 
 def save(obj, filename):
   """Save an object for later finishing."""
