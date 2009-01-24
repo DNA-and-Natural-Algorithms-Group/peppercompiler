@@ -210,7 +210,7 @@ def prepare(in_name):
       #  print i, j, st[i], temp
   # Propogate the changes
   for i in xrange(len(eq)):
-    if eq[i] < i:
+    if eq[i] != NOTHING and eq[i] < i:
       j = eq[i]
       st[i] = st[j]
     if wc[i] != NOTHING:
