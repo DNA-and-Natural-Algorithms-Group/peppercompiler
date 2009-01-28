@@ -1,0 +1,38 @@
+declare component Catalyst: cat -> sb + ob + cat
+
+## Sequences
+sequence r1  = ?N : 4
+sequence r2  = ?N : 4
+sequence r3  = ?N : 4
+sequence r4  = ?N : 4
+sequence r5  = ?N : 4
+sequence r6  = ?N : 4
+sequence r10 = ?N : 4
+
+## Strands
+# Inputs
+strand fuel = r2 r3 r4 r5 r1 r2 : 24
+strand cat  = r1 r2 r3 : 12
+# Gate sections
+strand ib = r3* r2* r1* r5* r4* r3* r2* : 28
+strand ob = r10 r2  r3  r4 : 16
+strand sb = r6  r5  r1  r2 : 16
+
+## Structures/Complexes
+# Input
+structure Fuel = fuel : U20
+structure Cat  = cat  : U12
+# Gate (and Intermediate structures)
+structure S  = ib + ob + sb  : U4 H12(H12(+ U4) + U4)
+structure I3 = ib + ob + cat : H12(U4 H12(+ U4) + U4)
+# Outputs
+structure SB = sb : U16
+structure OB = ob : U16
+# Waste
+structure Waste = ib + fuel : U4 H24(+)
+
+## Kinetics
+# Overall: Cat + S + Fuel  ->  SB + OB + Cat + Waste
+kinetic Cat  + S  ->  SB + I3
+kinetic Fuel + I3 ->  OB + Waste + Cat
+
