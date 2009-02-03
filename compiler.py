@@ -69,8 +69,11 @@ def finish(basename, trials=24, num_proc=4, time=100000):
       # Call Multistrand instances
       frac, times, res = test_kinetics(prefix, kin, seqs, mfe_structs, trials=trials, num_proc=num_proc, time=time)
       # TODO: process results
+      alpha = 0.01
+      low, mid, high = stat.exp_mean_interval(times, alpha)
       print times
-      print "Result:", frac, stat.mean(times), stat.stddev(times)
+      print "%d%% finished. Mean time = %.0f (%.2f%% Confidence interval: %.0f < mean < %.0f)." \
+            % (100*frac, mid, 100*(1-alpha), low, high)
   # End of helper functions
   
   # Prepare for Schaeffer's Multistrand

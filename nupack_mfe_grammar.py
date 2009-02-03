@@ -1,4 +1,4 @@
-"""Grammar for Joe Zadeh's thermodynamic design output format"""
+"""Grammar for NUPACK's mfe used by DNAfold"""
 
 from pyparsing import *
 
