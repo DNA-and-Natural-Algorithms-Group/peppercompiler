@@ -39,4 +39,3 @@ structure OutSC = SC : U60
 # Overall: InX + InY + G  ->  wasteX + wasteY + OutS + OutC
 kinetic  InX + G   -> wasteX + Ga
 kinetic  InY + Ga  -> wasteY + OutSC
-
