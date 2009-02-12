@@ -74,7 +74,7 @@ seq_stat  = K(seq)  + seq_name + S("=") + seq_const_list + S(":") + integer
 sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + \
                seq_name + S("=") + strand_const_list + S(":") + integer
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand) + strand_var + S("=") + strand_const_list + S(":") + integer
+strand_stat  = K(strand) + O("[dummy]", default="") + strand_var + S("=") + strand_const_list + S(":") + integer
 # structure <optinoal mfe param> <name> = <strands> : <secondary structure>
 mfe_info = O(     K("[no-opt]").setParseAction(lambda s,t,l: False) | \
                   ( S("[") + float_ + S("nt]") ),

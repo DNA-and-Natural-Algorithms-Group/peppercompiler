@@ -40,7 +40,7 @@ class Gate(PrintObject):
     self.seqs[name] = SuperSequence(name, length, *const)
     self.sup_seqs[name] = self.seqs[name]
   
-  def add_strand(self, name, const, length):
+  def add_strand(self, dummy, name, const, length):
     if DEBUG: print "strand", name
     assert name not in self.strands, "Duplicate strand definition"
     for n, item in enumerate(const):
@@ -49,8 +49,8 @@ class Gate(PrintObject):
           const[n] =  self.seqs[item[1][0]]
         else:
           const[n] = ~self.seqs[item[1][0]]
-    #dummy = (dummy == "[dummy]")
-    self.strands[name] = Strand(name, length, *const)
+    dummy = (dummy == "[dummy]")
+    self.strands[name] = Strand(name, dummy, length, *const)
   
   def add_structure(self, mfe, name, strands, struct):
     if DEBUG: print "struct", name
