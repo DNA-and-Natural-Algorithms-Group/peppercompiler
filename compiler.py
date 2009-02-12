@@ -5,16 +5,16 @@ import sys
 import pickle
 import re
 import time
-import myStat as stat
 
-from circuit_class import load_gate, Circuit
-from template_class import Gate
+from circuit_class import load_file, Circuit
+from gate_class import Gate
 from kinetics import read_nupack, test_kinetics
+import myStat as stat
 
 def compiler(basename, args):
   print "Compiling %s ..." % basename
   # Read in circuit design
-  circuit = load_gate(basename, args)
+  circuit = load_file(basename, args)
   # TODO: allow circuit to be a gate
   if not isinstance(circuit, Circuit):
     print "Warning: compiling Gates are not completely supported yet."

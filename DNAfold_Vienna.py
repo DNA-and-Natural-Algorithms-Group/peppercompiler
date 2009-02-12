@@ -45,4 +45,3 @@ def DNAfold(seq, temp):
   assert len(struct) == len(dummy_seq)
   
   return struct, dG
-

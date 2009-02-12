@@ -3,10 +3,10 @@ from __future__ import division
 import sys
 import string
 
-from utils import ordered_dict
+from utils import ordered_dict, PrintObject
 import nupack_out_grammar as ngram
 from DNAfold import DNAfold
-from multi_kinfold import DNAkinfold
+from multistrand import DNAkinfold
 
 def read_nupack(filename):
   # Note: parseFile reads entire file into memory and then returns entire file of data
@@ -22,7 +22,7 @@ def read_nupack(filename):
     structs[name] = actual_struct
   return seqs, structs
 
-class Complex(object):
+class Structure(PrintObject):
   def __init__(self, strands, struct):
     self.strands = strands; self.struct = struct
 
@@ -64,14 +64,14 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
         else:
           assert used_strands[strand.name] == strand_seq
         
-      bar.append(Complex(these_strands, struct))
+      bar.append(Structure(these_strands, struct))
     return bar
   ## End Subroutine
   ins = convert(kin.inputs)
   outs = convert(kin.outputs)
-  #HACK
+  # HACK: We don't want to run until they've reached mfe structure.
+  # Instead we wait for the strands to be in the right structures.
+  # NOTE: This only tests that the 1st output structure is produced!
   outs = outs[0:1]
   outs[0].struct = "DISASSOC"
   return DNAkinfold(used_strands, ins, outs, trials, time, temp, conc, num_proc, out_interval)
-
-

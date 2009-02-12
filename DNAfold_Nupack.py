@@ -37,4 +37,3 @@ def DNAfold(seq, temp):
   os.remove(outfilename)
   
   return struct, dG
-

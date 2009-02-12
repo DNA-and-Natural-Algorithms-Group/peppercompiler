@@ -17,4 +17,3 @@ document = StringStart() + Suppress(nucleotides) + energy + mfe_structure + Supp
 document.ignore(comment)
 
 parseFile = document.parseFile
-

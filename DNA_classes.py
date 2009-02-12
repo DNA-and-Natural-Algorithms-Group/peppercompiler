@@ -25,7 +25,7 @@ class Sequence(object):
       assert delta >= 0, "Sequence length mismatch"
       i = lengths.index(WILDCARD)
       self.const[i] = (delta, self.const[i][1])
-      
+    
     self.nupack_constr = self.des_const()
 
   def __invert__(self):
@@ -110,6 +110,7 @@ class SuperSequence(object):
     return self.wc
   def __repr__(self):
     return "SuperSequence(%(name)r, %(length)r, %(seqs)r)" % self.__dict__
+
 class ReverseSuperSequence(SuperSequence):
   def __init__(self, wc):
     self.name = wc.name + "*"
@@ -151,4 +152,3 @@ class Kinetics(object):
     self.outputs = outputs      
   def __repr__(self):
     return "Kinetics(%(name)r, %(inputs)r, %(outputs)r)" % self.__dict__
-

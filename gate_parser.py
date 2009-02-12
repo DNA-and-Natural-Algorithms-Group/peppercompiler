@@ -1,8 +1,8 @@
-"""Nucleic Acid template design grammar"""
+"""Nucleic Acid gate design grammar"""
 
 import sys
 
-from template_class import Gate
+from gate_class import Gate
 from var_substitute import process
 
 from pyparsing import *
@@ -89,14 +89,14 @@ document = StringStart() + ZeroOrMore(S("\n")) + Group(decl_stat) + S("\n") + \
 document.ignore(pythonStyleComment)
 
 
-def load_template(filename, args):
-  """Load component template file"""
+def load_gate(filename, args):
+  """Load component file"""
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
   except ParseBaseException, e:
     print
-    print "Parsing error in template:", filename
+    print "Parsing error in component:", filename
     print e
     sys.exit(1)
     
@@ -106,7 +106,7 @@ def load_template(filename, args):
   except ParseBaseException, e:
     print
     print doc
-    print "Parsing error in template:", filename
+    print "Parsing error in component:", filename
     print e
     sys.exit(1)
   
@@ -137,4 +137,3 @@ def substitute(filename, args):
   for name, val in zip(param_names, args):
     params[name] = val
   return process(filename, params)
-

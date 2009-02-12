@@ -24,13 +24,16 @@ STOP_FLAG = "Stop_Flag"
 def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1, out_interval=-1):
   """
   strands = dict of strand_name : sequence used in structs
-  *_struct = list of complexes (each of which is a list of strand_names and a 2ndary struct)
-  temp = temperature (deg C)   conc = concentration
-  sim_time = max time of sim   trials = number of trials
+  *_struct = list of structures (each of which is a list of strand_names and a secondary struct)
+  temp = temperature (deg C)
+  conc = concentration
+  sim_time = max time of sim
+  trials = number of trials
   num_proc = number of processes to start (trials devided between them).
   """
-  # Assumes that structures are connected complexes
+  # Note: Assumes that structures are connected complexes
   assert start_struct != stop_struct
+  
   trials_each = int(math.ceil(trials / num_proc))
   trials = trials_each * num_proc
   f, in_name = mktemp(mode="w", prefix="multi_", suffix=".in")
@@ -79,14 +82,14 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
     procs.append( subprocess.Popen(command, shell=True) )
     #time.sleep(1.0)
   # Wait for them to finish
-  for i in range(num_proc):
-    return_code = procs[i].wait()
+  for proc in procs:
+    return_code = proc.wait()
     if return_code != 0:
       print
       raise OSError, "Multistrand failed with status (%d)" % return_code
   
   # Read back results
-  f = file(out_name, "r")
+  f = open(out_name, "r")
   res = f.read()
   f.close()
   
@@ -102,4 +105,3 @@ def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc,
   #os.remove(out_name)
   
   return frac, times, res
-

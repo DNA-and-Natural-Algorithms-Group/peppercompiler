@@ -61,14 +61,14 @@ if __name__ == "__main__":
   import sys
   
   import circuit_parser
-  import template_parser
+  import gate_parser
   
   def substitute(filename, args):
     # Parse for function declaration
     if re.match(r".*\.sys\Z", filename):
       param_names = circuit_parser.decl_stat.parseFile(filename)[2]
     elif re.match(r".*\.comp\Z", filename):
-      param_names = template_parser.decl_stat.parseFile(filename)[2]
+      param_names = gate_parser.decl_stat.parseFile(filename)[2]
     else:
       raise ValueError, "File %s is neither system nor component type." % filename
         
@@ -81,4 +81,3 @@ if __name__ == "__main__":
   filename = sys.argv[1]
   args = map(eval, sys.argv[2:])
   print substitute(filename, args)
-

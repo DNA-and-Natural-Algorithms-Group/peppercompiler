@@ -12,4 +12,3 @@ def check_call(*args, **kw):
   if stat != 0:
     raise CalledProcessError, stat
   return
-

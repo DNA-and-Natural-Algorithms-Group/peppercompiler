@@ -95,4 +95,3 @@ class Gate(PrintObject):
       if struct.mfe:
         outfile.write("%s < %f\n" % (name, struct.mfe))
     ### TODO: do something for prevents
-

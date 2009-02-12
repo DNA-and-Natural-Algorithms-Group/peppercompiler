@@ -1,7 +1,7 @@
 import re
 
 import circuit_class
-import template_class
+import gate_class
 
 def split(string):
     #return string.split()
@@ -148,7 +148,7 @@ def load_component(doc, name, ins, outs):
     # TODO: fix
     ins = [(x, None) for x in ins]
     outs = [(x, None) for x in outs]
-    component = template_class.Gate(name, None, ins, outs)
+    component = gate_class.Gate(name, None, ins, outs)
     for line in doc:
         command, rest = line.split(None, 1) # Split off first word
         if command == "sequence":
@@ -166,9 +166,8 @@ def load_component(doc, name, ins, outs):
 if __name__ == "__main__":
     import sys
     
-    template_class.DEBUG = circuit_class.DEBUG = True
+    gate_class.DEBUG = circuit_class.DEBUG = True
     
     filename = sys.argv[1]
     args = map(eval, sys.argv[2:])
     print load_file(filename, args)
-

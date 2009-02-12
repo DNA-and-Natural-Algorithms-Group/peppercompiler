@@ -14,4 +14,3 @@ def DNAfold(seq, temp=25):
       raise Exception, "NUPACK mfe and Vienna RNAfold both failed.\n" \
                        "NUPACK with status %s\n" \
                        "RNAfold with status %s" % (e1, e2)
-

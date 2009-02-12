@@ -95,4 +95,3 @@ def exp_mean_interval(xs, alpha):
   upper_bound = m_hat * 2*n / chi_up
   
   return lower_bound, m_hat, upper_bound
-  

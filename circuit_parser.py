@@ -1,7 +1,7 @@
 import sys
 
 from circuit_class import Circuit
-from template_parser import substitute
+from gate_parser import substitute
 from var_substitute import process
 
 from pyparsing import *
@@ -86,4 +86,3 @@ def substitute(filename, args):
   for name, val in zip(param_names, args):
     params[name] = val
   return process(filename, params)
-

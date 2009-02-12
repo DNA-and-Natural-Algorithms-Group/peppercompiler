@@ -19,4 +19,3 @@ statement = Suppress(seq) + Suppress(LineEnd()) + \
 document = StringStart() + statement + StringEnd()
 
 parseFile = document.parseFile
-

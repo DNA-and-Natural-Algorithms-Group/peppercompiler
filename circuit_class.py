@@ -11,16 +11,18 @@ from utils import ordered_dict, PrintObject
 
 DEBUG = False
 
-def load_gate(basename, args):
+def load_file(basename, args):
+  # Imported in the function to avoid circular import error.
   from circuit_parser import load_circuit
-  from template_parser import load_template
+  from gate_parser import load_gate
+  
   sys_name = basename+".sys"
   if os.path.isfile(sys_name):
     return load_circuit(sys_name, args)
   else:
     comp_name = basename+".comp"
     if os.path.isfile(comp_name):
-      return load_template(comp_name, args)
+      return load_gate(comp_name, args)
     else:
       raise IOError, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
 
@@ -56,7 +58,7 @@ class Circuit(PrintObject):
     # Setup gates
     assert templ_name in self.template, "Template referenced before import: " + templ_name
     assert gate_name not in self.gates, "Duplicate gate definition: " + gate_name
-    self.gates[gate_name] = this_gate = load_gate(self.template[templ_name], templ_args)
+    self.gates[gate_name] = this_gate = load_file(self.template[templ_name], templ_args)
     assert len(inputs) == len(this_gate.inputs),   "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len( inputs), len(this_gate.inputs ))
     assert len(outputs) == len(this_gate.outputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(outputs), len(this_gate.outputs))
     # Constrain all gate inputs and outputs
@@ -125,4 +127,3 @@ class Circuit(PrintObject):
         dummy_name = glob_name + "-" + sig_name
         outfile.write("structure %s = H%d(+)\n" % (dummy_name, length))
         outfile.write("%s : %s %s\n" % (dummy_name, wc_name, seqs))
-

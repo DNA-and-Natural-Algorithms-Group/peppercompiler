@@ -33,4 +33,3 @@ end_statement = Suppress("Total n(s*) =") + float_
 
 # Ignoring bad interactions for now.
 document = StringStart() + List(statement) + Suppress(List(bad_inter)) + end_statement + Suppress(ZeroOrMore(LineEnd())) + StringEnd()
-
