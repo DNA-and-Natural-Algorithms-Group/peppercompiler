@@ -4,7 +4,6 @@ The Circuit class stores all of the information in a circuit file and loads
 """
 
 import string
-import os
 
 import DNA_classes
 from utils import ordered_dict, PrintObject
@@ -13,6 +12,7 @@ DEBUG = False
 
 def load_file(basename, args):
   # Imported in the function to avoid circular import error.
+  import os
   from circuit_parser import load_circuit
   from gate_parser import load_gate
   
