@@ -49,6 +49,7 @@ class Gate(PrintObject):
           const[n] =  self.seqs[item[1][0]]
         else:
           const[n] = ~self.seqs[item[1][0]]
+    #dummy = (dummy == "[dummy]")
     self.strands[name] = Strand(name, length, *const)
   
   def add_structure(self, mfe, name, strands, struct):

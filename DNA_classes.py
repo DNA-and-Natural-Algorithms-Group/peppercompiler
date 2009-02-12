@@ -121,6 +121,9 @@ class ReverseSuperSequence(SuperSequence):
 
 class Strand(SuperSequence):
   """Container for strands"""
+  #def __init__(self, name, dummy, length, *constraints):
+  #  SuperSequence.__init__(self, name, length, *constraints)
+  #  self.dummy = dummy
   def __repr__(self):
     return "Strand(%(name)r, %(length)r, %(seqs)r)" % self.__dict__
 
