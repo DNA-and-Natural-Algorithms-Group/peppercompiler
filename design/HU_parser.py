@@ -66,4 +66,3 @@ def get_bonds(struct):
   par = statement.parseString(struct)
   recurse(par)
   return bonds.bonds
-

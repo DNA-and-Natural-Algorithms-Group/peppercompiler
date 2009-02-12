@@ -26,4 +26,3 @@ class Spec(PrintObject):
       return self.seqs[name]
     else: # parity == "*"
       return ~self.seqs[name]
-

@@ -207,4 +207,3 @@ if __name__ == "__main__":
   in_name = sys.argv[1]
   out_name = re.sub(r"\.des\Z", r".mfe", in_name) # Makes foo.des => foo.mfe
   design(in_name, out_name)
-

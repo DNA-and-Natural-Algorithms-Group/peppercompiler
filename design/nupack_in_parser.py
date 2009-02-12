@@ -79,4 +79,3 @@ def load_design(filename):
     elif stat[0] == app:
       spec.add_apply(*stat[1:])
   return spec
-

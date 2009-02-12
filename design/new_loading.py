@@ -74,4 +74,3 @@ if __name__ == "__main__":
     import sys
     
     load_file(sys.argv[1])
-

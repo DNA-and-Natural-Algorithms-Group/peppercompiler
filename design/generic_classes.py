@@ -56,4 +56,3 @@ class PrintObject(object):
     attribs = string.join(attribs, ", ")
     return "%s(%s)" % (self.__class__.__name__, attribs)
   __repr__ = __str__
-

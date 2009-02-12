@@ -78,4 +78,3 @@ class Structure(object):
 
   def __repr__(self):
     return "Structure(%(name)r, %(struct)r)" % self.__dict__
-
