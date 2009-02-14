@@ -1,6 +1,6 @@
 """Grammar for Joe Zadeh's Helix Unpaired format"""
 
-# Extend path to see compiler library and the HU2dotParen library
+# Extend path to see compiler library
 import sys
 here = sys.path[0] # System path to this module.
 sys.path += [here+"/.."]

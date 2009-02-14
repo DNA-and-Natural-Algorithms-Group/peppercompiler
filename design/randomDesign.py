@@ -11,7 +11,7 @@ import string
 # Extend path to see compiler library and the HU2dotParen library
 import sys
 here = sys.path[0] # System path to this module.
-sys.path += (here+"/..", here+"/../HU2dotParen")
+sys.path += (here+"/..")
 
 from DNAfold import DNAfold
 from HU2dotParen import HU2dotParen

@@ -10,7 +10,7 @@ import subprocess
 # Extend path to see compiler library and the HU2dotParen library
 import sys
 here = sys.path[0] # System path to this module.
-sys.path += (here+"/..", here+"/../HU2dotParen")
+sys.path += (here+"/..")
 
 from new_loading import load_file
 from DNAfold import DNAfold
