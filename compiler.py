@@ -13,16 +13,13 @@ import myStat as stat
 
 def compiler(basename, args):
   print "Compiling %s ..." % basename
-  # Read in circuit design
-  circuit = load_file(basename, args)
-  # TODO: allow circuit to be a gate
-  if not isinstance(circuit, Circuit):
-    print "Warning: compiling Gates are not completely supported yet."
+  # Read in design (system or component)
+  design = load_file(basename, args)
 
   # Write the Zadeh-style design file
   outfile = file(basename+".des", "w")
   outfile.write("## Specification for %s compiled at: %s\n" % (basename, time.ctime()))
-  circuit.output_nupack("", outfile)
+  design.output_nupack("", outfile)
   outfile.close()
 
   # Save compiler state to be reloaded when designer finishes
@@ -33,12 +30,20 @@ def compiler(basename, args):
 
 def finish(basename, trials=24, num_proc=4, time=100000):
   print "Finishing compilation of %s ..." % basename
-  print "Running %d trials across %d processes with max_time of %d." % (trials, num_proc, time)
-  obj = load(basename+".save")
-  # Read results
+  # Re-load the design system/component
+  design = load(basename+".save")
+  # Read results of DNA designer
   seqs, mfe_structs = read_nupack(basename+".mfe")
   
+  # TODO
+  #print 'Writing "stands to order" file: %s.strands' % basename
+  #f = open(basename + ".strands", "w")
+  
+  print "Testing Kinetics"
+  print "Running %d trials across %d processes with max_time of %d." % (trials, num_proc, time)
+  
   # Helper functions
+  # HACK: must be nested functions because they use seqs & mfe_structs.
   def kin(obj, prefix=""):
     """Run kinetic tests on object (could be ciruit or gate)."""
     if isinstance(obj, Circuit):
@@ -71,13 +76,13 @@ def finish(basename, trials=24, num_proc=4, time=100000):
       # TODO: process results
       alpha = 0.01
       low, mid, high = stat.exp_mean_interval(times, alpha)
-      print times
+      #print times
       print "%d%% finished. Mean time = %.0f (%.2f%% Confidence interval: %.0f < mean < %.0f)." \
             % (100*frac, mid, 100*(1-alpha), low, high)
   # End of helper functions
   
   # Prepare for Schaeffer's Multistrand
-  kin(obj)
+  kin(design)
 
 def save(obj, filename):
   """Save an object for later finishing."""
