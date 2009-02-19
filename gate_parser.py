@@ -2,6 +2,7 @@
 
 import sys
 
+from HU2dotParen import extended2dotParen, HU2dotParen
 from gate_class import Gate
 from var_substitute import process
 
@@ -60,8 +61,11 @@ strand_const_list = List(strand_const)
 strand_var = var;  strand_list = List(strand_var + S(Optional("+")))
 struct_var = var;  struct_list = List(struct_var + S(Optional("+")))
 
-### TODO: accept my extended dot-paren form.
-secondary_struct = Word( nums+"UH()+ " ) | Word( ".()" ) # I don't need to break it up
+# Secondary structure can be dot-paren, extended dot-paren or HU notation.
+## TODO: deal with errors. Super-confusing error messages right now.
+exDotParen = Word(nums + ".()+ " ).setParseAction(Map(extended2dotParen))
+HUnotation = Word(nums + "UH()+ ").setParseAction(Map(HU2dotParen))
+secondary_struct = exDotParen | HUnotation
 
 
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)

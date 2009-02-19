@@ -23,7 +23,7 @@ def compiler(basename, args):
   outfile.close()
 
   # Save compiler state to be reloaded when designer finishes
-  save(circuit, basename+".save")
+  save(design, basename+".save")
   print "System/component compiled into %s.des" % basename
   print "Run a designer on this and get an %s.mfe output" % basename
   print 'Finally run "python compiler.py %s.save" to finish compiling and run kinetics' % basename
