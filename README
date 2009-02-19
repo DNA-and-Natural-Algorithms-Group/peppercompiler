@@ -8,7 +8,7 @@ Joe's designer).
 
 Process "circuit.des" with a designer. There is a simple random designer 
 provided in "design/". Run
-  python randomDesign.py circuit.des
+  python random_design.py circuit.des
 
 to produce "circuit.mfe".
 
