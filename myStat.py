@@ -1,3 +1,4 @@
+"""Some useful statistics methods."""
 from __future__ import division
 
 import math
