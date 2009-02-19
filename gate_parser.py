@@ -137,7 +137,7 @@ def substitute(filename, args):
   # Parse for function declaration
   param_names = decl_stat.parseFile(filename)[2]
   params = {}
-  assert len(param_names) == len(args), (param_names, args)
+  assert len(param_names) == len(args), "Argument mismatch loading %s: len(%s) != len(%s)" % (filename, param_names, args)
   for name, val in zip(param_names, args):
     params[name] = val
   return process(filename, params)
