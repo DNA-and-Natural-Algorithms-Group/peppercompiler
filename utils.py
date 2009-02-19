@@ -23,6 +23,10 @@ class ordered_dict(dict):
   def __init__(self):
     self.order = []
     dict.__init__(self)
+  
+  def get_index(self, index):
+    return self[self.order[index]]
+  
   def __setitem__(self, key, value):
     if key not in self:
       self.order.append(key)

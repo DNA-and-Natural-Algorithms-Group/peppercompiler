@@ -1,6 +1,13 @@
 import string
-from generic_classes import ordered_dict, PrintObject
+
 from DNA_classes import *
+
+# Extend path to see compiler library
+import sys
+here = sys.path[0] # System path to this module.
+sys.path += (here+"/..")
+
+from utils import ordered_dict, PrintObject
 
 class Spec(PrintObject):
   def __init__(self):
