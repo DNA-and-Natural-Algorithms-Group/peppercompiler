@@ -8,15 +8,15 @@ from __future__ import division
 import random
 import string
 
-# Extend path to see compiler library and the HU2dotParen library
+from nupack_in_parser import load_design
+from DNA_classes import group, complement
+
+# Extend path to see compiler library
 import sys
 here = sys.path[0] # System path to this module.
 sys.path += (here+"/..")
 
 from DNAfold import DNAfold
-from HU2dotParen import HU2dotParen
-from nupack_in_parser import load_design
-from DNA_classes import group, complement
 
 def random_choice(group):
   """Randomly chooses an element (and gives sensical error if group has size 0)."""
@@ -119,9 +119,8 @@ def design(infilename, outfile):
 
 def build_structs(structs):
   for struct in structs.values():
-    struct.dp_struct = HU2dotParen(struct.struct)
-    breaks = [i for i, symb in enumerate(struct.dp_struct) if symb == "+"]
-    lengths = [y - x - 1 for x, y in zip([-1] + breaks, breaks + [len(struct.dp_struct)])] # = diffs of breaks
+    breaks = [i for i, symb in enumerate(struct.struct) if symb == "+"]
+    lengths = [y - x - 1 for x, y in zip([-1] + breaks, breaks + [len(struct.struct)])] # = diffs of breaks
     #print breaks, lengths
     lengths = iter(lengths)
     # Build strands list
@@ -162,7 +161,7 @@ def score(structs):
     struct.seq = build_seq(struct)
     #print struct.name, struct.seq
     struct.mfe_struct, dG = DNAfold(struct.seq)
-    diffs += diff(struct, struct.dp_struct, struct.mfe_struct)
+    diffs += diff(struct, struct.struct, struct.mfe_struct)
   return diffs
 
 def diff(lable, str_a, str_b):
@@ -183,7 +182,7 @@ def output_sequences(d, connect, fn):
     f.write("%d:%s\n" % (0, struct.name))
     gc_content = (struct.seq.count("C") + struct.seq.count("G")) / (len(struct.seq) - len(struct.strands)) # - len(struct.strands) because of the +'s in the struct.seq
     f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
-    f.write("%s\n" % struct.dp_struct)   # Target structure
+    f.write("%s\n" % struct.struct)   # Target structure
     f.write("%s\n" % struct.mfe_struct)  # MFE structure of chosen sequences
   for seq in d.seqs.values():
     # Write sequence (with dummy content)
