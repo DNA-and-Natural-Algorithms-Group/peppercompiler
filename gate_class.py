@@ -75,19 +75,19 @@ class Gate(PrintObject):
       outfile.write("#\n## Gate %s\n" % prefix[:-1])
     else:
       outfile.write("#\n## Top Gate\n")
+    
     # Define structures
     used_seqs = ordered_set()
     for struct in self.structs.values():
       name = prefix + struct.name
       outfile.write("structure %s = %s\n" % (name, struct.struct))
-      used_seqs.update([ x for x in struct.nupack_seqs if not x.reversed] + \
-                       [~x for x in struct.nupack_seqs if x.reversed])
+      # TODO-maybe: test that all sequences are used.
+    
     # Define sequences
-    #raw_input(repr(used_seqs))
-    for seq in used_seqs:
-      #print seq.name
+    for seq in self.reg_seqs.values():
       name = prefix + seq.name
       outfile.write("sequence %s = %s\n" % (name, seq.nupack_constr))
+    
     # Apply sequences to structures and set objective function
     for struct in self.structs.values():
       name = prefix + struct.name
@@ -95,4 +95,5 @@ class Gate(PrintObject):
       outfile.write("%s : %s\n" % (name, seqs))
       if struct.mfe:
         outfile.write("%s < %f\n" % (name, struct.mfe))
+    
     ### TODO: do something for prevents

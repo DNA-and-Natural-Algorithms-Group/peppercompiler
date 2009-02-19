@@ -9,7 +9,7 @@ from DNAfold import DNAfold
 from multistrand import DNAkinfold
 
 def read_nupack(filename):
-  # Note: parseFile reads entire file into memory and then returns entire file of data
+  """Extracts the designed sequences and the mfe structures"""
   stats, total_n_star = ngram.document.parseFile(filename)
   seqs = {}
   structs = {}
@@ -30,18 +30,19 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
   """Test times for inputs to combine/seperate into outputs"""
   used_strands = ordered_dict()
   ## Subroutine
-  def convert(foo):
-    bar = []
-    for compl in foo:
+  ## TODO: fix up this horrible function.
+  def convert(old_structs):
+    new_structs = []
+    for struct in old_structs:
       # Load seq/struct with encoded name
-      name = prefix + compl.name
+      name = prefix + struct.name
 
       if seqs.has_key(name): # The standard easy method
         seq = seqs[name]
         struct = mfe_structs[name]
       else: # The fallback method
         seq = ""
-        for strand in compl.strands:
+        for strand in struct.strands:
           # For each strand combine sequences
           for small_seq in strand.nupack_seqs:
             seq += seqs[prefix + small_seq.name]
@@ -54,9 +55,9 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
 
       # Load sequences for individual strands and check consistency
       strand_seqs = seq.split("+")
-      assert len(compl.strands) == len(strand_seqs)
+      assert len(struct.strands) == len(strand_seqs)
       these_strands = []
-      for strand, strand_seq in zip(compl.strands, strand_seqs):
+      for strand, strand_seq in zip(struct.strands, strand_seqs):
         these_strands.append(strand.name)
         assert len(strand_seq) == strand.length
         if not used_strands.has_key(strand.name):
@@ -64,8 +65,8 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
         else:
           assert used_strands[strand.name] == strand_seq
         
-      bar.append(Structure(these_strands, struct))
-    return bar
+      new_structs.append(Structure(these_strands, struct))
+    return new_structs
   ## End Subroutine
   ins = convert(kin.inputs)
   outs = convert(kin.outputs)

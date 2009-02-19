@@ -107,7 +107,7 @@ class Circuit(PrintObject):
       outfile.write("sequence %s = %dN\n" % (wc_name, length))
       
       dummy_name = "%s-_Self" % glob_name
-      outfile.write("structure %s = H%d(+)\n" % (dummy_name, length))
+      outfile.write("structure %s = %s\n" % (dummy_name, "(" * length + "+" + ")" * length))
       outfile.write("%s : %s %s\n" % (dummy_name, wc_name, glob_name))
       
       # For each instance of the global sequence, build a structure to 
@@ -125,5 +125,5 @@ class Circuit(PrintObject):
           seqs = prefix + sig_name
         
         dummy_name = glob_name + "-" + sig_name
-        outfile.write("structure %s = H%d(+)\n" % (dummy_name, length))
+        outfile.write("structure %s = %s\n" % (dummy_name, "(" * length + "+" + ")" * length))
         outfile.write("%s : %s %s\n" % (dummy_name, wc_name, seqs))
