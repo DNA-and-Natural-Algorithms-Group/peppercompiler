@@ -7,15 +7,15 @@ Uses Joe Zadah's input and output formats for compatibility with compiler.
 import string
 import subprocess
 
-# Extend path to see compiler library and the HU2dotParen library
+from new_loading import load_file
+from DNA_classes import group, rev_group, complement
+
+# Extend path to see compiler library
 import sys
 here = sys.path[0] # System path to this module.
 sys.path += (here+"/..")
 
-from new_loading import load_file
 from DNAfold import DNAfold
-from HU2dotParen import HU2dotParen
-from DNA_classes import group, rev_group, complement
 
 # HACK
 #group["_"] = ""
@@ -60,10 +60,6 @@ class Connections(object):
     
     self.structs = spec.structs.values()
     self.seqs = spec.seqs.values()
-    
-    # Get the dot-paren structure for all structures
-    for struct in self.structs:
-      struct.dp_struct = HU2dotParen(struct.struct)
     
     # HACK: Adding psuedo-structures for sequences
     self.num_structs = len(self.structs) + len(self.seqs)
@@ -148,7 +144,7 @@ def prepare(in_name):
     start = len(eq)
     for i in xrange(c.struct_length[s]):
       this = len(eq)
-      if struct.dp_struct[this-start] == "+":
+      if struct.struct[this-start] == "+":
         # Single spaces between strands.
         eq += [NOTHING]
         wc += [NOTHING]
@@ -250,7 +246,7 @@ def process_result(c, inname, outname):
     f.write("%d:%s\n" % (0, struct.name))
     gc_content = (struct.seq.count("C") + struct.seq.count("G")) / len(struct.seq)
     f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
-    f.write("%s\n" % struct.dp_struct)   # Target structure
+    f.write("%s\n" % struct.struct)   # Target structure
     f.write("%s\n" % struct.mfe_struct)  # Dummy MFE structure
   
   # HACK: we stored the sequences as structures.
@@ -322,7 +318,7 @@ if __name__ == "__main__":
     basename = sys.argv[1]
     p = re.match(r"(.*)\.des\Z", basename)
     if p:
-      basename = p.groups(1)
+      basename = p.group(1)
   except:
     print "Usage: python spurious_design.py [-v] infilename.des"
     sys.exit(1)

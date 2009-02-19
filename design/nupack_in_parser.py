@@ -1,6 +1,12 @@
 """Nucleic Acid template design grammar"""
 
 from nupack_in_class import Spec
+
+# Extend path to see compiler library
+import sys
+here = sys.path[0] # System path to this module.
+sys.path += (here+"/..")
+
 from pyparsing import *
 
 ## Some globals
@@ -38,7 +44,7 @@ seq_var = Group(var + Optional("*", default=""))
 seq_list = List(seq_var)
 
 ### TODO-maybe: Actually parse it.
-secondary_struct = Word( nums+"UH()+ " )
+secondary_struct = Word( nums+".()+ " )
 
 # structure <name> = <secondary structure>
 struct_stat = K(struct) + var + S("=") + secondary_struct

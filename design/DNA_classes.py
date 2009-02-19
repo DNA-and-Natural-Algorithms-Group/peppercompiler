@@ -1,8 +1,6 @@
 """DNA design container classes"""
 import string
 
-import HU_parser
-
 # Global DNA nt groups
 group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
          "W": "AT", "S": "CG", "N": "ACGT"} #... Others can be put later if needed ...
@@ -49,12 +47,30 @@ class ReverseSequence(Sequence):
   def __repr__(self):
     return "~Sequence(%(name)r, %(constr)r)" % self.wc.__dict__
 
+def get_bonds(struct):
+  bonds = []
+  stack = []
+  i = 0
+  for symb in struct:
+    if symb == "(":
+      stack.append(i)
+    if symb == ")":
+      assert len(stack) != 0
+      start = stack.pop() # The most recent open-paren
+      bonds.append( (start, i) )
+    
+    # 'i' is the index (but index doesn't include strand breaks)
+    if symb != "+":
+      i += 1
+  
+  return bonds
+
 class Structure(object):
   """Container for structures/complexes"""
   def __init__(self, name, struct):
     self.name = name
     self.struct = struct
-    self.bonds = HU_parser.get_bonds(struct)
+    self.bonds = get_bonds(struct)
     self.seqs = None
     self.seq = None
   def set_seqs(self, seqs):
