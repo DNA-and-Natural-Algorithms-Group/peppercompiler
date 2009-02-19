@@ -16,6 +16,7 @@ class Gate(PrintObject):
     self.seqs = ordered_dict()
     self.reg_seqs = ordered_dict()
     self.sup_seqs = ordered_dict()
+    self.junk_seqs = ordered_dict()
     self.strands = ordered_dict()
     self.structs = ordered_dict()
     self.kinetics = ordered_dict()
@@ -39,6 +40,11 @@ class Gate(PrintObject):
           const[n] = ~self.seqs[item[1][0]]
     self.seqs[name] = SuperSequence(name, length, *const)
     self.sup_seqs[name] = self.seqs[name]
+    # Add references junk sequences
+    for seq in self.sup_seqs[name].seqs:
+      if isinstance(seq, JunkSequence):
+        self.seqs[seq.name] = seq
+        self.junk_seqs[seq.name] = seq
   
   def add_strand(self, dummy, name, const, length):
     if DEBUG: print "strand", name
@@ -49,8 +55,14 @@ class Gate(PrintObject):
           const[n] =  self.seqs[item[1][0]]
         else:
           const[n] = ~self.seqs[item[1][0]]
+    # Make dummy a boolean value
     dummy = (dummy == "[dummy]")
     self.strands[name] = Strand(name, dummy, length, *const)
+    # Add references junk sequences
+    for seq in self.strands[name].seqs:
+      if isinstance(seq, JunkSequence):
+        self.seqs[seq.name] = seq
+        self.junk_seqs[seq.name] = seq
   
   def add_structure(self, mfe, name, strands, struct):
     if DEBUG: print "struct", name
@@ -84,7 +96,7 @@ class Gate(PrintObject):
       # TODO-maybe: test that all sequences are used.
     
     # Define sequences
-    for seq in self.reg_seqs.values():
+    for seq in self.reg_seqs.values() + self.junk_seqs.values():
       name = prefix + seq.name
       outfile.write("sequence %s = %s\n" % (name, seq.nupack_constr))
     

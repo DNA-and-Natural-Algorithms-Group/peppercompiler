@@ -33,16 +33,16 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
   ## TODO: fix up this horrible function.
   def convert(old_structs):
     new_structs = []
-    for struct in old_structs:
+    for compl in old_structs:
       # Load seq/struct with encoded name
-      name = prefix + struct.name
+      name = prefix + compl.name
 
       if seqs.has_key(name): # The standard easy method
         seq = seqs[name]
         struct = mfe_structs[name]
       else: # The fallback method
         seq = ""
-        for strand in struct.strands:
+        for strand in compl.strands:
           # For each strand combine sequences
           for small_seq in strand.nupack_seqs:
             seq += seqs[prefix + small_seq.name]
@@ -55,16 +55,16 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
 
       # Load sequences for individual strands and check consistency
       strand_seqs = seq.split("+")
-      assert len(struct.strands) == len(strand_seqs)
+      assert len(compl.strands) == len(strand_seqs)
       these_strands = []
-      for strand, strand_seq in zip(struct.strands, strand_seqs):
+      for strand, strand_seq in zip(compl.strands, strand_seqs):
         these_strands.append(strand.name)
         assert len(strand_seq) == strand.length
         if not used_strands.has_key(strand.name):
           used_strands[strand.name] = strand_seq
         else:
           assert used_strands[strand.name] == strand_seq
-        
+      
       new_structs.append(Structure(these_strands, struct))
     return new_structs
   ## End Subroutine
