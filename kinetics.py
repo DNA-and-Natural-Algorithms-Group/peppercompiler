@@ -30,7 +30,7 @@ def test_kinetics(prefix, kin, seqs, mfe_structs, trials=24, time=100000, temp=2
   """Test times for inputs to combine/seperate into outputs"""
   used_strands = ordered_dict()
   ## Subroutine
-  ## TODO: fix up this horrible function.
+  ## TODO: fix up this function, make it not nested.
   def convert(old_structs):
     new_structs = []
     for compl in old_structs:
