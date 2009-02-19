@@ -43,15 +43,15 @@ class Circuit(PrintObject):
   def add_import(self, *imports):
     if DEBUG: print "import", imports
     for path, name in imports:
-	    if name == None:
-	      # filename is used as the internal name by default
-	      if "/" not in path:
-	        name = path
-	      else:
-		      name = path[path.rfind("/")+1:]  # Strip off lower directories
-	    if DEBUG: print "import", name, path
-	    assert name not in self.template, "Duplicate import %s" % name
-	    self.template[name] = path
+      if name == None:
+        # filename is used as the internal name by default
+        if "/" not in path:
+          name = path
+        else:
+          name = path[path.rfind("/")+1:]  # Strip off lower directories
+      if DEBUG: print "import", name, path
+      assert name not in self.template, "Duplicate import %s" % name
+      self.template[name] = path
 
   def add_gate(self, gate_name, templ_name, templ_args, inputs, outputs):
     if DEBUG: print "gate", gate_name, templ_name, templ_args, inputs, outputs

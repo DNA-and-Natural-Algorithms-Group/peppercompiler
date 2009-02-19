@@ -68,15 +68,15 @@ class ordered_set(set):
       self.order.append(value)
       set.add(self, value)
   def update(self, other):
-  	for value in other:
-  		self.add(value)
+    for value in other:
+      self.add(value)
   def __iter__(self):
     for value in self.order:
       yield value
   
   ### TODO-maybe: impliment clear, copy, ...
   clear = copy = difference = difference_update = discard = intersection \
-  			= intersection_update = pop = remove = symmetric_difference \
+        = intersection_update = pop = remove = symmetric_difference \
         = symmetric_difference_update = union = _dummy
 
 class PrintObject(object):
