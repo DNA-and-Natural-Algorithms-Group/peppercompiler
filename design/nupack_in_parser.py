@@ -5,7 +5,7 @@ from nupack_in_class import Spec
 # Extend path to see compiler library
 import sys
 here = sys.path[0] # System path to this module.
-sys.path += (here+"/..")
+sys.path.append(here+"/..")
 
 from pyparsing import *
 

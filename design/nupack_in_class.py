@@ -5,7 +5,9 @@ from DNA_classes import *
 # Extend path to see compiler library
 import sys
 here = sys.path[0] # System path to this module.
-sys.path += (here+"/..")
+sys.path.append(here+"/..")
+
+print sys.path
 
 from utils import ordered_dict, PrintObject
 
