@@ -12,6 +12,12 @@ from kinetics import read_nupack, test_kinetics
 import myStat as stat
 
 def compiler(basename, args):
+  """
+  Start compiling a specification.
+  
+  Currently, it produces a .des file that can be used by sequence designers.
+  """
+  
   print "Compiling %s ..." % basename
   # Read in design (system or component)
   design = load_file(basename, args)
@@ -29,6 +35,15 @@ def compiler(basename, args):
   print 'Finally run "python compiler.py %s.save" to finish compiling and run kinetics' % basename
 
 def finish(basename, trials=24, num_proc=4, time=100000):
+  """
+  Finish compiling a specification.
+  
+  Currently, it produces .strands file of "strands to order"
+                and tests the specified kinetic paths
+  
+  In the future it might test for bad kinetics, etc.
+  """
+  
   print "Finishing compilation of %s ..." % basename
   # Re-load the design system/component
   design = load(basename+".save")
