@@ -14,9 +14,9 @@ sequence y = dy ty : <t+di2>
 sequence z = tz dz : <t+di3>
 sequence out = toe_out data_out : <t+do>
 
-strand inX = x : <t+di1>
-strand inY = y : <t+di2>
-strand inZ = z : <t+di3>
+strand [dummy] inX = x : <t+di1>
+strand [dummy] inY = y : <t+di2>
+strand [dummy] inZ = z : <t+di3>
 
 strand X = ?N : <t+di1>
 strand Y = ?N : <di1+di2>

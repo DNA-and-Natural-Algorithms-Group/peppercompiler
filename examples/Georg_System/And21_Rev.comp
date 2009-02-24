@@ -11,8 +11,8 @@ sequence x = dx tx : <t+di1>
 sequence y = ty dy : <t+di2>
 sequence out = toe_out data_out : <t+do>
 
-strand inX = x : <t+di1>
-strand inY = y : <t+di2>
+strand [dummy] inX = x : <t+di1>
+strand [dummy] inY = y : <t+di2>
 
 strand X = ?N : <t+di1>
 strand Y = ?N : <di1+di2>

@@ -8,7 +8,7 @@ sequence data_out = ?N : <do>
 sequence in = data_in toe_in : <t+di>
 sequence out = data_out toe_out : <t+do>
 
-strand In = in : <t+di>
+strand [dummy] In = in : <t+di>
 strand Base = ?N : <t+di>
 strand Out = out ?N : <di + do - c>
 
