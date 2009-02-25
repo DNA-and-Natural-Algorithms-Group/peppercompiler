@@ -110,13 +110,8 @@ def kinetic(gate, prefix, **keys):
     # Call Multistrand instances
     frac, times, res = test_kinetics(prefix, kin, **keys)
     # Process results
-    # Currently: assumes an exponential distribuiton and finds the 
-    #            99% confidence interval for the mean.
-    alpha = 0.01
-    low, mid, high = stat.exp_mean_interval(times, alpha)
-    #print times
-    print "%d%% finished. Mean time = %.0f (%.2f%% Confidence interval: %.0f < mean < %.0f)." \
-          % (100*frac, mid, 100*(1-alpha), low, high)
+    print "%d%% finished. Mean time = %.0f  Std Dev = %.0f" \
+          % (100*frac, stat.mean(times), stat.stddev(times))
 
 def kinetic_rec(obj, prefix, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""
