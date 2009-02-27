@@ -8,6 +8,7 @@ class Sequence(object):
     self.name = name
     self.length = length
     self.const = list(constraints)
+    self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
@@ -64,6 +65,7 @@ class SuperSequence(object):
   def __init__(self, name, length, *constraints):
     self.name = name
     self.seqs = []
+    self.seq = None # Stores the sequence once it has been defined.
     self.length = 0
     self.nupack_seqs = []
     wildcard = None
@@ -102,7 +104,7 @@ class SuperSequence(object):
       self.seqs.insert(i, junk_seq)
       self.nupack_seqs.insert(j, junk_seq)
       self.length += junk_seq.length
-    self.wc = None # lazy evaluate
+    self.wc = ~self
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
     if not self.wc:
@@ -116,6 +118,7 @@ class ReverseSuperSequence(SuperSequence):
     self.name = wc.name + "*"
     self.length = wc.length
     self.seqs = [~seq for seq in wc.seqs[::-1]]
+    self.seq = None # Stores the sequence once it has been defined.
     self.nupack_seqs = [~seq for seq in wc.nupack_seqs[::-1]]
     self.wc = wc
 
@@ -129,11 +132,13 @@ class Strand(SuperSequence):
 
 class Structure(object):
   """Container for structures/complexes"""
-  def __init__(self, name, mfe, struct, *strands):
+  def __init__(self, name, opt, struct, *strands):
     self.name = name
-    self.mfe = mfe
+    self.opt = opt
     self.struct = struct
+    self.mfe_struct = None # Stores the actual mfe structure once it's known
     self.strands = list(strands)
+    self.seq = None # Stores the sequence once it has been defined.
     self.nupack_seqs = []
     for strand in strands:
       assert isinstance(strand, Strand), "Structure must get strands"

@@ -64,12 +64,12 @@ class Gate(PrintObject):
         self.seqs[seq.name] = seq
         self.junk_seqs[seq.name] = seq
   
-  def add_structure(self, mfe, name, strands, struct):
+  def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "struct", name
     assert name not in self.structs, "Duplicate structure definition"
     for n, strand in enumerate(strands):
       strands[n] = self.strands[strand]
-    self.structs[name] = Structure(name, mfe, struct, *strands)
+    self.structs[name] = Structure(name, opt, struct, *strands)
   
   def add_kinetics(self, inputs, outputs):
     if DEBUG: print "kin", self.kin_num
@@ -105,7 +105,7 @@ class Gate(PrintObject):
       name = prefix + struct.name
       seqs = string.join([prefix+seq.name for seq in struct.nupack_seqs])
       outfile.write("%s : %s\n" % (name, seqs))
-      if struct.mfe:
-        outfile.write("%s < %f\n" % (name, struct.mfe))
+      if struct.opt: # Optimization parameter
+        outfile.write("%s < %f\n" % (name, struct.opt))
     
     ### TODO: do something for prevents

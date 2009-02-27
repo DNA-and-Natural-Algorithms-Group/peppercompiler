@@ -31,6 +31,22 @@ def stddev(xs):
   else:
     return None
 
+def moment(k, xs):
+  """Sample n-th central moment. Note: not unbiased."""
+  if len(xs) > 0:
+    m = mean(xs)
+    xs_k = [(x-m)**k for x in xs]
+    return sum(xs_k) / len(xs)
+  else:
+    return None
+
+def skewness(xs):
+  """Sample skewness."""
+  return moment(3, xs) / var(xs)**(3/2)
+
+def kurtosis(xs):
+  """Sample kurtosis."""
+  return moment(4, xs) / var(xs)**2 - 3
 
 def median(xs):
   """Sample median."""
@@ -84,8 +100,10 @@ def chi_inv(deg, p):
 # Likewise, the maximum likelihood estimator for m is mean(X's)
 
 def exp_mean_interval(xs, alpha):
-  """Returns the 100(1-alpha)% confidence interval for the parameter m (the mean) based on data.
-  Based on <http://en.wikipedia.org/wiki/Exponential_distribution#Maximum_likelihood>"""
+  """
+  Returns the 100(1-alpha)% confidence interval for the parameter m (the mean) based on data.
+  Based on <http://en.wikipedia.org/wiki/Exponential_distribution#Maximum_likelihood>
+  """
   m_hat = mean(xs) # Maximum likelihood estimator for m
   n = len(xs)
   
@@ -96,3 +114,20 @@ def exp_mean_interval(xs, alpha):
   upper_bound = m_hat * 2*n / chi_up
   
   return lower_bound, m_hat, upper_bound
+
+
+## Gamma Distribution analysis
+
+def gamma_mle(xs):
+  """
+  Maximum likelihood estimation for k, theta for a gamma distribution.
+  Based on <http://en.wikipedia.org/wiki/Gamma_distribution#Maximum_likelihood_estimation>
+  """
+  N = len(xs)
+  
+  s = math.log(sum(xs)/N) - sum(map(math.log, xs))/N
+  k_hat = (3 - s + math.sqrt( (s-3)**2 + 24*s )) / (12*s)  # Approx mle for k
+  
+  theta_hat = sum(xs) / (N * k_hat)
+  
+  return k_hat, theta_hat
