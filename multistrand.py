@@ -2,39 +2,34 @@
 from __future__ import division
 
 import string
-import math
 import os
 import subprocess
 
-from utils import mktemp
+from utils import mktemp, urandom
 
 def random_seed():
-  """Return a random seed x uniform random [0 <= x < 2**31].
-     We use os.urandom to get a more random result than random.getrandbits."""
-  rand_bytes = os.urandom(4)
-  seed = 0
-  for byte in rand_bytes:
-    seed = seed*256 + ord(byte)
-  seed %= 2**31
-  return hex(seed).rstrip("L")
+  """
+  Return a random seed x uniform random [0 <= x < 2**31].
+  We use urandom to get a more random result than random.getrandbits.
+  """
+  return hex(urandom.getrandbits(31)).rstrip("L")
 
 # Constant for use in Multistrand
 STOP_FLAG = "Stop_Flag"
 
-def DNAkinfold(strands, start_struct, stop_struct, trials, sim_time, temp, conc, num_proc=1, out_interval=-1):
+def DNAkinfold(strands, start_struct, stop_struct, trials_each, sim_time, temp, conc, num_proc=1, out_interval=-1):
   """
   strands = dict of strand_name : sequence used in structs
   *_struct = list of structures (each of which is a list of strand_names and a secondary struct)
   temp = temperature (deg C)
-  conc = concentration
-  sim_time = max time of sim
-  trials = number of trials
-  num_proc = number of processes to start (trials devided between them).
+  conc = concentration (mM)
+  sim_time = max time of sim (approx seconds)
+  num_proc = number of processes to start
+  trials_each = number of trials per process
   """
   # Note: Assumes that structures are connected complexes
   assert start_struct != stop_struct
   
-  trials_each = int(math.ceil(trials / num_proc))
   trials = trials_each * num_proc
   f, in_name = mktemp(mode="w", prefix="multi_", suffix=".in")
   out_name = in_name[:-3] + ".out"

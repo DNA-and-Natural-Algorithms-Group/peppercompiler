@@ -2,6 +2,7 @@ from __future__ import division
 
 import sys
 import string
+import math
 
 from utils import ordered_dict, PrintObject
 import nupack_out_grammar as ngram
@@ -52,4 +53,5 @@ def test_kinetics(kin, gate, trials=24, time=100000, temp=25, conc=10., num_proc
       if strand_name not in used_strands:
         used_strands[strand_name] = gate.strands[strand_name].seq
   
-  return DNAkinfold(used_strands, ins, outs_hack, trials, time, temp, conc, num_proc, out_interval)
+  trials_each = int(math.ceil(trials / num_proc))
+  return DNAkinfold(used_strands, ins, outs_hack, trials_each, time, temp, conc, num_proc, out_interval)
