@@ -7,14 +7,14 @@ class Sequence(object):
   def __init__(self, name, length, *constraints):
     self.name = name
     self.length = length
-    self.const = list(constraints)
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
-
+    
     # Check length and resolve wildcard
-    lengths = [num for num, code in constraints]
+    const = list(constraints)
+    lengths = [num for num, code in const]
     wilds = lengths.count(WILDCARD)
     assert wilds in (0,1) , "Too many wildcards in sequence"
     if wilds == 0: # no wildcards
@@ -25,21 +25,17 @@ class Sequence(object):
       delta = length - check_length
       assert delta >= 0, "Sequence length mismatch"
       i = lengths.index(WILDCARD)
-      self.const[i] = (delta, self.const[i][1])
+      const[i] = (delta, const[i][1])
     
-    self.nupack_constr = self.des_const()
+    self.const = ""
+    for (num, base) in const:
+      self.const += base * num  # We represent constriants in long-form
 
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
   def __repr__(self):
-    return "Sequence(%(name)r, %(length)r, %(const)r)" % self.__dict__
-  def des_const(self):
-    """Return constraints in .des format"""
-    const = ""
-    for num, code in self.const:
-      const += "%d%s " % (num, code)
-    return const.strip()
+    return "Sequence(%(name)r, %(length)r, *%(const)r)" % self.__dict__
 
 class ReverseSequence(Sequence):
   """Complements of defined sequences"""
@@ -49,7 +45,7 @@ class ReverseSequence(Sequence):
     self.reversed = True
     self.wc = wc
   def __repr__(self):
-    return "~Sequence(%(name)r, %(length)r, %(const)r)" % self.wc.__dict__
+    return "~Sequence(%(name)r, %(length)r, *%(const)r)" % self.wc.__dict__
 
 class JunkSequence(Sequence):
   """Sequences we don't need lables for"""
@@ -104,14 +100,12 @@ class SuperSequence(object):
       self.seqs.insert(i, junk_seq)
       self.nupack_seqs.insert(j, junk_seq)
       self.length += junk_seq.length
-    self.wc = ~self
+    self.wc = ReverseSuperSequence(self)
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
-    if not self.wc:
-      self.wc = ReverseSuperSequence(self)
     return self.wc
   def __repr__(self):
-    return "SuperSequence(%(name)r, %(length)r, %(seqs)r)" % self.__dict__
+    return "SuperSequence(%(name)r, %(length)r, *%(seqs)r)" % self.__dict__
 
 class ReverseSuperSequence(SuperSequence):
   def __init__(self, wc):
@@ -128,7 +122,7 @@ class Strand(SuperSequence):
     SuperSequence.__init__(self, name, length, *constraints)
     self.dummy = dummy
   def __repr__(self):
-    return "Strand(%(name)r, %(length)r, %(seqs)r)" % self.__dict__
+    return "Strand(%(name)r, %(length)r, *%(seqs)r)" % self.__dict__
 
 class Structure(object):
   """Container for structures/complexes"""
@@ -140,12 +134,13 @@ class Structure(object):
     self.strands = list(strands)
     self.seq = None # Stores the sequence once it has been defined.
     self.nupack_seqs = []
-    for strand in strands:
+    strand_lengths = [len(strand) for strand in self.struct.split("+")] # Check that lengths match up
+    for strand, length in zip(strands, strand_lengths):
       assert isinstance(strand, Strand), "Structure must get strands"
+      assert strand.length == length, "Length mismatch"
       self.nupack_seqs += strand.nupack_seqs
-      ### TODO: check that structure lengths match strand lengths
   def __repr__(self):
-    return "Structure(%(name)r, %(struct)r, %(strands)r)" % self.__dict__
+    return "Structure(%(name)r, %(struct)r, *%(strands)r)" % self.__dict__
   def des_seqs(self):
     """Return the sequences list in .des format"""
     seqs = ""

@@ -1,8 +1,34 @@
 #!/usr/bin/env python
+import re
+import os
 import pickle
+import time
 
 from circuit_class import load_file, Circuit
 from gate_class import Gate
+
+def parse_fixed(line):
+  """Parse a line in the fixed file."""
+  p = re.match("#Sequence:\s*([\w_-]+)\s*([ATCG]+)\s*\Z", line)
+  assert p, "Parse error: .fixed file:\n" + line
+  name, seq = p.groups()
+  return name, seq
+
+def load_fixed(filename):
+  """Load a file of sequences to fix."""
+  if os.path.isfile(filename):
+    f = open(filename, "r")
+    return [parse_fixed(line) for line in f]
+  else:
+    return []
+
+def get_domain(name, system):
+  """Return the domain/sequence specified by a name."""
+  if "-" in name:
+    subsystem, subname = name.split("-", 1)
+    return get_domain(subname, subsystem)
+  else:
+    return system.seqs[name]
 
 def compiler(basename, args):
   """
@@ -15,7 +41,12 @@ def compiler(basename, args):
   # Read in system (or component)
   system = load_file(basename, args)
   
-  # TODO: Read in a forced sequences
+  print "Fixing sequences from file %s.fixed" % basename
+  fixed_sequences = load_fixed(basename+".fixed")
+  for name, seq in fixed_sequences:
+    domain = get_domain(name, system)
+    assert len(seq) == domain.length
+    domain.const = seq
 
   # Write the Zadeh-style design file
   outfile = file(basename+".des", "w")
@@ -44,7 +75,6 @@ def load(filename):
 
 if __name__ == "__main__":
   import sys
-  import re
   import quickargs
   filename = sys.argv[1]
   args, keys = quickargs.get_args(sys.argv[2:])

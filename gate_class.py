@@ -98,7 +98,7 @@ class Gate(PrintObject):
     # Define sequences
     for seq in self.reg_seqs.values() + self.junk_seqs.values():
       name = prefix + seq.name
-      outfile.write("sequence %s = %s\n" % (name, seq.nupack_constr))
+      outfile.write("sequence %s = %s\n" % (name, seq.const))
     
     # Apply sequences to structures and set objective function
     for struct in self.structs.values():

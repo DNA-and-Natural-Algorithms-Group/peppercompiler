@@ -80,8 +80,8 @@ sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + \
 # strand <name> = <constraints / sequences> : <length>
 strand_stat  = K(strand) + O("[dummy]", default="") + strand_var + S("=") + strand_const_list + S(":") + integer
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
-opt = Optional( K("[no-opt]").setParseAction(lambda s,t,l: False) | \
-                ( Supress("[") + float_ + Supress("nt]") ),
+opt = Optional(   K("[no-opt]").setParseAction(lambda s,t,l: False) | \
+                ( Suppress("[") + float_ + Suppress("nt]") ),
                   default=1.0)
 struct_stat = K(struct) + opt + struct_var + S("=") + strand_list + S(":") + secondary_struct
 # kin <inputs> -> <outputs>
