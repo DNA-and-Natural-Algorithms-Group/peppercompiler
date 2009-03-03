@@ -4,18 +4,19 @@ Run
 	python compile.py circuit
 
 to compile "circuit.sys" or "circuit.comp" and produce "circuit.des" (for 
-Joe's designer).
+Joe's designer). You can fix sequences by listing them in a "circuit.fixed" file.
 
-Process "circuit.des" with a designer. There is a simple random designer 
-provided in "design/". Run
-  python random_design.py circuit.des
+Process "circuit.des" with a designer. There is a wrapper for Erik's SpuriousC 
+in "design/". Run
+  python spurious_design.py circuit
 
 to produce "circuit.mfe".
 
 Then,
-	python compiler.py circuit.save
+	python finish.py circuit
 
-to run Multisim on the designed sequences.
+to run Multisim on the designed sequences and produce the strands-to-order file
+"circuit.strands".
 
 == Examples ==
 
