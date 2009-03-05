@@ -37,8 +37,8 @@ class Circuit(PrintObject):
     self.path = path  # Local path to load gates relative to.
     
     self.decl_name = name
-    self.inputs = list(inputs)
-    self.outputs = list(outputs)
+    self.inputs  = [tuple(x) for x in inputs]
+    self.outputs = [tuple(x) for x in outputs]
     
     self.template = ordered_dict()
     self.glob = ordered_dict()
@@ -78,8 +78,8 @@ class Circuit(PrintObject):
     # Constrain all gate inputs and outputs
     ### TODO: marry these 2 together in a more eligent way.
     if isinstance(this_gate, Circuit): # If it's actually a circuit
-      for (glob_name, wc), loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
-        wc = (wc == "*")  # Is this global strand a complement?
+      for (glob_name, glob_wc), (loc_name, loc_wc) in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+        wc = (glob_wc != loc_wc)  # Are these signals complementary?
         if glob_name not in self.glob:
           self.glob[glob_name] = [(loc_name, gate_name, wc)]
           self.lengths[glob_name] = this_gate.lengths[loc_name]
@@ -87,7 +87,8 @@ class Circuit(PrintObject):
           self.glob[glob_name].append( (loc_name, gate_name, wc) )
           assert self.lengths[glob_name] == this_gate.lengths[loc_name]
     else: # Otherwise it's a gate, so we want to constrain sequences
-      for (glob_name, wc), loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+      for (glob_name, glob_wc), (loc_name, loc_wc) in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+        wc = (glob_wc != loc_wc)  # Are these signals complementary?
         loc_seq = this_gate.seqs[loc_name]
         if glob_name not in self.glob:
           self.glob[glob_name] = [(loc_seq, gate_name, wc)]

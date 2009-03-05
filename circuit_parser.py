@@ -34,7 +34,7 @@ python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
 
 # declare system <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
 decl_params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-decl_stat = K(decl) + S(system) + var + decl_params + S(":") + var_list + S("->") + var_list
+decl_stat = K(decl) + S(system) + var + decl_params + S(":") + signal_list + S("->") + signal_list
 # import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
 # gate <name> = <template name>(<params>): <inputs> -> <outputs>

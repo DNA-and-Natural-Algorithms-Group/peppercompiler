@@ -10,8 +10,8 @@ class Gate(PrintObject):
     """Initialized the gate with the declare statement"""
     self.decl_name = name
     self.params = params
-    self.inputs  = list(inputs)
-    self.outputs = list(outputs)
+    self.inputs  = [tuple(x) for x in inputs]
+    self.outputs = [tuple(x) for x in outputs]
     
     self.seqs = ordered_dict()
     self.nupack_seqs = ordered_dict()  # Not super-sequences

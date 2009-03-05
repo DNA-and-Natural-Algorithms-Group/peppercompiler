@@ -41,9 +41,6 @@ var = Word(alphas, alphanums+"_") # Variable name
 integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
-# Signals used in the declare line seq
-sig_list = List(var + S(O("+")))
-
 # Sequence const could be ?N, 3N or N
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes, exact=1))
 seq_const_list = List(seq_const)
@@ -51,6 +48,10 @@ seq_const_list = List(seq_const)
 seq_name = Word(lowers, alphanums+"_") # Sequence name starts with lower case
 seq_var = Group(H("Sequence") + Group(seq_name + Optional("*", default="")))
 seq_list = List(seq_var)
+
+# Signals used in the declare line seq
+signal_var = Group(seq_name + Optional("*", default=""))
+signal_list = List(signal_var + S(O("+")))
 
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
@@ -71,7 +72,7 @@ secondary_struct = exDotParen | HUnotation
 ### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
 # declare component <gate name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-decl_stat = K(decl) + S(comp) + var + params + S(":") + sig_list + S("->") + sig_list
+decl_stat = K(decl) + S(comp) + var + params + S(":") + signal_list + S("->") + signal_list
 # sequence <name> = <constraints> : <length>
 seq_stat  = K(seq)  + seq_name + S("=") + seq_const_list + S(":") + integer
 # sup-sequence <name> = <constraints / sequences> : <length>
