@@ -3,6 +3,4 @@ declare system AB_DAO:  ->
 import DAOtileR, DAOtileS
 
 component R = DAOtileR: a + b -> c + d
-component S = DAOtileS: d + c -> b + a
-
-
+component S = DAOtileR: b* + a* -> d* + c*
