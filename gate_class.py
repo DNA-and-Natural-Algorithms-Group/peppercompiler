@@ -14,9 +14,8 @@ class Gate(PrintObject):
     self.outputs = list(outputs)
     
     self.seqs = ordered_dict()
-    self.reg_seqs = ordered_dict()
+    self.nupack_seqs = ordered_dict()  # Not super-sequences
     self.sup_seqs = ordered_dict()
-    self.junk_seqs = ordered_dict()
     self.strands = ordered_dict()
     self.structs = ordered_dict()
     self.kinetics = ordered_dict()
@@ -27,7 +26,7 @@ class Gate(PrintObject):
     if DEBUG: print "sequence", name
     assert name not in self.seqs, "Duplicate sequence definition"
     self.seqs[name] = Sequence(name, length, *const)
-    self.reg_seqs[name] = self.seqs[name]
+    self.nupack_seqs[name] = self.seqs[name]
   
   def add_super_sequence(self, name, const, length):
     if DEBUG: print "sup-sequence", name
@@ -44,7 +43,7 @@ class Gate(PrintObject):
     for seq in self.sup_seqs[name].seqs:
       if isinstance(seq, JunkSequence):
         self.seqs[seq.name] = seq
-        self.junk_seqs[seq.name] = seq
+        self.nupack_seqs[seq.name] = seq
   
   def add_strand(self, dummy, name, const, length):
     if DEBUG: print "strand", name
@@ -62,7 +61,7 @@ class Gate(PrintObject):
     for seq in self.strands[name].seqs:
       if isinstance(seq, JunkSequence):
         self.seqs[seq.name] = seq
-        self.junk_seqs[seq.name] = seq
+        self.nupack_seqs[seq.name] = seq
   
   def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "struct", name
@@ -77,8 +76,10 @@ class Gate(PrintObject):
       inputs[n] = self.structs[struct]
     for n, struct in enumerate(outputs):
       outputs[n] = self.structs[struct]
-    self.kinetics[self.kin_num] = Kinetics(self.kin_num, list(inputs), list(outputs))
+    
+    name = "Kin%d" % self.kin_num
     self.kin_num += 1
+    self.kinetics[name] = Kinetics(name, list(inputs), list(outputs))
   
   
   def output_nupack(self, prefix, outfile):
@@ -96,7 +97,7 @@ class Gate(PrintObject):
       # TODO-maybe: test that all sequences are used.
     
     # Define sequences
-    for seq in self.reg_seqs.values() + self.junk_seqs.values():
+    for seq in self.nupack_seqs.values():
       name = prefix + seq.name
       outfile.write("sequence %s = %s\n" % (name, seq.const))
     

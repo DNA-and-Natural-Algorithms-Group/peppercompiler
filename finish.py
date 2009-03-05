@@ -43,14 +43,13 @@ def finish(basename, **keys):
 def apply_design(gate, prefix, seqs, mfe_structs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
   # Assign all the designed sequences
-  for seq in gate.reg_seqs.values() + gate.junk_seqs.values():
+  for seq in gate.nupack_seqs.values():
     seq.seq  = seqs[prefix + seq.name]
     assert len(seq.seq) == seq.length
     seq.wc.seq = seqs[prefix + seq.wc.name]
     assert len(seq.wc.seq) == seq.wc.length
   for sup_seq in gate.sup_seqs.values():
     sup_seq.seq  = string.join([seq.seq for seq in sup_seq.nupack_seqs], "")
-    ~sup_seq #TODO: remove
     sup_seq.wc.seq = string.join([seq.seq for seq in sup_seq.wc.nupack_seqs], "")
   for strand in gate.strands.values():
     strand.seq = string.join([seq.seq for seq in strand.nupack_seqs], "")

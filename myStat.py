@@ -12,7 +12,7 @@ def mean(xs):
   if len(xs) > 0:
     return sum(xs) / len(xs)
   else:
-    return None
+    return float("nan")
 
 def var(xs):
   """Sample variance."""
@@ -21,15 +21,11 @@ def var(xs):
     xs2 = [(x-m)**2 for x in xs]
     return sum(xs2) / (len(xs) - 1)
   else:
-    return None
+    return float("nan")
 
 def stddev(xs):
   """Sample standard deviation."""
-  v = var(xs)
-  if v != None:
-    return sqrt(v)
-  else:
-    return None
+  return sqrt(var(xs))
 
 def moment(k, xs):
   """Sample n-th central moment. Note: not unbiased."""
@@ -38,7 +34,7 @@ def moment(k, xs):
     xs_k = [(x-m)**k for x in xs]
     return sum(xs_k) / len(xs)
   else:
-    return None
+    return float("nan")
 
 def skewness(xs):
   """Sample skewness."""
@@ -124,10 +120,18 @@ def gamma_mle(xs):
   Based on <http://en.wikipedia.org/wiki/Gamma_distribution#Maximum_likelihood_estimation>
   """
   N = len(xs)
+  if N < 1:
+    return float("nan"), float("nan")
   
   s = math.log(sum(xs)/N) - sum(map(math.log, xs))/N
-  k_hat = (3 - s + math.sqrt( (s-3)**2 + 24*s )) / (12*s)  # Approx mle for k
+  if s != 0:
+    k_hat = (3 - s + math.sqrt( (s-3)**2 + 24*s )) / (12*s)  # Approx mle for k
+  else:
+    k_hat = float("nan")
   
-  theta_hat = sum(xs) / (N * k_hat)
+  if k_hat != 0:
+    theta_hat = sum(xs) / (N * k_hat)
+  else:
+    theta_hat = float("nan")
   
   return k_hat, theta_hat

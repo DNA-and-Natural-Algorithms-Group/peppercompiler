@@ -1,11 +1,25 @@
 """Useful classes and functions."""
 from __future__ import division
 
-import tempfile
+import math
 import os
 import random
-import math
+import re
 import string
+import tempfile
+
+class ParseException(Exception): pass
+
+def match(regex, line):
+  """Match *entire* line to regex converting all spaces into '\s+' and allowing trailing spaces."""
+  regex = regex.replace(" ", r"\s+")
+  regex += r"\s*\Z"
+  parse = re.match(regex, line)
+  if parse:
+    return parse.groups()
+  else:
+    raise ParseException("regex '%s' does not match line:\n%s" % (regex, line))
+
 
 def mktemp(mode, *args, **keys):
   """Creates a temporary file. Returns the file and filename.
@@ -14,9 +28,11 @@ def mktemp(mode, *args, **keys):
   file_ = os.fdopen(fd, mode)
   return file_, filename
 
+
 def _dummy(*args, **kw):
   """A method not available function."""
   raise Exception, "methods not available"
+
 
 class URandom(random.Random):
   """An actual random number generator (using urandom)"""
@@ -43,8 +59,8 @@ class URandom(random.Random):
 
 urandom = URandom() # Singleton urandom object
 
-## Generic Objects
 
+## Generic Objects
 class ordered_dict(dict):
   """A standard dictionary that remembers the order you added items in.
      Only supports __setitem__, __iter__, keys, values, items and read-only ops."""

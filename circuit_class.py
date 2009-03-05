@@ -10,15 +10,19 @@ from utils import ordered_dict, PrintObject
 
 DEBUG = False
 
-def load_file(basename, args):
+def load_file(basename, args, path="."):
+  """Load the file basename.(sys|comp) with args from path."""
   # Imported in the function to avoid circular import error.
   import os
   from circuit_parser import load_circuit
   from gate_parser import load_gate
   
+  basename = os.path.join(path, basename) # Add the correct directory name
+  new_path = os.path.dirname(basename) # Local directory of basename
+  
   sys_name = basename+".sys"
   if os.path.isfile(sys_name):
-    return load_circuit(sys_name, args)
+    return load_circuit(sys_name, args, new_path)
   else:
     comp_name = basename+".comp"
     if os.path.isfile(comp_name):
@@ -28,8 +32,10 @@ def load_file(basename, args):
 
 class Circuit(PrintObject):
   """Stores all the information in a circuit's connectivity file"""
-  def __init__(self, name, params, inputs, outputs):
+  def __init__(self, path, name, params, inputs, outputs):
     """Initialized the cicuit with the declare statement"""
+    self.path = path  # Local path to load gates relative to.
+    
     self.decl_name = name
     self.inputs = list(inputs)
     self.outputs = list(outputs)
@@ -38,6 +44,14 @@ class Circuit(PrintObject):
     self.glob = ordered_dict()
     self.lengths = ordered_dict()
     self.gates = ordered_dict()
+    
+    # Pointers to subgate's objects
+    self.seqs = ordered_dict()
+    self.nupack_seqs = ordered_dict()  # Not super-sequences
+    self.sup_seqs = ordered_dict()
+    self.strands = ordered_dict()
+    self.structs = ordered_dict()
+    self.kinetics = ordered_dict()
   
   ## Add information from document statements to object
   def add_import(self, *imports):
@@ -58,7 +72,7 @@ class Circuit(PrintObject):
     # Setup gates
     assert templ_name in self.template, "Template referenced before import: " + templ_name
     assert gate_name not in self.gates, "Duplicate gate definition: " + gate_name
-    self.gates[gate_name] = this_gate = load_file(self.template[templ_name], templ_args)
+    self.gates[gate_name] = this_gate = load_file(self.template[templ_name], templ_args, self.path)
     assert len(inputs) == len(this_gate.inputs),   "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len( inputs), len(this_gate.inputs ))
     assert len(outputs) == len(this_gate.outputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(outputs), len(this_gate.outputs))
     # Constrain all gate inputs and outputs
@@ -80,6 +94,15 @@ class Circuit(PrintObject):
         else:
           self.glob[glob_name].append((loc_seq, gate_name))
           assert self.lengths[glob_name] == loc_seq.length
+    
+    # Point to all objects in the gate
+    # For each type of object: seqs, strands, ...
+    for type_ in "seqs", "nupack_seqs", "sup_seqs", "strands", "structs", "kinetics":
+      gate_objs = this_gate.__dict__[type_] # this_gate.seqs, this_gate.nupack_seqs, ...
+      circuit_objs = self.__dict__[type_]   # self.seqs, self.nupack_seqs, ...
+      # Point to all of those items from here with a prefix added to the name
+      for name, obj in gate_objs.items():
+        circuit_objs[gate_name + "-" + name] = obj
   
   def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""

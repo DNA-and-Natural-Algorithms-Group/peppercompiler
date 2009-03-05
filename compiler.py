@@ -6,12 +6,11 @@ import time
 
 from circuit_class import load_file, Circuit
 from gate_class import Gate
+from utils import match
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  p = re.match("#Sequence:\s*([\w_-]+)\s*([ATCG]+)\s*\Z", line)
-  assert p, "Parse error: .fixed file:\n" + line
-  name, seq = p.groups()
+  name, seq = match(r"#Sequence: ([\w_-]+) ([ATCG]+)", line)
   return name, seq
 
 def load_fixed(filename):
@@ -21,14 +20,6 @@ def load_fixed(filename):
     return [parse_fixed(line) for line in f]
   else:
     return []
-
-def get_domain(name, system):
-  """Return the domain/sequence specified by a name."""
-  if "-" in name:
-    subsystem, subname = name.split("-", 1)
-    return get_domain(subname, subsystem)
-  else:
-    return system.seqs[name]
 
 def compiler(basename, args):
   """
@@ -44,7 +35,7 @@ def compiler(basename, args):
   print "Fixing sequences from file %s.fixed" % basename
   fixed_sequences = load_fixed(basename+".fixed")
   for name, seq in fixed_sequences:
-    domain = get_domain(name, system)
+    domain = system.nupack_seqs[name]
     assert len(seq) == domain.length
     domain.const = seq
 

@@ -44,7 +44,7 @@ document = StringStart() + Group(decl_stat) + S("\n") + \
            Group(delimitedList(O(Group(statement)), delim="\n")) + StringEnd()
 document.ignore(pythonStyleComment)
 
-def load_circuit(filename, args):
+def load_circuit(filename, args, path):
   """Load circuit connectivity file"""
   try:
     # Open file and do parameter substitution
@@ -66,7 +66,7 @@ def load_circuit(filename, args):
     sys.exit(1)
   
   # Build data
-  circuit = Circuit(*decl_val[1:])
+  circuit = Circuit(path, *decl_val[1:])
   for stat in statements:
     #print list(stat)
     if stat[0] == import_:
