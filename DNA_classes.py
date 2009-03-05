@@ -41,7 +41,16 @@ class Sequence(object):
     self.const = ""
     for (num, base) in const:
       self.const += base * num  # We represent constriants in long-form
-
+  
+  def fix_seq(self, fixed_seq):
+    """Constrian ourselves to a specific sequence."""
+    assert len(fixed_seq) == self.length
+    for const_nt, fixed_nt in zip(self.const, fixed_seq):
+      const_set = set(group[const_nt])
+      fixed_set = set(group[fixed_nt])
+      assert fixed_set.issubset( const_set ), "You cannot fix a sequence to something it is not allowed to be."
+    self.const = fixed_seq
+  
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
@@ -113,6 +122,15 @@ class SuperSequence(object):
       self.nupack_seqs.insert(j, junk_seq)
       self.length += junk_seq.length
     self.wc = ReverseSuperSequence(self)
+  
+  def fix_seq(self, fixed_seq):
+    """Constrian ourselves to a specific sequence."""
+    assert len(fixed_seq) == self.length
+    i = 0
+    for seq in self.seqs:
+      seq.fix_seq( fixed_seq[i:i+seq.length] )
+      i += seq.length
+  
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
@@ -151,14 +169,16 @@ class Structure(object):
       assert isinstance(strand, Strand), "Structure must get strands"
       assert strand.length == length, "Length mismatch"
       self.nupack_seqs += strand.nupack_seqs
+  
+  def fix_seq(self, fixed_seq):
+    """Constrian ourselves to a specific sequence."""
+    strand_seqs = fixed_seq.split("+")
+    assert len(strand_seqs) == len(self.stands)
+    for strand, strand_seq in zip(self.strands, strand_seqs):
+      strand.fix_seq(strand_seq)
+  
   def __repr__(self):
     return "Structure(%(name)r, %(struct)r, *%(strands)r)" % self.__dict__
-  def des_seqs(self):
-    """Return the sequences list in .des format"""
-    seqs = ""
-    for seq in self.nupack_seqs:
-      seqs += "%s " % seq.name
-    return seqs
 
 class Kinetics(object):
   def __init__(self, name, inputs, outputs):

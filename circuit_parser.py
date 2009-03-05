@@ -10,8 +10,14 @@ from pyparsing import *
 K = CaselessKeyword
 S = Suppress
 O = Optional
-List = lambda x: Group(ZeroOrMore(x))  # A grouped list
 Map = lambda func: (lambda s,l,t: map(func, t) )  # A useful mapping function
+
+def List(expr, delim=""):
+  """My delimited list. Allows for length zero list and uses no delimiter by default."""
+  if not delim:
+    return Group(ZeroOrMore(expr))
+  else:
+    return Group(Optional(expr + ZeroOrMore( Suppress(delim) + expr)))
 
 decl = "declare"
 system = "system"
@@ -24,28 +30,33 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 
 ## Define Grammar
 var = Word(alphas, alphanums+"_") # Variable name
-var_list = List(var + S(O("+")))  # Space sep list of variable names
 signal = Group(var + Optional("*", default=""))
-signal_list = List(signal + S(O("+")))
+signal_list = List(signal, O("+"))
 
 path = Word(alphanums+".-_/~") # Path name in a directory structure
 py_chars = printables.replace(",", "").replace(")", "")
 python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
 
+
 # declare system <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
-decl_params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
+decl_params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(system) + var + decl_params + S(":") + signal_list + S("->") + signal_list
+
 # import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
+
 # gate <name> = <template name>(<params>): <inputs> -> <outputs>
-gate_params = O( S("(") + Group(delimitedList(python_object)) + S(")") , default=[])
+gate_params = O( S("(") + List(python_object, ",") + S(")") , default=[])
 gate_stat = K(gate) + var + S("=") + var + gate_params + S(":") + signal_list + S("->") + signal_list
+
 
 statement = import_stat | gate_stat
 
 document = StringStart() + Group(decl_stat) + S("\n") + \
-           Group(delimitedList(O(Group(statement)), delim="\n")) + StringEnd()
+           List(O(Group(statement)), delim="\n") + StringEnd()
 document.ignore(pythonStyleComment)
+
+
 
 def load_circuit(filename, args, path):
   """Load circuit connectivity file"""
@@ -60,7 +71,7 @@ def load_circuit(filename, args, path):
     
   try:
     # Load data
-    decl_val, statements = document.parseString(doc)
+    decl_val, statements = document.parseString(doc, parseAll=True)
   except ParseBaseException, e:
     print
     print doc

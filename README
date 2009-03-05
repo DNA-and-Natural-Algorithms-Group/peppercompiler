@@ -16,7 +16,7 @@ Then,
 	python finish.py circuit
 
 to run Multisim on the designed sequences and produce the strands-to-order file
-"circuit.strands".
+"circuit.strands" as well as a list of all sequences designed in "circuit.seqs".
 
 == Examples ==
 

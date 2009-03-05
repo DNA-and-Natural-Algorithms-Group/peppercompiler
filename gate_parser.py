@@ -14,8 +14,14 @@ K = CaselessKeyword
 S = Suppress
 O = Optional
 H = Hidden = lambda x: Empty().setParseAction(lambda s,t,l: x)  # A hidden field, it tags an entry
-List = lambda x: Group(ZeroOrMore(x))
 Map = lambda func: (lambda s,l,t: map(func, t) )
+
+def List(expr, delim=""):
+  """My delimited list. Allows for length zero list and uses no delimiter by default."""
+  if not delim:
+    return Group(ZeroOrMore(expr))
+  else:
+    return Group(Optional(expr + ZeroOrMore( Suppress(delim) + expr)))
 
 import string
 lowers = string.lowercase
@@ -47,20 +53,17 @@ seq_const_list = List(seq_const)
 
 seq_name = Word(lowers, alphanums+"_") # Sequence name starts with lower case
 seq_var = Group(H("Sequence") + Group(seq_name + Optional("*", default="")))
-seq_list = List(seq_var)
 
 # Signals used in the declare line seq
 signal_var = Group(seq_name + Optional("*", default=""))
-signal_list = List(signal_var + S(O("+")))
 
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
 #  2) A sequence variable (possibly complimented with *) (Must start with lowercase letter)
 strand_const = seq_const | seq_var
-strand_const_list = List(strand_const)
 
-strand_var = var;  strand_list = List(strand_var + S(Optional("+")))
-struct_var = var;  struct_list = List(struct_var + S(Optional("+")))
+strand_var = var
+struct_var = var
 
 # Secondary structure can be dot-paren, extended dot-paren or HU notation.
 ## TODO: deal with errors. Super-confusing error messages right now.
@@ -69,29 +72,36 @@ HUnotation = Word(nums + "UH()+ ").setParseAction(Map(HU2dotParen))
 secondary_struct = exDotParen | HUnotation
 
 
-### TODO: allow ins and outs to be wc complements (i.e. seq_vars not just vars)
 # declare component <gate name>(<params>): <inputs> -> <outputs>
-params = O(S("(") + Group(delimitedList(var)) + S(")"), default=[])
-decl_stat = K(decl) + S(comp) + var + params + S(":") + signal_list + S("->") + signal_list
+params = O(S("(") + List(var, ",") + S(")"), default=[])
+decl_stat = K(decl) + S(comp) + var + params + S(":") + List(signal_var, O("+")) + S("->") + List(signal_var, O("+"))
+
 # sequence <name> = <constraints> : <length>
-seq_stat  = K(seq)  + seq_name + S("=") + seq_const_list + S(":") + integer
+seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + S(":") + integer
+
 # sup-sequence <name> = <constraints / sequences> : <length>
 sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + \
-               seq_name + S("=") + strand_const_list + S(":") + integer
+               seq_name + S("=") + List(strand_const) + S(":") + integer
+
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand) + O("[dummy]", default="") + strand_var + S("=") + strand_const_list + S(":") + integer
+strand_stat  = K(strand) + O("[dummy]", default="") + \
+               strand_var + S("=") + List(strand_const) + S(":") + integer
+
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s,t,l: False) | \
                 ( Suppress("[") + float_ + Suppress("nt]") ),
                   default=1.0)
-struct_stat = K(struct) + opt + struct_var + S("=") + strand_list + S(":") + secondary_struct
+struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, O("+")) + S(":") + secondary_struct
+
 # kin <inputs> -> <outputs>
-kin_stat = K(kin) + struct_list + S("->") + struct_list
+kin_stat = K(kin) + List(struct_var, O("+")) + S("->") + List(struct_var, O("+"))
+
 
 statement = seq_stat | sup_seq_stat | strand_stat | struct_stat | kin_stat
 document = StringStart() + ZeroOrMore(S("\n")) + Group(decl_stat) + S("\n") + \
-           Group(delimitedList(O(Group(statement)), "\n")) + StringEnd()
+           List(O(Group(statement)), "\n") + StringEnd()
 document.ignore(pythonStyleComment)
+
 
 
 def load_gate(filename, args):
@@ -107,7 +117,7 @@ def load_gate(filename, args):
     
   try:
     # Load data
-    decl_val, statements = document.parseString(doc)
+    decl_val, statements = document.parseString(doc, parseAll=True)
   except ParseBaseException, e:
     print
     print doc

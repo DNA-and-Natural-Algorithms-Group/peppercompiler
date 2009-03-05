@@ -10,8 +10,8 @@ from utils import match
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  name, seq = match(r"sequence ([\w_-]+) ([ATCG]+)", line)
-  return name, seq
+  type_, name, seq = match(r"(\w+) ([\w_-]+) ([ATCG]+)", line)
+  return type_, name, seq
 
 def load_fixed(filename):
   """Load a file of sequences to fix."""
@@ -35,10 +35,14 @@ def compiler(basename, args):
   # TODO: Allow fixing (the sequences of) super-sequences, strands, structures.
   print "Fixing sequences from file %s.fixed" % basename
   fixed_sequences = load_fixed(basename+".fixed")
-  for name, seq in fixed_sequences:
-    domain = system.nupack_seqs[name]
-    assert len(seq) == domain.length
-    domain.const = seq
+  for type_, name, fixed_seq in fixed_sequences:
+    if type_ == "sequence":
+      system.seqs[name].fix_seq( fixed_seq )
+    elif type_ == "strand":
+      system.strands[name].fix_seq( fixed_seq )
+    elif type_ == "structure":
+      system.structs[name].fix_seq( fixed_seq )
+      
 
   # Write the Zadeh-style design file
   outfile = file(basename+".des", "w")
