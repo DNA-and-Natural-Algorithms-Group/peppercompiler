@@ -1,4 +1,15 @@
 """DNA design container classes"""
+import string
+
+# Global DNA nt groups
+group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
+         "W": "AT", "S": "CG", "N": "ACGT"} #... Others can be put later if needed ...
+rev_group = dict([(v, k) for (k, v) in group.items()])  # A reverse lookup for group.
+complement = {"A": "T", "T": "A", "C": "G", "G": "C",
+              "N": "N", "S": "S", "W": "W"} #... Others can be put later if needed ...
+def wc(seq):
+  """Returns the WC complement of a nucleotide sequence."""
+  return string.join([complement[nt] for nt in reversed(seq)], "")
 
 WILDCARD = "?"
 
@@ -42,6 +53,7 @@ class ReverseSequence(Sequence):
   def __init__(self, wc):
     self.name = wc.name + "*"
     self.length = wc.length
+    self.seq = None # Stores the sequence once it has been defined.
     self.reversed = True
     self.wc = wc
   def __repr__(self):

@@ -10,7 +10,7 @@ from utils import match
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  name, seq = match(r"#Sequence: ([\w_-]+) ([ATCG]+)", line)
+  name, seq = match(r"sequence ([\w_-]+) ([ATCG]+)", line)
   return name, seq
 
 def load_fixed(filename):
@@ -32,6 +32,7 @@ def compiler(basename, args):
   # Read in system (or component)
   system = load_file(basename, args)
   
+  # TODO: Allow fixing (the sequences of) super-sequences, strands, structures.
   print "Fixing sequences from file %s.fixed" % basename
   fixed_sequences = load_fixed(basename+".fixed")
   for name, seq in fixed_sequences:

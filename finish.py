@@ -7,6 +7,7 @@ import myStat as stat
 
 from circuit_class import load_file, Circuit
 from gate_class import Gate
+from DNA_classes import wc
 
 def finish(basename, **keys):
   """
@@ -25,79 +26,68 @@ def finish(basename, **keys):
   seqs, mfe_structs = read_nupack(basename+".mfe")
   
   # Apply designer results to our system
-  apply_design_rec(system, "", seqs, mfe_structs)
+  apply_design(system, seqs, mfe_structs)
   
-  # Get all strands that will be used in the final experiment
-  print 'Writing "stands to order" file: %s.strands' % basename
-  strands = get_strands_rec(system)
-  f = open(basename + ".strands", "w")
-  for strand_name, strand_seq in strands:
-    f.write("#Strand: %s\t%s\n" % (strand_name, strand_seq) )
+  # Document all sequences, super-sequences, strands, and structures
+  print "Writing sequences file: %s.seqs" % basename
+  f = open(basename + ".seqs", "w")
+  
+  f.write("# Sequences\n")
+  for name, seq in system.nupack_seqs.items():
+    f.write("sequence %s\t%s\n" % (name, seq.seq))
+  f.write("# Super-Sequences\n")
+  for name, seq in system.sup_seqs.items():
+    f.write("super-sequence %s\t%s\n" % (name, seq.seq))
+  f.write("# Strands\n")
+  for name, strand in system.strands.items():
+    f.write("strand %s\t%s\n" % (name, strand.seq))
+  f.write("# Structures\n")
+  for name, struct in system.structs.items():
+    f.write("struct %s\t%s\n" % (name, struct.seq))
   f.close()
+  
+  # Document all strands that will be used in the final experiment
+  print 'Writing "stands to order" file: %s.strands' % basename
+  f = open(basename + ".strands", "w")
+  for name, strand in system.strands.items():
+    if not strand.dummy:
+      f.write("strand %s\t%s\n" % (name, strand.seq) )
+  f.close()
+  
+  # TODO: Write a thermodynamic scorecard.
   
   # Run Kinetic tests
   print "Testing Kinetics with parameters: ", keys
   kinetic_rec(system, "", **keys)
 
 
-def apply_design(gate, prefix, seqs, mfe_structs):
+def apply_design(system, seqs, mfe_structs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
   # Assign all the designed sequences
-  for seq in gate.nupack_seqs.values():
-    seq.seq  = seqs[prefix + seq.name]
+  for name, seq in system.nupack_seqs.items():
+    seq.seq  = seqs[name]
     assert len(seq.seq) == seq.length
-    seq.wc.seq = seqs[prefix + seq.wc.name]
-    assert len(seq.wc.seq) == seq.wc.length
-  for sup_seq in gate.sup_seqs.values():
+    seq.wc.seq = wc(seq.seq)
+    assert seq.wc.seq == seqs[name + "*"]
+  
+  for sup_seq in system.sup_seqs.values():
     sup_seq.seq  = string.join([seq.seq for seq in sup_seq.nupack_seqs], "")
     sup_seq.wc.seq = string.join([seq.seq for seq in sup_seq.wc.nupack_seqs], "")
-  for strand in gate.strands.values():
+  
+  for strand in system.strands.values():
     strand.seq = string.join([seq.seq for seq in strand.nupack_seqs], "")
-  for struct in gate.structs.values():
+  
+  for name, struct in system.structs.items():
     struct.seq = string.join([strand.seq for strand in struct.strands], "+")
-    assert struct.seq == seqs[prefix + struct.name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[prefix + struct.name])
+    assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
   
   # Assign all the resulting mfe structures
-  for struct in gate.structs.values():
+  for name, struct in system.structs.items():
     # TODO: Or should we just get it ourselves?  struct, dG = DNAfold(seq, temp)
-    struct.mfe_struct = mfe_structs[prefix + struct.name]
-
-def apply_design_rec(obj, prefix, seqs, mfe_structs):
-  """Applies the results of a design to a system (which might be a single gate)."""
-  # If it's actually a circuit, recurse.
-  if isinstance(obj, Circuit):
-    for gate_name, gate in obj.gates.items():
-      apply_design_rec(gate, prefix + gate_name + "-", seqs, mfe_structs)
-  
-  # If it's a gate, use the gate code.
-  elif isinstance(obj, Gate):
-    return apply_design(obj, prefix, seqs, mfe_structs)
-  else:
-    raise Exception, 'Object "%r" is niether a Circuit or Gate.' % obj
+    struct.mfe_struct = mfe_structs[name]
 
 
-def get_strands(gate):
-  """Get all the strands that will be used in the final product."""
-  # Collect the strand sequences 
-  strands = [(strand.name, strand.seq) for strand in gate.strands.values() if not strand.dummy]
-  return strands
-
-def get_strands_rec(obj):
-  """Get all strands in a system (which might be a single gate)."""
-  # If it's actually a circuit, recurse.
-  if isinstance(obj, Circuit):
-    strands = []
-    for gate_name, gate in obj.gates.items():
-      strands += get_strands_rec(gate)
-    return strands
-  
-  # If it's a gate, use the gate code.
-  elif isinstance(obj, Gate):
-    return get_strands(obj)
-  else:
-    raise Exception, 'Object "%r" is niether a Circuit or Gate.' % obj
-
-
+# TODO: get rid of need for gate, so get rid of recurssion.
 def kinetic(gate, prefix, **keys):
   """Test all kinetic pathways in a gate."""
   for kin in gate.kinetics.values():
