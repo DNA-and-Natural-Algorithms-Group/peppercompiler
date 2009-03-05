@@ -48,7 +48,7 @@ sig_list = List(var + S(O("+")))
 seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes, exact=1))
 seq_const_list = List(seq_const)
 
-seq_name = Word(lowers, alphas+"_") # Sequence name starts with lower case
+seq_name = Word(lowers, alphanums+"_") # Sequence name starts with lower case
 seq_var = Group(H("Sequence") + Group(seq_name + Optional("*", default="")))
 seq_list = List(seq_var)
 

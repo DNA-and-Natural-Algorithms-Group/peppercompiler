@@ -25,6 +25,9 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 ## Define Grammar
 var = Word(alphas, alphanums+"_") # Variable name
 var_list = List(var + S(O("+")))  # Space sep list of variable names
+signal = Group(var + Optional("*", default=""))
+signal_list = List(signal + S(O("+")))
+
 path = Word(alphanums+".-_/~") # Path name in a directory structure
 py_chars = printables.replace(",", "").replace(")", "")
 python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
@@ -36,7 +39,7 @@ decl_stat = K(decl) + S(system) + var + decl_params + S(":") + var_list + S("->"
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
 # gate <name> = <template name>(<params>): <inputs> -> <outputs>
 gate_params = O( S("(") + Group(delimitedList(python_object)) + S(")") , default=[])
-gate_stat = K(gate) + var + S("=") + var + gate_params + S(":") + var_list + S("->") + var_list
+gate_stat = K(gate) + var + S("=") + var + gate_params + S(":") + signal_list + S("->") + signal_list
 
 statement = import_stat | gate_stat
 

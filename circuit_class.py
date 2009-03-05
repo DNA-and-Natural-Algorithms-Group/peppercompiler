@@ -77,22 +77,23 @@ class Circuit(PrintObject):
     assert len(outputs) == len(this_gate.outputs), "Length mismatch. %s / %s: %r != %r" % (gate_name, templ_name, len(outputs), len(this_gate.outputs))
     # Constrain all gate inputs and outputs
     ### TODO: marry these 2 together in a more eligent way.
-    if isinstance(this_gate, Circuit):
-      for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+    if isinstance(this_gate, Circuit): # If it's actually a circuit
+      for (glob_name, wc), loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+        wc = (wc == "*")  # Is this global strand a complement?
         if glob_name not in self.glob:
-          self.glob[glob_name] = [(loc_name, gate_name)]
+          self.glob[glob_name] = [(loc_name, gate_name, wc)]
           self.lengths[glob_name] = this_gate.lengths[loc_name]
         else:
-          self.glob[glob_name].append((loc_name, gate_name))
+          self.glob[glob_name].append( (loc_name, gate_name, wc) )
           assert self.lengths[glob_name] == this_gate.lengths[loc_name]
     else: # Otherwise it's a gate, so we want to constrain sequences
-      for glob_name, loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+      for (glob_name, wc), loc_name in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
         loc_seq = this_gate.seqs[loc_name]
         if glob_name not in self.glob:
-          self.glob[glob_name] = [(loc_seq, gate_name)]
+          self.glob[glob_name] = [(loc_seq, gate_name, wc)]
           self.lengths[glob_name] = loc_seq.length
         else:
-          self.glob[glob_name].append((loc_seq, gate_name))
+          self.glob[glob_name].append( (loc_seq, gate_name, wc) )
           assert self.lengths[glob_name] == loc_seq.length
     
     # Point to all objects in the gate
@@ -135,7 +136,7 @@ class Circuit(PrintObject):
       
       # For each instance of the global sequence, build a structure to 
       #   constrain it to the global one
-      for loc_seq, gate_name in self.glob[glob]:
+      for loc_seq, gate_name, wc in self.glob[glob]:
         if isinstance(loc_seq, DNA_classes.Sequence):
           sig_name = gate_name + "-" + loc_seq.name
           seqs = prefix + sig_name
@@ -149,4 +150,8 @@ class Circuit(PrintObject):
         
         dummy_name = glob_name + "-" + sig_name
         outfile.write("structure %s = %s\n" % (dummy_name, "(" * length + "+" + ")" * length))
-        outfile.write("%s : %s %s\n" % (dummy_name, wc_name, seqs))
+        
+        if wc: # If it's complementary to the global signal, then we can enforce that directly
+          outfile.write("%s : %s %s\n" % (dummy_name, glob_name, seqs))
+        else:  # If it's equal, then we must force it complementary to the complement 'wc_name'
+          outfile.write("%s : %s %s\n" % (dummy_name, wc_name, seqs))
