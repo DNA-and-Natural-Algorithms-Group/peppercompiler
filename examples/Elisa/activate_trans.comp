@@ -1,0 +1,41 @@
+declare component activate_trans: in -> out
+
+## Sequences
+# promoter region
+sequence pro1 = TAATA
+sequence pro2 = CGACTCACTATA
+sequence pro3 = GGGAGA
+
+sequence space1 = 6N
+sequence space2 = 5N
+
+sequence out = ?N
+sequence in = act act_toe inh_toe*
+
+## Strands
+strand [dummy] Trans_in = ?N in ?N
+strand Trans_out = pro3 space1 out space2 end
+
+strand Act = pro1* act act_toe
+strand Inh = inh_toe act_toe* act*
+strand T1 = act* pro1 pro2 pro3 space1 out space2 end
+strand T2 = end* space2* out* space1* pro3* pro2*
+
+## Structures
+structure Transcript_In = Trans_in : ?. 5( 3. 5) 3.
+
+structure Activator = Act : ?.
+structure Inhibitor = Inh : ?.
+structure Bound_Activator = Inh + Act : ?. ?( + ?. ?)
+structure Bound_Inhibitor = Trans_in + Inh : ?. ?( ?. 5( 3. 5) 3. + ?)
+
+structure Template_Off = T1 + T2 : ?. ?( + ?)
+structure Template_On  = T1 + T2 + Act : ?( ?( + ?) + ?) ?.
+
+structure Transcript_Out = Trans_out : ?. 5( 3. 5) 3.
+
+## Kinetics
+kinetic Activator + Template_Off -> Template_On
+# transcription: Template_On -> Transcript_Out + Template_On
+kinetic Inhibitor + Template_On  -> Bound_Activator + Template_Off
+kinetic Transcript_In + Bound_Activator -> Activator + Bound_Inibitor
