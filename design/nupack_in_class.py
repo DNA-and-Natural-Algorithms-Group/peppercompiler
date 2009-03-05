@@ -7,8 +7,6 @@ import sys
 here = sys.path[0] # System path to this module.
 sys.path.append(here+"/..")
 
-print sys.path
-
 from utils import ordered_dict, PrintObject
 
 class Spec(PrintObject):
