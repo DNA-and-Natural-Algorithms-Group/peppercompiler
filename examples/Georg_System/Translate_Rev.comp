@@ -5,18 +5,18 @@ sequence data_in = ?N : <di>
 sequence toe_out = ?N : <t>
 sequence data_out = ?N : <do>
 
-sequence in = data_in toe_in : <t+di>
-sequence out = data_out toe_out : <t+do>
+sup-sequence in = data_in toe_in : <t+di>
+sup-sequence out = data_out toe_out : <t+do>
 
 strand [dummy] In = in : <t+di>
 strand Base = ?N : <t+di>
 strand Out = out ?N : <di + do - c>
 
 ## Structures
-structure IN = In : U<t+di>
-structure Gate = Base + Out : U<t> H<di>(+ U<do-c>)
+structure IN = In : domain .
+structure Gate = Base + Out : <t>. <di>( + <do-c>. <di>)
 
-structure IN_waste = In + Base : H<t+di>(+)
-structure OUT = Out : U<di+do-c>
+structure IN_waste = In + Base : domain (+)
+structure OUT = Out : domain ..
 
 kinetic IN + Gate -> OUT + IN_waste

@@ -2,4 +2,4 @@ declare component Input_Strand(seq, length): -> self
 
 sequence  self = <seq> : <length>
 strand    Self = self : <length>
-structure SELF = Self : U<length>
+structure SELF = Self : domain .
