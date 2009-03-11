@@ -95,7 +95,7 @@ class Circuit(PrintObject):
           self.lengths[glob_name] = loc_seq.length
         else:
           self.glob[glob_name].append( (loc_seq, gate_name, wc) )
-          assert self.lengths[glob_name] == loc_seq.length
+          assert self.lengths[glob_name] == loc_seq.length, (glob_name, self.lengths[glob_name], loc_seq.length)
     
     # Point to all objects in the gate
     # For each type of object: seqs, strands, ...
@@ -128,8 +128,8 @@ class Circuit(PrintObject):
       wc_name = glob_name + "-_WC"  # A dummy variable wc compliment to glob
       
       outfile.write("#\n## Global %s\n" % glob_name)
-      outfile.write("sequence %s = %dN\n" % (glob_name, length))
-      outfile.write("sequence %s = %dN\n" % (wc_name, length))
+      outfile.write("sequence %s = %s\n" % (glob_name, "N" * length))
+      outfile.write("sequence %s = %s\n" % (wc_name, "N" * length))
       
       dummy_name = "%s-_Self" % glob_name
       outfile.write("structure %s = %s\n" % (dummy_name, "(" * length + "+" + ")" * length))
