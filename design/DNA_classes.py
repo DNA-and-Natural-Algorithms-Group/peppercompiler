@@ -14,15 +14,11 @@ def seq_comp(seq):
 
 class Sequence(object):
   """Container for sequences"""
-  def __init__(self, name, constraints, num):
+  def __init__(self, name, template_seq, num):
     self.name = name
-    self.constr = list(constraints)
+    self.seq = template_seq
     self.num = num
     self.reversed = False
-    # Get sequence and length
-    self.seq = ""
-    for num, symb in constraints:
-      self.seq += symb * num  # Thus "5N" -> "N" * 5 -> "NNNNN"
     self.length = len(self.seq)
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
@@ -32,7 +28,7 @@ class Sequence(object):
   def get_seq(self):
     return self.seq
   def __repr__(self):
-    return "Sequence(%(name)r, %(constr)r)" % self.__dict__
+    return "Sequence(%(name)r, %(seq)r)" % self.__dict__
 
 class ReverseSequence(Sequence):
   """Complements of defined sequences"""
@@ -45,7 +41,7 @@ class ReverseSequence(Sequence):
   def get_seq(self):
     return seq_comp(self.wc.seq)
   def __repr__(self):
-    return "~Sequence(%(name)r, %(constr)r)" % self.wc.__dict__
+    return "~Sequence(%(name)r, %(seq)r)" % self.wc.__dict__
 
 def get_bonds(struct):
   bonds = []

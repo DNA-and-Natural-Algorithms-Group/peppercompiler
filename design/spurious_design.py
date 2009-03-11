@@ -55,7 +55,7 @@ class Connections(object):
     # TODO: split strands in a structure.
     
     # seq_const[n][0] = list of (s, i) where spec.structs[s].seq[m] is spec.seqs[n]
-    # seq_const[n][1] = list of (s, i) where it's the compliment
+    # seq_const[n][1] = list of (s, i) where it's the complement
     seq_const = [([], []) for seq in spec.seqs]
     
     self.structs = spec.structs.values()

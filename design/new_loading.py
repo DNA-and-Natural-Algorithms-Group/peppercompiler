@@ -1,6 +1,7 @@
 import re
 
 import nupack_in_class
+from DNA_classes import group
 
 def load_file(filename):
     """Load a NUPACK style input file."""
@@ -24,8 +25,8 @@ def load_file(filename):
             name, struct = parse_struct(line)
             spec.add_structure(name, struct)
         elif pieces[0] == "sequence":
-            name, constraints = parse_seq(line)
-            spec.add_sequence(name, constraints)
+            name, seq = parse_seq(line)
+            spec.add_sequence(name, seq)
         elif pieces[0] == "prevent":
             pass
         elif pieces[1] == ":": # Applying sequences to a structure
@@ -34,7 +35,7 @@ def load_file(filename):
         elif pieces[1] == "<": # Set the objective function for a structure
             pass
         else:
-            assert False, "Command not valid.\n" + line # TODO: where
+            assert False, "Command not valid.\n" + line # TODO: more info
     
     return spec
             
@@ -45,18 +46,10 @@ def parse_struct(line):
     return name, struct
 
 def parse_seq(line):
-    sequence, name, eq, const = line.split(None, 3) # TODO: Put in try/except for when this fails
+    sequence, name, eq, seq = line.split(None, 3) # TODO: Put in try/except for when this fails
     assert eq == "=", "Sequence syntax incorrect" # TODO: add line and syntax
-    
-    #Process constraint list
-    const_temp = const.split()
-    const = []
-    for item in const_temp:
-        p = re.match(r"(\d+)?(\w)", item) # TODO: Catch parse error
-        num, code = p.groups(1) # No number means 1
-        const.append((int(num), code))
-    
-    return name, const
+    assert set(seq).issubset( set(group.keys()) ), "Sequence constraints must be written out in allowed alphabet. %r not in %r" % (seq, group.keys())
+    return name, seq
 
 def parse_apply(line):
     struct_name, colon, seqs = line.split(None, 2)
