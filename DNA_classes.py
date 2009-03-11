@@ -17,21 +17,20 @@ class Sequence(object):
   """Container for sequences"""
   def __init__(self, name, length, *constraints):
     self.name = name
-    self.length = length
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
-    # Build the dummy sequence for the W-C complement
-    self.wc = ReverseSequence(self)
     
     # Check length and resolve wildcard
     const = list(constraints)
     lengths = [num for num, code in const]
     wilds = lengths.count(WILDCARD)
-    assert wilds in (0,1) , "Too many wildcards in sequence"
+    assert wilds <= 1, "Too many wildcards in sequence"
     if wilds == 0: # no wildcards
-      check_length = sum(lengths)
-      assert check_length == length, "Sequence length mismatch. %s: %r != %r" % (name, check_length, length)
+      self.length = sum(lengths)
+      if length != None:
+        assert self.length == length, "Sequence length mismatch. %s: %r != %r" % (name, check_length, length)
     else: # one wildcard
+      self.length = length
       check_length = sum([x for x in lengths if x != WILDCARD])
       delta = length - check_length
       assert delta >= 0, "Sequence length mismatch"
@@ -41,6 +40,9 @@ class Sequence(object):
     self.const = ""
     for (num, base) in const:
       self.const += base * num  # We represent constriants in long-form
+    
+    # Build the dummy sequence for the W-C complement
+    self.wc = ReverseSequence(self)
   
   def fix_seq(self, fixed_seq):
     """Constrian ourselves to a specific sequence."""
@@ -55,7 +57,7 @@ class Sequence(object):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
   def __repr__(self):
-    return "Sequence(%(name)r, %(length)r, *%(const)r)" % self.__dict__
+    return "Sequence(%(name)r, %(length)r, %(const)r)" % self.__dict__
 
 class ReverseSequence(Sequence):
   """Complements of defined sequences"""
@@ -66,7 +68,7 @@ class ReverseSequence(Sequence):
     self.reversed = True
     self.wc = wc
   def __repr__(self):
-    return "~Sequence(%(name)r, %(length)r, *%(const)r)" % self.wc.__dict__
+    return "~Sequence(%(name)r, %(length)r, %(const)r)" % self.wc.__dict__
 
 class JunkSequence(Sequence):
   """Sequences we don't need lables for"""
@@ -112,7 +114,8 @@ class SuperSequence(object):
           wildcard = (len(self.seqs), len(self.nupack_seqs), item) # Index and entry of wildcard
           
     if not wildcard:
-      assert self.length == length, "Super Sequence length mismatch. %s: %r != %r" % (name, self.length, length)
+      if length != None:
+        assert self.length == length, "Super Sequence length mismatch. %s: %r != %r" % (name, self.length, length)
     else:
       delta = length - self.length
       assert delta >= 0, "Super Sequence too short. %s: %r > %r" % (name, self.length, length)
@@ -164,10 +167,10 @@ class Structure(object):
     self.strands = list(strands)
     self.seq = None # Stores the sequence once it has been defined.
     self.nupack_seqs = []
-    strand_lengths = [len(strand) for strand in self.struct.split("+")] # Check that lengths match up
+    strand_lengths = [len(strand_struct) for strand_struct in self.struct.split("+")] # Check that lengths match up
     for strand, length in zip(strands, strand_lengths):
       assert isinstance(strand, Strand), "Structure must get strands"
-      assert strand.length == length, "Length mismatch"
+      assert strand.length == length, "Length mismatch: %s, %s" % (strand, length)
       self.nupack_seqs += strand.nupack_seqs
   
   def fix_seq(self, fixed_seq):

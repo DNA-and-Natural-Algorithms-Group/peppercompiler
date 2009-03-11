@@ -54,8 +54,6 @@ class Gate(PrintObject):
           const[n] =  self.seqs[item[1][0]]
         else:
           const[n] = ~self.seqs[item[1][0]]
-    # Make dummy a boolean value
-    dummy = (dummy == "[dummy]")
     self.strands[name] = Strand(name, dummy, length, *const)
     # Add references junk sequences
     for seq in self.strands[name].seqs:
@@ -66,8 +64,21 @@ class Gate(PrintObject):
   def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "struct", name
     assert name not in self.structs, "Duplicate structure definition"
+    
     for n, strand in enumerate(strands):
       strands[n] = self.strands[strand]
+    
+    isdomain, struct = struct
+    if isdomain: # This is a domain-based structure
+      sub_structs = struct.split("+")
+      struct = ""
+      # For each strand expand out the structure
+      for sub_struct, strand in zip(sub_structs, strands):
+        assert len(sub_struct) == len(strand.seqs), (sub_struct, strand.seqs)
+        for dp, domain in zip(sub_struct, strand.seqs):
+          struct += dp * domain.length
+        struct += "+"
+      struct = struct[:-1] # Get rid of trailing +
     self.structs[name] = Structure(name, opt, struct, *strands)
   
   def add_kinetics(self, inputs, outputs):

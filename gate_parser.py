@@ -13,7 +13,7 @@ from pyparsing import *
 K = CaselessKeyword
 S = Suppress
 O = Optional
-H = Hidden = lambda x: Empty().setParseAction(lambda s,t,l: x)  # A hidden field, it tags an entry
+H = Hidden = lambda x: Empty().setParseAction(lambda s,l,t: x)  # A hidden field, it tags an entry
 Map = lambda func: (lambda s,l,t: map(func, t) )
 
 def List(expr, delim=""):
@@ -22,6 +22,12 @@ def List(expr, delim=""):
     return Group(ZeroOrMore(expr))
   else:
     return Group(Optional(expr + ZeroOrMore( Suppress(delim) + expr)))
+
+def Flag(expr):
+  """A flag identifier. It is either present or not and returns True or False."""
+  p = Optional(expr)
+  p.setParseAction(lambda s,l,t: bool(t))
+  return p
 
 import string
 lowers = string.lowercase
@@ -33,7 +39,7 @@ NAcodes = "ACGTUNSWRYMKVHBD"
 decl = "declare"
 comp = "component"
 seq = "sequence"
-sup_seq = "sequence"; sup_seq_key = "sup-sequence"
+sup_seq = "sup-sequence"; sup_seq_key = "sup-sequence"
 strand = "strand"
 struct = "structure"
 kin = "kinetic"
@@ -66,10 +72,11 @@ strand_var = var
 struct_var = var
 
 # Secondary structure can be dot-paren, extended dot-paren or HU notation.
+# 'domain' keyword means that the helix/unpaired segments are by domain
 ## TODO: deal with errors. Super-confusing error messages right now.
 exDotParen = Word(nums + ".()+ " ).setParseAction(Map(extended2dotParen))
 HUnotation = Word(nums + "UH()+ ").setParseAction(Map(HU2dotParen))
-secondary_struct = exDotParen | HUnotation
+secondary_struct = Group( Flag("domain") + (exDotParen | HUnotation) )
 
 
 # declare component <gate name>(<params>): <inputs> -> <outputs>
@@ -77,15 +84,14 @@ params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(comp) + var + params + S(":") + List(signal_var, O("+")) + S("->") + List(signal_var, O("+"))
 
 # sequence <name> = <constraints> : <length>
-seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + S(":") + integer
+seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + O(S(":") + integer, default=None)
 
 # sup-sequence <name> = <constraints / sequences> : <length>
-sup_seq_stat = K(sup_seq).setParseAction(lambda s,t,l: sup_seq_key) + \
-               seq_name + S("=") + List(strand_const) + S(":") + integer
+sup_seq_stat = K(sup_seq) + \
+               seq_name + S("=") + List(strand_const) + O(S(":") + integer, default=None)
 
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand) + O("[dummy]", default="") + \
-               strand_var + S("=") + List(strand_const) + S(":") + integer
+strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(strand_const) + O(S(":") + integer, default=None)
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s,t,l: False) | \
