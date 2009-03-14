@@ -9,7 +9,7 @@ import nupack_out_grammar as ngram
 from DNAfold import DNAfold
 from multistrand import DNAkinfold
 
-def read_nupack(filename):
+def read_design(filename):
   """Extracts the designed sequences and the mfe structures"""
   stats, total_n_star = ngram.document.parseFile(filename)
   seqs = {}
@@ -21,7 +21,7 @@ def read_nupack(filename):
     name, seq, n_star, gc, mfe, ideal_struct, actual_struct = stat
     seqs[name] = seq
     structs[name] = actual_struct
-  return seqs, structs
+  return seqs
 
 class Complex(PrintObject):
   def __init__(self, strands, struct):
@@ -30,7 +30,7 @@ class Complex(PrintObject):
 def convert_ins(compl):
   """Convert internal representation for inputs into the simpler notation passed to kinfold."""
   strands = [strand.name for strand in compl.strands]
-  return Complex(strands, compl.mfe_struct)   # TODO: should we use compl.struct instead?
+  return Complex(strands, compl.struct) # Note: Uses ideal secondary structure as initial struct.
 
 def convert_outs(compl):
   """Convert output notation, much like convert_ins except that we run untill "DISASSOC"."""

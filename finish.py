@@ -2,7 +2,7 @@
 import string
 
 from compiler import load
-from kinetics import read_nupack, test_kinetics
+from kinetics import read_design, test_kinetics
 import myStat as stat
 
 from circuit_class import load_file, Circuit
@@ -23,10 +23,10 @@ def finish(basename, **keys):
   # Re-load the design system/component
   system = load(basename+".save")
   # Read results of DNA designer
-  seqs, mfe_structs = read_nupack(basename+".mfe")
+  seqs = read_design(basename+".mfe")
   
   # Apply designer results to our system
-  apply_design(system, seqs, mfe_structs)
+  apply_design(system, seqs)
   
   # Document all sequences, super-sequences, strands, and structures
   print "Writing sequences file: %s.seqs" % basename
@@ -61,7 +61,7 @@ def finish(basename, **keys):
   kinetic_rec(system, "", **keys)
 
 
-def apply_design(system, seqs, mfe_structs):
+def apply_design(system, seqs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
   # Assign all the designed sequences
   for name, seq in system.nupack_seqs.items():
@@ -80,11 +80,6 @@ def apply_design(system, seqs, mfe_structs):
   for name, struct in system.structs.items():
     struct.seq = string.join([strand.seq for strand in struct.strands], "+")
     assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
-  
-  # Assign all the resulting mfe structures
-  for name, struct in system.structs.items():
-    # TODO: Or should we just get it ourselves?  struct, dG = DNAfold(seq, temp)
-    struct.mfe_struct = mfe_structs[name]
 
 
 # TODO: get rid of need for gate, so get rid of recurssion.

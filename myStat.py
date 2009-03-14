@@ -44,16 +44,31 @@ def kurtosis(xs):
   """Sample kurtosis."""
   return moment(4, xs) / var(xs)**2 - 3
 
+def _get_index(xs, n):
+  i = int(n // 1) # Integral part
+  f = n % 1  # Fractional part
+  
+  return (1-f) * xs[i] + f * xs[i+1]
+
 def median(xs):
   """Sample median."""
+  # NOTE: Will be inefficient for large len(xs)
   xs = copy.copy(xs)
   xs.sort()
   
-  mid = int(len(xs) / 2)
-  if len(xs) % 2 == 1: # len is odd
-    return xs[mid]
-  else: # len is even
-    return (xs[mid-1] + xs[mid]) / 2
+  mid = len(xs) / 2
+  return _get_index(xs, mid)
+
+def quartiles(xs):
+  """Divisions between quartiles."""
+  # NOTE: Will be inefficient for large len(xs)
+  xs = copy.copy(xs)
+  xs.sort()
+  
+  q1 = len(xs) / 4
+  mid = 2 * q1
+  q3 = 3 * q1
+  return _get_index(xs, q1), _get_index(xs, mid), _get_index(xs, q3)
 
 
 ## Statistical Distributions
