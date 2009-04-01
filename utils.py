@@ -18,7 +18,7 @@ def match(regex, line):
   if parse:
     return parse.groups()
   else:
-    raise ParseException("regex '%s' does not match line:\n%s" % (regex, line))
+    raise ParseException("regex '%s' does not match line:\n%r" % (regex, line))
 
 
 def mktemp(mode, *args, **keys):

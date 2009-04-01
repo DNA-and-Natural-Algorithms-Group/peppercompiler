@@ -17,7 +17,7 @@ def random_seed():
 # Constant for use in Multistrand
 STOP_FLAG = "Stop_Flag"
 
-def DNAkinfold(strands, start_struct, stop_struct, trials_each, sim_time, temp, conc, num_proc=1, out_interval=-1):
+def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials_each, sim_time, temp, conc, num_proc=1, out_interval=-1):
   """
   strands = dict of strand_name : sequence used in structs
   *_struct = list of structures (each of which is a list of strand_names and a secondary struct)

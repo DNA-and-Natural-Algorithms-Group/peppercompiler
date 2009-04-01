@@ -10,14 +10,14 @@ from utils import match
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  type_, name, seq = match(r"(\w+) ([\w_-]+) ([ATCG]+)", line)
+  type_, name, seq = match(r"(\w+) ([\w_-]+) ([ATCG]+)(?: #.*)?", line)
   return type_, name, seq
 
 def load_fixed(filename):
   """Load a file of sequences to fix."""
   if os.path.isfile(filename):
     f = open(filename, "r")
-    return [parse_fixed(line) for line in f]
+    return [parse_fixed(line) for line in f if not re.match(r"\s*(#.*)?\s*\Z", line)]
   else:
     return []
 

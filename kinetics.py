@@ -45,6 +45,7 @@ def test_kinetics(kin, gate, trials=24, time=100000, temp=25, conc=10., num_proc
   # Instead we wait for the strands to be in the right structures.
   # NOTE: This only tests that the 1st output structure is produced!
   outs_hack = outs[0:1]
+  back = [Complex(ins[0].strands, "DISASSOC")]
   
   # Used strands is a set of all strands used in kinetic test, their names and sequences.
   used_strands = ordered_dict()
@@ -54,4 +55,4 @@ def test_kinetics(kin, gate, trials=24, time=100000, temp=25, conc=10., num_proc
         used_strands[strand_name] = gate.strands[strand_name].seq
   
   trials_each = int(math.ceil(trials / num_proc))
-  return DNAkinfold(used_strands, ins, outs_hack, trials_each, time, temp, conc, num_proc, out_interval)
+  return DNAkinfold(used_strands, ins, back, outs_hack, trials_each, time, temp, conc, num_proc, out_interval)
