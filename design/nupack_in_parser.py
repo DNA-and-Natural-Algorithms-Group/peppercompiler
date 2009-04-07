@@ -36,9 +36,7 @@ var_list = List(var)
 integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"-.eE").setParseAction(Map(float))
 
-# Sequence const could be ?N, 3N or N
-seq_const = Group(Optional(integer, default=1) + Word(NAcodes))
-seq_const_list = List(seq_const)
+sequence = Word(NAcodes)
 
 seq_var = Group(var + Optional("*", default=""))
 seq_list = List(seq_var)
@@ -49,7 +47,7 @@ secondary_struct = Word( nums+".()+ " )
 # structure <name> = <secondary structure>
 struct_stat = K(struct) + var + S("=") + secondary_struct
 # sequence <name> = <constraints>
-seq_stat  = K(seq)  + var + S("=") + seq_const_list
+seq_stat  = K(seq)  + var + S("=") + sequence
 # prevent <list of structs> < <float>
 prevent_stat = K(prevent) + var_list + S("<") + float_
 # <struct name> : <list of seqs>
