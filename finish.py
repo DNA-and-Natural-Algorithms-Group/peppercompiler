@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from __future__ import division
+
 import string
+import math
 
 from compiler import load
 from kinetics import read_design, test_kinetics
-import myStat as stat
 
 from circuit_class import load_file, Circuit
 from gate_class import Gate
@@ -98,11 +100,14 @@ def kinetic(gate, prefix, **keys):
     sys.stdout.flush()
     
     # Call Multistrand instances
-    frac, times, res = test_kinetics(kin, gate, **keys)
+    num_trials, (coll_rate, coll_var), (for_rate, for_var, for_num, for_mean_time), (rev_rate, rev_var, rev_num, rev_mean_time) \
+      = test_kinetics(kin, gate, **keys)
     # Process results
-    print "%d%% finished. Mean time = %.1f  Std Dev = %.1f  Skewness = %.4f  Kurtosis = %.4f" \
-          % (100*frac, stat.mean(times), stat.stddev(times), stat.skewness(times), stat.kurtosis(times))
-    print "MLE Gamma distribution: k = %f, theta = %f" % stat.gamma_mle(times)
+    coll_stddev = math.sqrt(coll_var) if coll_var != None else float("nan")
+    for_stddev = math.sqrt(for_var) if for_var != None else float("nan")
+    print "  Simulated %d trajectories, %.2f%% went forward." % (num_trials, 100*for_num/num_trials)
+    print "  Collision Reaction Rate: %f (std-dev %f) (/M/s)" % (coll_rate, coll_stddev)
+    print "  Forward Trajectory Rate: %f (std-dev %f) (/s) [Mean time: %d]" % (for_rate, for_stddev, for_mean_time)
 
 def kinetic_rec(obj, prefix, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""

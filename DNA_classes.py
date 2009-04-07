@@ -170,7 +170,7 @@ class Structure(object):
     strand_lengths = [len(strand_struct) for strand_struct in self.struct.split("+")] # Check that lengths match up
     for strand, length in zip(strands, strand_lengths):
       assert isinstance(strand, Strand), "Structure must get strands"
-      assert strand.length == length, "Length mismatch: %s, %s" % (strand, length)
+      assert strand.length == length, "Length mismatch: %s, %s, %s" % (name, strand, length)
       self.nupack_seqs += strand.nupack_seqs
   
   def fix_seq(self, fixed_seq):

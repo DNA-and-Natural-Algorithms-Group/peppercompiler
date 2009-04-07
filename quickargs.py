@@ -4,6 +4,7 @@ keyworded of a function).
 """
 import sys
 import string
+import re
 
 def arg_eval(arg):
   """Evaluate an argument."""
@@ -27,15 +28,20 @@ def get_args(argv):
   
   return args, keys
 
+bad_call = re.compile(r"(takes at (least)|(most) \d* arguments)|(got an unexpected keyword argument)")
 def call(f):
   """Call f with args supplied by command line."""
   args, keys = get_args(sys.argv[1:])
   
   try:
     return f(*args, **keys)
-  except TypeError:
-    print "Incorrect usage."
-    help(f)
+  except TypeError, e:
+    if re.search(bad_call, e.message):
+      print e.message
+      print "Incorrect usage."
+      help(f)
+    else:
+      raise
 
 
 def test_printargs(*args, **keys):
