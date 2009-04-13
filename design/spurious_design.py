@@ -18,14 +18,14 @@ sys.path.append(here+"/..")
 from DNAfold import DNAfold
 
 # HACK
-#group["_"] = ""
-#rev_group[""] = "_"
-#complement["_"] = "_"
+group["_"] = ""
+rev_group[""] = "_"
+complement["_"] = "_"
 
 def intersect_groups(x1, x2):
   g1 = group[x1]; g2 = group[x2]
   inter = set(g1).intersection(set(g2))
-  assert len(inter) > 0, "System overconstrained. %s and %s cannot be equal." % (x1, x2)
+  #assert len(inter) > 0, "System overconstrained. %s and %s cannot be equal." % (x1, x2)
   inter = list(inter)
   inter.sort()
   inter = string.join(inter, "")
@@ -180,7 +180,6 @@ def prepare(in_name):
   # Update using the conversion function
   eq = [f[x] for x in eq[:-2]]  # eq[:-2] to get rid of the [NOTHING, NOTHING] at the end
   wc = [f[x] for x in wc[:-2]]
-  #st = string.join(st[:-2], "") # Finally, st should be a string.
   st = st[:-2]
   
   # Constrain st appropriately
@@ -191,19 +190,19 @@ def prepare(in_name):
       continue
     if eq[i] < i:
       j = eq[i]
-      #temp = st[j]
+      old_stj = st[j]
       st[j] = intersect_groups(st[j], st[i])
-      #if st[j] == "_" and "_" not in (st[i], temp):
-      #  print
-      #  print i, j, st[i], temp
+      if st[j] == "_" and "_" not in (st[i], old_stj):
+        print
+        print i, j, st[i], old_stj
         
     if wc[i] != NOTHING and wc[i] < i:
       j = wc[i]
-      #temp = st[j]
+      old_stj = st[j]
       st[j] = intersect_groups(st[j], complement[st[i]])
-      #if st[j] == "_" and "_" not in (st[i], temp):
-      #  print
-      #  print i, j, st[i], temp
+      if st[j] == "_" and "_" not in (st[i], old_stj):
+        print
+        print i, j, st[i], old_stj
   # Propogate the changes
   for i in xrange(len(eq)):
     if eq[i] != NOTHING and eq[i] < i:
