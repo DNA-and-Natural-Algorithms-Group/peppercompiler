@@ -105,9 +105,9 @@ def kinetic(gate, prefix, **keys):
     # Process results
     coll_stddev = math.sqrt(coll_var) if coll_var != None else float("nan")
     for_stddev = math.sqrt(for_var) if for_var != None else float("nan")
-    print "  Simulated %d trajectories, %.2f%% went forward." % (num_trials, 100*for_num/num_trials)
-    print "  Collision Reaction Rate: %f (std-dev %f) (/M/s)" % (coll_rate, coll_stddev)
-    print "  Forward Trajectory Rate: %f (std-dev %f) (/s) [Mean time: %d]" % (for_rate, for_stddev, for_mean_time)
+    print "  Simulated %s trajectories, %s went forward." % (num_trials, 100*for_num/num_trials)
+    print "  Collision Reaction Rate: %s (std-dev %s) (/M/s)" % (coll_rate, coll_stddev)
+    print "  Forward Trajectory Rate: %s (std-dev %s) (/s) [Mean time: %s]" % (for_rate, for_stddev, for_mean_time)
 
 def kinetic_rec(obj, prefix, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""

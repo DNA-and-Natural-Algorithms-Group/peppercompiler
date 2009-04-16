@@ -20,6 +20,15 @@ def match(regex, line):
   else:
     raise ParseException("regex '%s' does not match line:\n%r" % (regex, line))
 
+def search_file(filename, search_path):
+  """Find a file with this name in search_path."""
+  for dir in search_path:
+    file_path = os.path.join(dir, filename)
+    if os.path.isfile(file_path):
+      return file_path
+  
+  return None
+
 
 def mktemp(mode, *args, **keys):
   """Creates a temporary file. Returns the file and filename.
