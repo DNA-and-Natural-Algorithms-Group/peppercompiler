@@ -7,10 +7,12 @@ from utils import mktemp
 
 #Globals
 #par_file = "dna.par"
-par_file = "/research/src/ViennaRNA-1.4/dna.par"
+#par_file = "/research/src/ViennaRNA-1.4/dna.par"
+par_file = "/Users/winfree/DNA_cluster/ViennaRNA-1.4/dna.par"
 
-RNAfold = "RNAfold"
+#RNAfold = "RNAfold"
 #RNAfold  = "/research/bin/RNAfold";
+RNAfold = "/Users/winfree/DNA_cluster/ViennaRNA-1.4/Progs/RNAfold"
 
 BREAK = "NNNNN" # Fake sequence used for strand break
 def DNAfold(seq, temp):

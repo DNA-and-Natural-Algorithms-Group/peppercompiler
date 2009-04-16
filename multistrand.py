@@ -62,6 +62,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
     f.write(struct + "\n")
   f.write("TAG: %s\n" % FORWARD_FLAG)
   # Other params
+  f.write("#Energymodel=NUPACK_DNA_2_3\n")
   f.write("#Temperature=%f\n" % temp)
   f.write("#Concentration=%f\n" % conc)
   f.write("#SimTime=%d\n" % sim_time)
