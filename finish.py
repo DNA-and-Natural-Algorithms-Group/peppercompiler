@@ -100,18 +100,17 @@ def kinetic(gate, prefix, **keys):
     sys.stdout.flush()
     
     # Call Multistrand instances
-    num_trials, (coll_rate, coll_var), (for_rate, for_var, for_num, for_mean_time), (rev_rate, rev_var, rev_num, rev_mean_time) \
-      = test_kinetics(kin, gate, **keys)
-    # Process results
     try:
+      num_trials, (coll_rate, coll_var), (for_rate, for_var, for_num, for_mean_time), (rev_rate, rev_var, rev_num, rev_mean_time) \
+        = test_kinetics(kin, gate, **keys)
+      # Process results
       coll_stddev = math.sqrt(coll_var) if coll_var != None else -1
       for_stddev = math.sqrt(for_var) if for_var != None else -1
       print "  Simulated %d trajectories, %.2f%% went forward." % (num_trials, 100*for_num/num_trials)
       print "  Collision Reaction Rate: %f (std-dev %f) (/M/s)" % (coll_rate, coll_stddev)
-      print "  Forward Trajectory Rate: %f (std-dev %f) (/s) [Mean time: %d]" % (for_rate, for_stddev, for_mean_time)
+      print "  Forward Trajectory Rate: %f (std-dev %f) (/s) [Mean time: %f]" % (for_rate, for_stddev, for_mean_time)
     except:
-      print "Something funny happened ..."
-      print num_trials, (coll_rate, coll_var), (for_rate, for_var, for_num, for_mean_time), (rev_rate, rev_var, rev_num, rev_mean_time)
+      print "Something funny happened ... email Shawn <sligocki@gmail.com>"
 
 def kinetic_rec(obj, prefix, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""
