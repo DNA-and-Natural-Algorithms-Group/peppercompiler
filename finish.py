@@ -101,15 +101,20 @@ def kinetic(gate, prefix, **keys):
     
     # Call Multistrand instances
     try:
-      num_trials, (coll_rate, coll_var), (for_rate, for_var, for_num, for_mean_time), (rev_rate, rev_var, rev_num, rev_mean_time) \
-        = test_kinetics(kin, gate, **keys)
+      res = test_kinetics(kin, gate, **keys)
       # Process results
-      coll_stddev = math.sqrt(coll_var) if coll_var != None else -1
-      for_stddev = math.sqrt(for_var) if for_var != None else -1
-      print "  Simulated %d trajectories, %.2f%% went forward." % (num_trials, 100*for_num/num_trials)
-      print "  Collision Reaction Rate: %f (std-dev %f) (/M/s)" % (coll_rate, coll_stddev)
-      print "  Forward Trajectory Rate: %f (std-dev %f) (/s) [Mean time: %f]" % (for_rate, for_stddev, for_mean_time)
-    except:
+      print "  Simulated %d trajectories, %.2f%% went forward." % (res.num_trials, 100*res.for_num/res.num_trials)
+      print "  Collision Reaction Rate: %f (std-dev %f) (/M/s)" % (res.coll_rate, math.sqrt(res.coll_var))
+      if res.for_rate != None:
+        print "  Forward Trajectory Rate: %f" % res.for_rate,
+        if res.for_var != None:
+          print "(std-dev %f)" % math.sqrt(res.for_var),
+        else:
+          print "(/s)"
+    except KeyboardInterrupt:
+      raise
+    except Exception, e:
+      print repr(e)
       print "Something funny happened ... email Shawn <sligocki@gmail.com>"
 
 def kinetic_rec(obj, prefix, **keys):
@@ -123,7 +128,7 @@ def kinetic_rec(obj, prefix, **keys):
   elif isinstance(obj, Gate):
     kinetic(obj, prefix, **keys)
   else:
-    raise Exception, 'Object "%r" is niether a Circuit or Gate.' % obj
+    raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
 
 if __name__ == "__main__":
   import sys

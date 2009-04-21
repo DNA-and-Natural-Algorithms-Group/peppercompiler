@@ -93,6 +93,8 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   
   return res
 
+class Result(object): pass
+
 def read_result(filename):
   """
   Read the end of the results to get the rate constants
@@ -109,35 +111,36 @@ def read_result(filename):
   """
   lines = subprocess.Popen("tail -7 %s" % filename, shell=True, stdout=subprocess.PIPE).stdout.readlines()
   
+  res = Result()
   try:
-    num_trials = re.match(r"Simulation Complete: (.+) trajectories total\.\n", lines[0]).group(1)
-    num_trials = int(num_trials)
+    res.num_trials = re.match(r"Simulation Complete: (.+) trajectories total\.\n", lines[0]).group(1)
+    res.num_trials = int(res.num_trials)
     
-    coll_rate, coll_var = re.match(r"Estimated mean, var Collision Reaction Rate: (.+), (.+) \(/M/s\)\n", lines[2]).group(1,2)
-    coll_rate = float(coll_rate)
-    coll_var  = float(coll_var)
+    res.coll_rate, res.coll_var = re.match(r"Estimated mean, var Collision Reaction Rate: (.+), (.+) \(/M/s\)\n", lines[2]).group(1,2)
+    res.coll_rate = float(res.coll_rate)
+    res.coll_var  = float(res.coll_var)
     
-    for_rate, for_var = re.match(r"Forward Trajectory Rate \(mean(, var)?\): (N/A|([\d.e+-]+))(, ([\d.e+-]+))? \(/s\)\n", lines[3]).group(3, 5)
-    if for_rate != None:
-      for_rate = float(for_rate)
-    if for_var != None:
-      for_var  = float(for_var)
+    res.for_rate, res.for_var = re.match(r"Forward Trajectory Rate \(mean(, var)?\): (N/A|([\d.e+-]+))(, ([\d.e+-]+))? \(/s\)\n", lines[3]).group(3, 5)
+    if res.for_rate != None:
+      res.for_rate = float(res.for_rate)
+    if res.for_var != None:
+      res.for_var  = float(res.for_var)
     
-    for_num, for_mean_time = re.match(r"Forward Trajectories: (.+), Average Time: (N/A|([\d.e+-]+))\n", lines[4]).group(1, 3)
-    for_num = int(for_num)
-    if for_mean_time != None:
-      for_mean_time = float(for_mean_time)
+    res.for_num, res.for_mean_time = re.match(r"Forward Trajectories: (.+), Average Time: (N/A|([\d.e+-]+))\n", lines[4]).group(1, 3)
+    res.for_num = int(res.for_num)
+    if res.for_mean_time != None:
+      res.for_mean_time = float(res.for_mean_time)
     
-    rev_rate, rev_var = re.match(r"Reverse Trajectory Rate \(mean(,var)?\): (N/A|([\d.e+-]+))(, ([\d.e+-]+))? \(/s\)\n", lines[5]).group(3, 5)
-    if rev_rate != None:
-      rev_rate = float(rev_rate)
-    if rev_var != None:
-      rev_var  = float(rev_var)
+    res.rev_rate, res.rev_var = re.match(r"Reverse Trajectory Rate \(mean(,var)?\): (N/A|([\d.e+-]+))(, ([\d.e+-]+))? \(/s\)\n", lines[5]).group(3, 5)
+    if res.rev_rate != None:
+      res.rev_rate = float(res.rev_rate)
+    if res.rev_var != None:
+      res.rev_var  = float(res.rev_var)
     
-    rev_num, rev_mean_time = re.match(r"Reverse Trajectories: (.+), Average Time: (N/A|([\d.e+-]+))\n", lines[6]).group(1, 3)
-    rev_num = int(rev_num)
-    if rev_mean_time != None:
-      rev_mean_time = float(rev_mean_time)
+    res.rev_num, res.rev_mean_time = re.match(r"Reverse Trajectories: (.+), Average Time: (N/A|([\d.e+-]+))\n", lines[6]).group(1, 3)
+    res.rev_num = int(res.rev_num)
+    if res.rev_mean_time != None:
+      res.rev_mean_time = float(res.rev_mean_time)
   
   except AttributeError:
     print
@@ -145,4 +148,4 @@ def read_result(filename):
     print
     raise
   
-  return num_trials, (coll_rate, coll_var), (for_rate, for_var, for_num, for_mean_time), (rev_rate, rev_var, rev_num, rev_mean_time)
+  return res
