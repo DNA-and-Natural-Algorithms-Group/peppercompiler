@@ -10,6 +10,7 @@ from kinetics import read_design, test_kinetics
 from circuit_class import load_file, Circuit
 from gate_class import Gate
 from DNA_classes import wc
+import myStat as stat
 
 def finish(basename, **keys):
   """
@@ -100,22 +101,35 @@ def kinetic(gate, prefix, **keys):
     sys.stdout.flush()
     
     # Call Multistrand instances
-    try:
-      res = test_kinetics(kin, gate, **keys)
-      # Process results
-      print "  Simulated %d trajectories, %.2f%% went forward." % (res.num_trials, 100*res.for_num/res.num_trials)
-      print "  Collision Reaction Rate: %f (std-dev %f) (/M/s)" % (res.coll_rate, math.sqrt(res.coll_var))
-      if res.for_rate != None:
-        print "  Forward Trajectory Rate: %f" % res.for_rate,
-        if res.for_var != None:
-          print "(std-dev %f)" % math.sqrt(res.for_var),
-        else:
-          print "(/s)"
-    except KeyboardInterrupt:
-      raise
-    except Exception, e:
-      print repr(e)
-      print "Something funny happened ... email Shawn <sligocki@gmail.com>"
+    forward, reverse, overtime, summary = test_kinetics(kin, gate, **keys)
+    # Process results
+    num_for = len(forward)
+    num_rev = len(reverse)
+    num_over = len(overtime)
+    num_trials = num_for + num_rev + num_over
+    
+    # Rate at which collisions that will eventually go forward happen
+    for_coll_rate = sum([coll_rate for (time, coll_rate) in forward]) / num_trials
+    
+    for_rates = [1/time for (time, coll_rate) in forward]
+    for_rate = stat.mean(for_rates)
+    for_rate_stddev = stat.stddev(for_rates)
+    
+    print "  %d/%d trajectories went forward." % (num_for, num_trials)
+    print "  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000)
+    print "  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev)
+    print
+    
+    # Rate at which collisions that will eventually reverse happen
+    rev_coll_rate = sum([coll_rate for (time, coll_rate) in reverse]) / num_trials
+    
+    rev_rates = [1/time for (time, coll_rate) in reverse]
+    rev_rate = stat.mean(rev_rates)
+    rev_rate_stddev = stat.stddev(rev_rates)
+    
+    print "  %d/%d trajectories went back." % (num_rev, num_trials)
+    print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
+    print "  Estimated Reverse Trajectory Rate: %f (std-dev %f) /s" % (rev_rate, rev_rate_stddev)
 
 def kinetic_rec(obj, prefix, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""

@@ -78,11 +78,11 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   if os.path.isfile(out_name):
     os.remove(out_name)
   # Run Multistrand!
-  command = "echo '#Startseed=%s' | cat - %s | nice Multistrand" % (random_seed(), in_name)
+  command = "nice Multistrand < %s" % in_name
   # If we asked for quiet, keep it quiet.
   if out_interval == -1:
     command += " > /dev/null"
-  print command
+  print "$", command
   subprocess.check_call(command, shell=True)
   
   res = read_result(out_name)
@@ -91,7 +91,34 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   #os.remove(in_name)
   #os.remove(out_name)
   
-  return res
+  f = open(out_name, "r")
+  
+  # Note: This will load the entire data of the file into lists (could be memory 
+  #       intensive for extremely large data sets).
+  forward = []
+  reverse = []
+  overtime = []
+  summary = ""
+  for line in f:
+    if line[0] == "(":
+      parts = line.split()
+      assert len(parts) == 5, "Error: Multistrand format has changed.\n%s" % line
+      coll_rate = float(parts[2])
+      flag = parts[3]
+      time = float(parts[4])
+      if time >= sim_time:
+        overtime.append( (time, coll_rate) )
+      elif flag == FORWARD_FLAG:
+        forward.append( (time, coll_rate) )
+      elif flag == BACK_FLAG:
+        reverse.append( (time, coll_rate) )
+      else:
+        assert False, "Error: Unexpected stop flag '%s' in Multistrand output.\n%s" % (flag, line)
+    else:
+      summary += line
+  f.close()
+  
+  return forward, reverse, overtime, summary
 
 class Result(object): pass
 

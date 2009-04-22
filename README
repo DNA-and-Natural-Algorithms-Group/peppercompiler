@@ -24,7 +24,7 @@ The "examples/" directory has some instructive examples.
 
 == Requirements ==
 
-Code works with Python 2.4.3+.
-Suggested using 2.5+ so that parse errors are more readable.
+DNA Circuit Compiler requires:
 
-Requires pyparsing 1.5.1+ (currently included in the directory).
+ - Python >= 2.5
+ - pyparsing >= 1.5.1  (currently included in the directory)
