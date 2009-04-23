@@ -108,6 +108,12 @@ def kinetic(gate, prefix, **keys):
     num_over = len(overtime)
     num_trials = num_for + num_rev + num_over
     
+    if num_over > 0:
+      print
+      print "WARNING: %d/%d trajectories went overtime." % (num_over, num_trials)
+      print "Reported statistics may be unreliable."
+      print
+    
     # Rate at which collisions that will eventually go forward happen
     for_coll_rate = sum([coll_rate for (time, coll_rate) in forward]) / num_trials
     
@@ -115,10 +121,11 @@ def kinetic(gate, prefix, **keys):
     for_rate = stat.mean(for_rates)
     for_rate_stddev = stat.stddev(for_rates)
     
-    print "  %d/%d trajectories went forward." % (num_for, num_trials)
-    print "  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000)
-    print "  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev)
-    print
+    print "* %d/%d trajectories went forward." % (num_for, num_trials)
+    if num_for > 0:
+      print "  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000)
+      print "  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev)
+      print
     
     # Rate at which collisions that will eventually reverse happen
     rev_coll_rate = sum([coll_rate for (time, coll_rate) in reverse]) / num_trials
@@ -127,9 +134,10 @@ def kinetic(gate, prefix, **keys):
     rev_rate = stat.mean(rev_rates)
     rev_rate_stddev = stat.stddev(rev_rates)
     
-    print "  %d/%d trajectories went back." % (num_rev, num_trials)
-    print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
-    print "  Estimated Reverse Trajectory Rate: %f (std-dev %f) /s" % (rev_rate, rev_rate_stddev)
+    print "* %d/%d trajectories went back." % (num_rev, num_trials)
+    if num_rev > 0:
+      print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
+      print "  Estimated Reverse Trajectory Rate: %f (std-dev %f) /s" % (rev_rate, rev_rate_stddev)
 
 def kinetic_rec(obj, prefix, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""

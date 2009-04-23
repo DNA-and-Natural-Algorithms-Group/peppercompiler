@@ -65,7 +65,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   f.write("#Energymodel=NUPACK_DNA_2_3\n")
   f.write("#Temperature=%f\n" % temp)
   f.write("#Concentration=%f\n" % conc)
-  f.write("#SimTime=%d\n" % sim_time)
+  f.write("#SimTime=%f\n" % sim_time)
   f.write("#NumSims=%d\n" % trials)
   f.write("#Logfile=%s\n" % out_name)
   f.write("#OutputInterval=%d\n" % out_interval)   # -1 = Suppress output
