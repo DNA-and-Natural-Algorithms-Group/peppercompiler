@@ -176,7 +176,7 @@ def diff(lable, str_a, str_b):
 
 def output_sequences(d, connect, fn):
   """Output sequences in Joe's format."""
-  f = file(fn, "w")
+  f = open(fn, "w")
   for struct in d.structs.values():
     # Write structure (with dummy content)
     f.write("%d:%s\n" % (0, struct.name))
