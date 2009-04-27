@@ -19,7 +19,7 @@ import re
 def process(infilename, params):
   if "__builtins__" not in params:
     params["__builtins__"] = None
-  f_in = file(infilename, "r")
+  f_in = open(infilename, "r")
   out = ""
   
   for line in f_in:

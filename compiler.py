@@ -21,7 +21,7 @@ def load_fixed(filename):
   else:
     return []
 
-def compiler(basename, args):
+def compiler(basename, args, outputname, savename, fixed_file=None):
   """
   Start compiling a specification.
   
@@ -32,55 +32,73 @@ def compiler(basename, args):
   # Read in system (or component)
   system = load_file(basename, args)
   
-  # TODO: Allow fixing (the sequences of) super-sequences, strands, structures.
-  print "Fixing sequences from file %s.fixed" % basename
-  fixed_sequences = load_fixed(basename+".fixed")
-  for type_, name, fixed_seq in fixed_sequences:
-    if type_ == "sequence":
-      system.seqs[name].fix_seq( fixed_seq )
-    elif type_ == "strand":
-      system.strands[name].fix_seq( fixed_seq )
-    elif type_ == "structure":
-      system.structs[name].fix_seq( fixed_seq )
-      
+  if fixed_file:
+    print "Fixing sequences from file '%s'" % fixed_file
+    fixed_sequences = load_fixed(fixed_file)
+    for type_, name, fixed_seq in fixed_sequences:
+      if type_ == "sequence":
+        system.seqs[name].fix_seq( fixed_seq )
+      elif type_ == "strand":
+        system.strands[name].fix_seq( fixed_seq )
+      elif type_ == "structure":
+        system.structs[name].fix_seq( fixed_seq )
+  
 
   # Write the Zadeh-style design file
-  outfile = file(basename+".des", "w")
+  print "System/component compiled into %s" % outputname
+  outfile = open(outputname, "w")
   outfile.write("## Specification for %s compiled at: %s\n" % (basename, time.ctime()))
   system.output_nupack("", outfile)
   outfile.close()
 
   # Save compiler state to be reloaded when designer finishes
-  save(system, basename+".save")
-  print "System/component compiled into %s.des" % basename
-  print "Run a designer on this and get an %s.mfe output" % basename
-  print 'Finally run "python compiler.py %s.save" to finish compiling and run kinetics' % basename
+  print "Compiler state saved into %s" % savename
+  save(system, savename)
+  print "Run a designer on %s and process the result with python finish.py" % outputname
 
 def save(obj, filename):
   """Save an object for later finishing."""
-  f = file(filename, "w")
+  f = open(filename, "w")
   pickle.dump(obj, f)
   f.close()
 
 def load(filename):
   """Load it back."""
-  f = file(filename, "r")
+  f = open(filename, "r")
   obj = pickle.load(f)
   f.close()
   return obj
 
 if __name__ == "__main__":
-  import sys
-  import quickargs
-  filename = sys.argv[1]
-  args, keys = quickargs.get_args(sys.argv[2:])
+  # Parse command line options.
+  usage = "usage: %prog [options] basename [parameters ...]"
+  from optparse import OptionParser
+  parser = OptionParser(usage=usage)
+  #parser.set_defaults(verbose=True)
+  #parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
+  # TODO: implement quiet
+  #parser.add_option("-q", "--quiet", action="store_false", dest="verbose")
+  parser.add_option("--fixed", help="Fix specific sequences listed in FILE", metavar="FILE")
+  parser.add_option("-o", "--output", help="Custom output file, defaults to BASENAME.des")
+  parser.add_option("--save", help="Custom state save file, defaults to BASENAME.save")
+  (options, args) = parser.parse_args()
   
+  # Get basename of input specification
+  basename = args[0]
+  # Infer the basename if a full filename is given
+  p = re.match(r"(.*)\.(sys|comp)\Z", basename)
+  if p:
+    basename = p.group(1)
+  
+  # Set filename defaults
+  if not options.output:
+    options.output = basename + ".des"
+  if not options.save:
+    options.save = basename + ".save"
+  
+  # Eval remaining arguments
+  import quickargs
+  args, keys = quickargs.get_args(args[1:])
   assert not keys, "Don't provide keywords to compiler.py"
   
-  ## If we are starting compile specifying the entire filename
-  p = re.match(r"(.*)\.(sys|comp)\Z", filename)
-  if p:
-    compiler(p.group(1), args)
-  
-  else: # If we are starting a compile with just the basename
-    compiler(filename, args)
+  compiler(basename, args, options.output, options.save, options.fixed)

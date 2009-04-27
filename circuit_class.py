@@ -20,15 +20,18 @@ def load_file(basename, args, path="."):
   basename = os.path.join(path, basename) # Add the correct directory name
   new_path = os.path.dirname(basename) # Local directory of basename
   
-  sys_name = basename+".sys"
+  sys_name = basename+".sys"   # Name if file is a system specification
+  comp_name = basename+".comp" # Name if file is a component spec.
+  
   if os.path.isfile(sys_name):
+    assert not os.path.isfile(comp_name), "Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name)
     return load_circuit(sys_name, args, new_path)
+  
+  elif os.path.isfile(comp_name):
+    return load_gate(comp_name, args)
+  
   else:
-    comp_name = basename+".comp"
-    if os.path.isfile(comp_name):
-      return load_gate(comp_name, args)
-    else:
-      raise IOError, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
+    raise Exception, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
 
 class Circuit(PrintObject):
   """Stores all the information in a circuit's connectivity file"""
