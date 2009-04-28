@@ -1,30 +1,70 @@
-== Basic usage ==
+This is the Winfree lab DNA Circuit Compiler developed by Shawn Ligocki.
+It assists DNA programmers in building DNA computers by providing a templating
+language for specifying generic components and interfacing with state of the
+art designers and kinetic simulators to create and test sequences.
+
+=== Basic usage ===
 
 Run
-	python compile.py circuit
+ $ python compile.py circuit
 
-to compile "circuit.sys" or "circuit.comp" and produce "circuit.des" (for 
-Joe's designer). You can fix sequences by listing them in a "circuit.fixed" file.
+to compile "circuit.sys" or "circuit.comp" and produce the design 
+specification, "circuit.des" (for Joe's designer).
 
 Process "circuit.des" with a designer. There is a wrapper for Erik's SpuriousC 
 in "design/". Run
-  python spurious_design.py circuit
+ $ python design/spurious_design.py circuit
 
-to produce "circuit.mfe".
+to produce the design, "circuit.mfe".
 
 Then,
-	python finish.py circuit
+ $ python finish.py circuit
 
-to run Multisim on the designed sequences and produce the strands-to-order file
-"circuit.strands" as well as a list of all sequences designed in "circuit.seqs".
+to produce a list of all sequences, "circuit.seqs" and run Multistrand on the 
+designed sequences.
 
-== Examples ==
+=== Advanced Usage ===
+
+Advanced options of compiler.py, spurious_design.py and finish.py can be 
+examined by using the --help flag (e.g. python compiler.py --help).
+
+Extended functionality:
+* You can fix certain sequences when you begin compilation
+Ex:
+ $ python compiler.py --fixed=circuit.fixed circuit
+
+* You can get verbose progress information while designing with spuriousC
+Ex:
+ $ python design/spurious_design.py -v circuit
+
+* finish.py can output a list of "strands to order"
+Ex:
+ $ python finish.py --strands=circuit.strands circuit
+
+Furthermore, all input and output files can be specified specifically with 
+options. Therefore, for example, you can run two designs on the same system at 
+the same time.
+Ex:
+ $ python compiler.py --output=run1.des --save=run1.save examples/Georg_System/Circuit
+
+=== Examples ===
 
 The "examples/" directory has some instructive examples.
+examples/system1/ - Really simple dummy system without parametrization
+examples/system2/ - Same example, with parametrization
+examples/Georg_System/ - Georg's original logic circuit (Nature 2006)
+examples/Lulu/ - Some mock-ups of Lulu's sea-saw systems
+examples/Elisa/ - Self-activating and self-inhibiting transcriptional systems
 
-== Requirements ==
+=== System/Component specification ===
+
+The specifications for system and component files can be found on the DNA wiki.
+
+http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler
+
+=== Requirements ===
 
 DNA Circuit Compiler requires:
 
- - Python >= 2.5
- - pyparsing >= 1.5.1  (currently included in the directory)
+* Python >= 2.5
+* pyparsing >= 1.5.1  (currently included in the directory)
