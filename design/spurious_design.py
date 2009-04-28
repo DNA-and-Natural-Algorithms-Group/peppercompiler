@@ -267,11 +267,18 @@ def process_result(c, inname, outname):
   f.write("Total n(s*) = %f" % 0)
   f.close()
 
-def design(basename, verbose=False, extra_par=""):
-  
+def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=False, extra_pars=""):
+  stname = basename + ".st"
+  wcname = basename + ".wc"
+  eqname = basename + ".eq"
+  sp_outname = basename + ".sp"
   print "Preparing constraints files for spuriousC."
+  #if reuse:
+  #  for name in stname, wcname, eqname:
+  #    assert os.path.isfile(name), "Error: requested --reuse, but file '%s' doesn't exist" % name
+  
   # Prepare the constraints
-  st, eq, wc, c = prepare(basename + ".des")
+  st, eq, wc, c = prepare(infilename)
   
   # Fix divergent specifications
   eq = [x+1 for x in eq]
@@ -280,9 +287,9 @@ def design(basename, verbose=False, extra_par=""):
       wc[i] += 1
   
   # Print them to files
-  print_list(st, basename + ".st", "%c")
-  print_list(eq, basename + ".eq", "%d ")
-  print_list(wc, basename + ".wc", "%d ")
+  print_list(st, stname, "%c")
+  print_list(wc, wcname, "%d ")
+  print_list(eq, eqname, "%d ")
   
   if "_" in st:
     print "System overconstrained."
@@ -291,39 +298,59 @@ def design(basename, verbose=False, extra_par=""):
   # Run SpuriousC
   # TODO: take care of prevents.
   if verbose:
-    quiet = "quiet=ALL | tee %s.out" % basename
+    quiet = "quiet=ALL | tee %s" % sp_outname
   else:
-    quiet = "quiet=TRUE > %s.out" % basename
+    quiet = "quiet=TRUE > %s" % sp_outname
   
-  command = "spuriousC score=automatic template=%s.st wc=%s.wc eq=%s.eq %s %s" % (basename, basename, basename, extra_par, quiet)
+  command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
   print command
   subprocess.check_call(command, shell=True)
   #subprocess.call(command, shell=True)
   
   print "Processing results of spruriousC."
   # Process results
-  process_result(c, basename + ".out", basename + ".mfe")
-  print "Done, results saved to %s.mfe" % basename
+  process_result(c, sp_outname, outfilename)
+  print "Done, results saved to '%s'" % outfilename
+  if cleanup:
+    print "Deleting temporary files"
+    os.remove(stname)
+    os.remove(wcname)
+    os.remove(eqname)
+    os.remove(spname)
 
 if __name__ == "__main__":
-  import sys
   import re
+  from optparse import OptionParser
   
-  verbose = ("-v" in sys.argv)
-  if verbose:
-    sys.argv.remove("-v")
+  # Parse command line options.
+  usage = "usage: %prog [options] infilename [spuriousC parameters ...]"
+  parser = OptionParser(usage=usage)
+  parser.set_defaults(verbose=False, cleanup=True)
+  parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
+  parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="Default")
+  parser.add_option("-o", "--output", help="Output file [defaults to BASENAME.mfe]", metavar="FILE")
   
-  try:
-    basename = sys.argv[1]
-    p = re.match(r"(.*)\.des\Z", basename)
-    if p:
-      basename = p.group(1)
-  except:
-    print "Usage: python spurious_design.py [-v] infilename.des"
-    sys.exit(1)
+  parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp)")
+  parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use. [Default]")
+  # TODO: parser.add_option("--reuse", action="store_true", help="Reuse the .st, .wc and .eq files if they already exist (Saves time if a session was terminated, or if you want to rerun a design).")
+  (options, args) = parser.parse_args()
+  options.reuse = False # TODO
   
-  extra_par = ""
-  if len(sys.argv) > 2:
-    extra_par = string.join(sys.argv[2:], " ")
+  if len(args) < 1:
+    parser.error("missing required argument infilename")
+  infilename = args[0]
   
-  design(basename, verbose, extra_par)
+  # Infer the basename if a full filename is given
+  basename = infilename
+  p = re.match(r"(.*)\.des\Z", basename)
+  if p:
+    basename = p.group(1)
+  
+  # Set filename defaults
+  if not options.output:
+    options.output = basename + ".mfe"
+  
+  # Collect extra arguments for spuriousC
+  spurious_pars = string.join(args[1:], " ")
+  
+  design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, spurious_pars)

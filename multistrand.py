@@ -19,7 +19,7 @@ def random_seed():
 BACK_FLAG = "REVERSE"
 FORWARD_FLAG = "FORWARD"
 
-def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time, temp, conc, out_interval=-1):
+def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time, temp, conc, out_interval=-1, cleanup=True):
   """
   strands = dict of strand_name : sequence used in structs
   *_struct = list of structures (each of which is a list of strand_names and a secondary struct)
@@ -87,10 +87,6 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   
   res = read_result(out_name)
   
-  # Clean up
-  #os.remove(in_name)
-  #os.remove(out_name)
-  
   f = open(out_name, "r")
   
   # Note: This will load the entire data of the file into lists (could be memory 
@@ -117,6 +113,10 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
     else:
       summary += line
   f.close()
+  
+  if cleanup:
+  	os.remove(in_name)
+  	os.remove(out_name)
   
   return forward, reverse, overtime, summary
 

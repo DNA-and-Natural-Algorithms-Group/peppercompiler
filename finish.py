@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import division
 
+import sys
 import string
 import math
 
@@ -12,28 +13,30 @@ from gate_class import Gate
 from DNA_classes import wc
 import myStat as stat
 
-def finish(basename, **keys):
+def finish(savename, designname, seqsname, strandsname, cleanup, keys):
   """
   Finish compiling a specification.
   
-  Currently, it produces .strands file of "strands to order"
-                and tests the specified kinetic paths
+  Currently, it
+    1) produces a .seqs file of all designed sequences,
+    2) optionally produces a "strands to order" file and
+    3) tests the specified kinetic paths
   
   In the future it might test for bad kinetics, etc.
   """
   
-  print "Finishing compilation of %s ..." % basename
+  print "Finishing compilation of %s ..." % savename
   # Re-load the design system/component
-  system = load(basename+".save")
+  system = load(savename)
   # Read results of DNA designer
-  seqs = read_design(basename+".mfe")
+  seqs = read_design(designname)
   
   # Apply designer results to our system
   apply_design(system, seqs)
   
   # Document all sequences, super-sequences, strands, and structures
-  print "Writing sequences file: %s.seqs" % basename
-  f = open(basename + ".seqs", "w")
+  print "Writing sequences file: %s" % seqsname
+  f = open(seqsname, "w")
   
   f.write("# Sequences\n")
   for name, seq in system.nupack_seqs.items():
@@ -50,18 +53,19 @@ def finish(basename, **keys):
   f.close()
   
   # Document all strands that will be used in the final experiment
-  print 'Writing "stands to order" file: %s.strands' % basename
-  f = open(basename + ".strands", "w")
-  for name, strand in system.strands.items():
-    if not strand.dummy:
-      f.write("strand %s\t%s\n" % (name, strand.seq) )
-  f.close()
+  if strandsname:
+    print 'Writing "stands to order" file: %s' % strandsname
+    f = open(strandsname, "w")
+    for name, strand in system.strands.items():
+      if not strand.dummy:
+        f.write("strand %s\t%s\n" % (name, strand.seq) )
+    f.close()
   
   # TODO: Write a thermodynamic scorecard.
   
   # Run Kinetic tests
   print "Testing Kinetics with parameters: ", keys
-  kinetic_rec(system, "", **keys)
+  kinetic_rec(system, "", cleanup, **keys)
 
 
 def apply_design(system, seqs):
@@ -85,8 +89,8 @@ def apply_design(system, seqs):
     assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
 
 
-# TODO: get rid of need for gate, so get rid of recurssion.
-def kinetic(gate, prefix, **keys):
+# TODO: get rid of need for gate, so get rid of recursion.
+def kinetic(gate, prefix, cleanup, **keys):
   """Test all kinetic pathways in a gate."""
   for kin in gate.kinetics.values():
     # Print testing info
@@ -101,7 +105,7 @@ def kinetic(gate, prefix, **keys):
     sys.stdout.flush()
     
     # Call Multistrand instances
-    forward, reverse, overtime, summary = test_kinetics(kin, gate, **keys)
+    forward, reverse, overtime, summary = test_kinetics(kin, gate, cleanup, **keys)
     # Process results
     num_for = len(forward)
     num_rev = len(reverse)
@@ -139,31 +143,62 @@ def kinetic(gate, prefix, **keys):
       print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
       print "  Estimated Reverse Trajectory Rate: %f (std-dev %f) /s" % (rev_rate, rev_rate_stddev)
 
-def kinetic_rec(obj, prefix, **keys):
+def kinetic_rec(obj, prefix, cleanup, **keys):
   """Run kinetic tests on gate (which might actually be a sub-circuit)."""
   # If it's actually a circuit, recurse.
   if isinstance(obj, Circuit):
     for gate_name, gate in obj.gates.items():
-      kinetic_rec(gate, prefix + gate_name + "-", **keys)
+      kinetic_rec(gate, prefix + gate_name + "-", cleanup, **keys)
   
   # If it's a gate, use the gate code.
   elif isinstance(obj, Gate):
-    kinetic(obj, prefix, **keys)
+    kinetic(obj, prefix, cleanup, **keys)
   else:
     raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
 
+  
 if __name__ == "__main__":
-  import sys
   import re
-  import quickargs
-  filename = sys.argv[1]
-  args, keys = quickargs.get_args(sys.argv[2:])
+  from optparse import OptionParser
   
-  p = re.match(r"(.*)\.(save|mfe)\Z", filename)
+  # Parse command line options.
+  usage = "usage: %prog [options] BASENAME"
+  parser = OptionParser(usage=usage)
+  parser.set_defaults(cleanup=False)
+  #parser.set_defaults(verbose=True)
+  #parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
+  # TODO: implement quiet
+  #parser.add_option("-q", "--quiet", action="store_false", dest="verbose")
+  parser.add_option("--save", help="Saved state file [defaults to BASENAME.save]", metavar="FILE")
+  parser.add_option("--design", help="Design file [defaults to BASENAME.mfe]", metavar="FILE")
+  parser.add_option("--seqs", help="Sequences output file [defaults to BASENAME.seqs]", metavar="FILE")
+  parser.add_option("--strands", help="Produce a strands-to-order file", metavar="FILE")
+  
+  parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp) [Default temporarily]")
+  parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use.")
+  #TODO: parser.add_option("--kinetic", help="Custom kinetics output file, defaults to BASENAME.kin")
+  (options, args) = parser.parse_args()
+  
+  # Get basename
+  if len(args) < 1:
+   parser.error("missing required argument BASENAME")
+  basename = args[0]
+  # Infer the basename if a full filename is given
+  p = re.match(r"(.*)\.(save|mfe)\Z", basename)
   if p:
-    basename = p.group(1)  # Circuit.save -> Circuit   or   Circuit.mfe -> Circuit
-  else:
-    basename = filename
+    basename = p.group(1)
   
-  finish(basename, *args, **keys)
-
+  # Set filename defaults
+  if not options.save:
+    options.save = basename + ".save"
+  if not options.design:
+    options.design = basename + ".mfe"
+  if not options.seqs:
+    options.seqs = basename + ".seqs"
+  
+  # Eval remaining arguments
+  import quickargs
+  args, keys = quickargs.get_args(args[1:])
+  assert not args
+  
+  finish(options.save, options.design, options.seqs, options.strands, options.cleanup, keys)

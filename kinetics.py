@@ -36,7 +36,7 @@ def convert_outs(compl):
   strands = [strand.name for strand in compl.strands]
   return Complex(strands, "DISASSOC")
 
-def test_kinetics(kin, gate, trials=24, time=100000, temp=25, conc=10., out_interval=-1):
+def test_kinetics(kin, gate, cleanup, trials=24, time=100000, temp=25, conc=10., out_interval=-1):
   """Test times for inputs to combine/seperate into outputs"""
   ins  = [convert_ins(struct) for struct in kin.inputs]
   outs = [convert_outs(struct) for struct in kin.outputs]
@@ -53,4 +53,4 @@ def test_kinetics(kin, gate, trials=24, time=100000, temp=25, conc=10., out_inte
       if strand_name not in used_strands:
         used_strands[strand_name] = gate.strands[strand_name].seq
   
-  return DNAkinfold(used_strands, ins, back, outs_hack, trials, time, temp, conc, out_interval)
+  return DNAkinfold(used_strands, ins, back, outs_hack, trials, time, temp, conc, out_interval, cleanup)
