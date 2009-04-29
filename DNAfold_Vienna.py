@@ -13,7 +13,6 @@ RNAfold = "RNAfold"
 if "VIENNAHOME" in os.environ:
   par_file = os.path.join(os.environ["VIENNAHOME"], "dna.par")
   assert os.path.isfile(par_file)
-
 # Otherwise search the system path
 else:
   path = os.environ["PATH"].split(os.path.pathsep)
