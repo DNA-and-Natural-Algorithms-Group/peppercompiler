@@ -13,7 +13,7 @@ specification, "circuit.des" (for Joe's designer).
 
 Process "circuit.des" with a designer. There is a wrapper for Erik's SpuriousC 
 in "design/". Run
- $ python design/spurious_design.py circuit
+ $ python design/spurious_design.py circuit.des
 
 to produce the design, "circuit.mfe".
 
