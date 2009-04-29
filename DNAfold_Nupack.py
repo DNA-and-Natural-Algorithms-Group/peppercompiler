@@ -1,8 +1,8 @@
 """Wrapper for NUPACK mfe."""
 import os
+import subprocess
 
 import nupack_mfe_grammar as gram
-import mySubprocess as subprocess
 from utils import mktemp
 
 #Globals

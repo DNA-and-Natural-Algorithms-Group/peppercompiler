@@ -1,7 +1,7 @@
 """Selector for DNAfold."""
+from subprocess import CalledProcessError
 
-from mySubprocess import CalledProcessError
-import DNAfold_Nupack, DNAfold_Vienna
+import DNAfold_Nupack
 
 def DNAfold(seq, temp=25):
   """Run the installed thermodynamic mfe package"""
@@ -9,6 +9,7 @@ def DNAfold(seq, temp=25):
     return DNAfold_Nupack.DNAfold(seq, temp)
   except CalledProcessError, e1:
     try:
+      import DNAfold_Vienna
       return DNAfold_Vienna.DNAfold(seq, temp)
     except CalledProcessError, e2:
       raise Exception, "NUPACK mfe and Vienna RNAfold both failed.\n" \
