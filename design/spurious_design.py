@@ -305,10 +305,9 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
   print command
   subprocess.check_call(command, shell=True)
-  #subprocess.call(command, shell=True)
   
-  print "Processing results of spruriousC."
   # Process results
+  print "Processing results of spruriousC."
   process_result(c, sp_outname, outfilename)
   print "Done, results saved to '%s'" % outfilename
   if cleanup:

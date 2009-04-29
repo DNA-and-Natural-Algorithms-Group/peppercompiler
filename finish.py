@@ -13,7 +13,19 @@ from gate_class import Gate
 from DNA_classes import wc
 import myStat as stat
 
-def finish(savename, designname, seqsname, strandsname, cleanup, keys):
+def get_gates(obj, prefix=""):
+  """Return all gates and the prefixes showing how to reach them."""
+  if isinstance(obj, Gate):
+    return [(obj, prefix)]
+  elif isinstance(obj, Circuit):
+    gates = []
+    for gate_name, gate in obj.gates.items():
+      gates += get_gates(gate, prefix + gate_name + "-")
+    return gates
+  else:
+    raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
+
+def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, keys):
   """
   Finish compiling a specification.
   
@@ -28,10 +40,9 @@ def finish(savename, designname, seqsname, strandsname, cleanup, keys):
   print "Finishing compilation of %s ..." % savename
   # Re-load the design system/component
   system = load(savename)
-  # Read results of DNA designer
-  seqs = read_design(designname)
   
-  # Apply designer results to our system
+  print "Applying the design from '%s'" % designname
+  seqs = read_design(designname)
   apply_design(system, seqs)
   
   # Document all sequences, super-sequences, strands, and structures
@@ -64,8 +75,10 @@ def finish(savename, designname, seqsname, strandsname, cleanup, keys):
   # TODO: Write a thermodynamic scorecard.
   
   # Run Kinetic tests
-  print "Testing Kinetics with parameters: ", keys
-  kinetic_rec(system, "", cleanup, **keys)
+  if run_kin:
+    print "Testing Kinetics with parameters: ", keys
+    for gate, prefix in get_gates(system):
+      kinetic(gate, prefix, cleanup, **keys)
 
 
 def apply_design(system, seqs):
@@ -143,19 +156,6 @@ def kinetic(gate, prefix, cleanup, **keys):
       print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
       print "  Estimated Reverse Trajectory Rate: %f (std-dev %f) /s" % (rev_rate, rev_rate_stddev)
 
-def kinetic_rec(obj, prefix, cleanup, **keys):
-  """Run kinetic tests on gate (which might actually be a sub-circuit)."""
-  # If it's actually a circuit, recurse.
-  if isinstance(obj, Circuit):
-    for gate_name, gate in obj.gates.items():
-      kinetic_rec(gate, prefix + gate_name + "-", cleanup, **keys)
-  
-  # If it's a gate, use the gate code.
-  elif isinstance(obj, Gate):
-    kinetic(obj, prefix, cleanup, **keys)
-  else:
-    raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
-
   
 if __name__ == "__main__":
   import re
@@ -164,7 +164,7 @@ if __name__ == "__main__":
   # Parse command line options.
   usage = "usage: %prog [options] BASENAME"
   parser = OptionParser(usage=usage)
-  parser.set_defaults(cleanup=False)
+  parser.set_defaults(run_kin=True, cleanup=False)
   #parser.set_defaults(verbose=True)
   #parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
   # TODO: implement quiet
@@ -173,6 +173,7 @@ if __name__ == "__main__":
   parser.add_option("--design", help="Design file [defaults to BASENAME.mfe]", metavar="FILE")
   parser.add_option("--seqs", help="Sequences output file [defaults to BASENAME.seqs]", metavar="FILE")
   parser.add_option("--strands", help="Produce a strands-to-order file", metavar="FILE")
+  parser.add_option("--no-kin", action="store_false", dest="run_kin", help="Don't run kinetics")
   
   parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp) [Default temporarily]")
   parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use.")
@@ -201,4 +202,4 @@ if __name__ == "__main__":
   args, keys = quickargs.get_args(args[1:])
   assert not args
   
-  finish(options.save, options.design, options.seqs, options.strands, options.cleanup, keys)
+  finish(options.save, options.design, options.seqs, options.strands, options.run_kin, options.cleanup, keys)
