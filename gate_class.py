@@ -74,7 +74,7 @@ class Gate(PrintObject):
       struct = ""
       # For each strand expand out the structure
       for sub_struct, strand in zip(sub_structs, strands):
-        assert len(sub_struct) == len(strand.seqs), (sub_struct, strand.seqs)
+        assert len(sub_struct) == len(strand.seqs), (self.decl_name, name, strand.name, sub_struct, strand.seqs)
         for dp, domain in zip(sub_struct, strand.seqs):
           struct += dp * domain.length
         struct += "+"
@@ -84,8 +84,10 @@ class Gate(PrintObject):
   def add_kinetics(self, inputs, outputs):
     if DEBUG: print "kin", self.kin_num
     for n, struct in enumerate(inputs):
+      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.decl_name, struct)
       inputs[n] = self.structs[struct]
     for n, struct in enumerate(outputs):
+      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.decl_name, struct)
       outputs[n] = self.structs[struct]
     
     name = "Kin%d" % self.kin_num
