@@ -1,7 +1,6 @@
 import sys
 
 from circuit_class import Circuit
-from gate_parser import substitute
 from var_substitute import process
 
 from pyparsing import *

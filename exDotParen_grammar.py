@@ -5,7 +5,7 @@ import sys
 sys.path += ("..",) # Extend path to find pyparsing.py
 from pyparsing import *
 
-Map = lambda f: (lambda s,t,l: map(f, l))
+Map = lambda func: (lambda s, t, l: map(func, l))
 
 int_ = Word(nums).setParseAction(Map(int))
 

@@ -2,7 +2,7 @@
 
 from pyparsing import *
 
-Map = lambda f: (lambda s,t,l: map(f, l))
+Map = lambda f: (lambda s, t, l: map(f, l))
 
 ParserElement.setDefaultWhitespaceChars(" \t")
 

@@ -37,9 +37,9 @@ lowers = string.lowercase
 NAcodes = "ACGTUNSWRYMKVHBD"
 
 decl = "declare"
-comp = "component"
+component = "component"
 seq = "sequence"
-sup_seq = "sup-sequence"; sup_seq_key = "sup-sequence"
+sup_seq = "sup-sequence"
 strand = "strand"
 struct = "structure"
 kin = "kinetic"
@@ -81,7 +81,7 @@ secondary_struct = Group( Flag("domain") + (exDotParen | HUnotation) )
 
 # declare component <gate name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + List(var, ",") + S(")"), default=[])
-decl_stat = K(decl) + S(comp) + var + params + S(":") + List(signal_var, O("+")) + S("->") + List(signal_var, O("+"))
+decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, O("+")) + S("->") + List(signal_var, O("+"))
 
 # sequence <name> = <constraints> : <length>
 seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + O(S(":") + integer, default=None)
@@ -94,7 +94,7 @@ sup_seq_stat = K(sup_seq) + \
 strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(strand_const) + O(S(":") + integer, default=None)
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
-opt = Optional(   K("[no-opt]").setParseAction(lambda s,t,l: False) | \
+opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
                 ( Suppress("[") + float_ + Suppress("nt]") ),
                   default=1.0)
 struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, O("+")) + S(":") + secondary_struct
@@ -137,7 +137,7 @@ def load_gate(filename, args):
     #print list(stat)
     if stat[0] == seq:
       gate.add_sequence(*stat[1:])
-    elif stat[0] == sup_seq_key:
+    elif stat[0] == sup_seq:
       gate.add_super_sequence(*stat[1:])
     elif stat[0] == strand:
       gate.add_strand(*stat[1:])

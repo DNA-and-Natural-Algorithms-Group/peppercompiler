@@ -109,7 +109,7 @@ class default_ordered_dict(ordered_dict):
     self.call = call
     ordered_dict.__init__(self)
   def __getitem__(self, key):
-    if not call:
+    if not self.call:
       return self.get(key, self.default)
     else:
       return self.get(key, self.default())

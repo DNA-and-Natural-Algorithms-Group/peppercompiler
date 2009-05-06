@@ -1,11 +1,7 @@
 from __future__ import division
 
-import sys
-import string
-
 from utils import ordered_dict, PrintObject
 import nupack_out_grammar as ngram
-from DNAfold import DNAfold
 from multistrand import DNAkinfold
 
 def read_design(filename):

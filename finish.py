@@ -3,12 +3,11 @@ from __future__ import division
 
 import sys
 import string
-import math
 
 from compiler import load
 from kinetics import read_design, test_kinetics
 
-from circuit_class import load_file, Circuit
+from circuit_class import Circuit
 from gate_class import Gate
 from DNA_classes import wc
 import myStat as stat

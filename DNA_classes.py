@@ -28,7 +28,7 @@ class Sequence(object):
     if wilds == 0: # no wildcards
       self.length = sum(lengths)
       if length != None:
-        assert self.length == length, "Sequence length mismatch. %s: %r != %r" % (name, check_length, length)
+        assert self.length == length, "Sequence length mismatch. %s: %r != %r" % (name, self.length, length)
     else: # one wildcard
       self.length = length
       check_length = sum([x for x in lengths if x != WILDCARD])

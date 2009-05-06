@@ -13,7 +13,7 @@ def parse_declare(line):
                      (\w+)              # Declare name
                      (?:\((.*?)\))?:    # Parameter names
                      (.*) -> (.*)\n     # Ins and outs""", line, re.VERBOSE)
-    assert p, "First line of file must declare system/component.\n" + line # TODO: add line and syntax
+    assert p, "First line of file must declare system/component.\n" + line # TODO: add syntax
     type_, name, param_names, ins, outs = p.groups("")
     
     # Expand out the lists

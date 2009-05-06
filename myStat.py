@@ -84,9 +84,9 @@ def chi_dist(deg, x):
   z = sqrt(x) - sqrt(deg)
   
   if z <= 0:
-    return 1 - exp(b1 * z + a_1 * z**2) / 2
+    return 1 - exp(b1 * z + a1 * z**2) / 2
   else:
-    return exp(b2 * z + a_2 * z**2) / 2
+    return exp(b2 * z + a2 * z**2) / 2
 
 def chi_inv(deg, p):
   """The inverse cumulative distribution of chi squared 
