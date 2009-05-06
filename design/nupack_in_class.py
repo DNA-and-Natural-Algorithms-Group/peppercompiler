@@ -1,5 +1,3 @@
-import string
-
 from DNA_classes import *
 
 # Extend path to see compiler library

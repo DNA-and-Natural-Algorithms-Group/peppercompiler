@@ -51,7 +51,6 @@ def test(basename):
 
 if __name__ == "__main__":
   import sys
-  import re
   
   basename = sys.argv[1]
   test(basename)

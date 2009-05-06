@@ -6,6 +6,7 @@ Uses Joe Zadah's input and output formats for compatibility with compiler.
 
 import string
 import subprocess
+import os
 
 from new_loading import load_file
 from DNA_classes import group, rev_group, complement
@@ -315,7 +316,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
     os.remove(stname)
     os.remove(wcname)
     os.remove(eqname)
-    os.remove(spname)
+    os.remove(stname)
 
 if __name__ == "__main__":
   import re

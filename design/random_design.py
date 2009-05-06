@@ -98,6 +98,7 @@ def design(infilename, outfile):
   res = score(d.structs)
   print len(res)
   good_enough = True
+  best_res = res
   while not good_enough:
     # Randomly mutate all bad structure
     for struct, index in res:
