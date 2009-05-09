@@ -83,7 +83,6 @@ if __name__ == "__main__":
   #parser.add_option("-q", "--quiet", action="store_false", dest="verbose")
   parser.add_option("--fixed", help="Fix specific sequences listed in FILE", metavar="FILE")
   parser.add_option("--synthesis", action="store_true", default=False, help="Output in the new synthesis format instead of .des format")
-  # TODO: implement
   parser.add_option("--output", help="Output file [defaults to BASENAME.des]", metavar="FILE")
   parser.add_option("--save", help="Saved state file [defaults to BASENAME.save]", metavar="FILE")
   (options, args) = parser.parse_args()
