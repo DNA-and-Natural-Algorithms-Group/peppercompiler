@@ -86,19 +86,19 @@ class SuperSequence(object):
     self.seqs = []
     self.seq = None # Stores the sequence once it has been defined.
     self.length = 0
-    self.nupack_seqs = []
+    self.base_seqs = []
     wildcard = None
     # Process constraints
     for item in constraints:
       if isinstance(item, SuperSequence):
         # Expand previous super-sequence
         self.seqs.append(item)
-        self.nupack_seqs += item.nupack_seqs
+        self.base_seqs += item.base_seqs
         self.length += item.length
       elif isinstance(item, Sequence):
         # If item is a previously defined sequence, leave it alone, it's good
         self.seqs.append(item)
-        self.nupack_seqs.append(item)
+        self.base_seqs.append(item)
         self.length += item.length
       else:
         # Otherwise it's a junk constraint
@@ -107,11 +107,11 @@ class SuperSequence(object):
         if num != WILDCARD:
           junk_seq = JunkSequence(num, item)
           self.seqs.append(junk_seq)
-          self.nupack_seqs.append(junk_seq)
+          self.base_seqs.append(junk_seq)
           self.length += junk_seq.length
         else:
           assert not wildcard, "Multiple wildcards"
-          wildcard = (len(self.seqs), len(self.nupack_seqs), item) # Index and entry of wildcard
+          wildcard = (len(self.seqs), len(self.base_seqs), item) # Index and entry of wildcard
           
     if not wildcard:
       if length != None:
@@ -122,7 +122,7 @@ class SuperSequence(object):
       i, j, item = wildcard
       junk_seq = JunkSequence(delta, item)
       self.seqs.insert(i, junk_seq)
-      self.nupack_seqs.insert(j, junk_seq)
+      self.base_seqs.insert(j, junk_seq)
       self.length += junk_seq.length
     self.wc = ReverseSuperSequence(self)
   
@@ -146,7 +146,7 @@ class ReverseSuperSequence(SuperSequence):
     self.length = wc.length
     self.seqs = [~seq for seq in wc.seqs[::-1]]
     self.seq = None # Stores the sequence once it has been defined.
-    self.nupack_seqs = [~seq for seq in wc.nupack_seqs[::-1]]
+    self.base_seqs = [~seq for seq in wc.base_seqs[::-1]]
     self.wc = wc
 
 class Strand(SuperSequence):
@@ -155,7 +155,7 @@ class Strand(SuperSequence):
     SuperSequence.__init__(self, name, length, *constraints)
     self.dummy = dummy
   def __repr__(self):
-    return "Strand(%(name)r, %(length)r, *%(seqs)r)" % self.__dict__
+    return "Strand(%(name)r, %(dummy)r, %(length)r, *%(seqs)r)" % self.__dict__
 
 class Structure(object):
   """Container for structures/complexes"""
@@ -166,12 +166,12 @@ class Structure(object):
     self.mfe_struct = None # Stores the actual mfe structure once it's known
     self.strands = list(strands)
     self.seq = None # Stores the sequence once it has been defined.
-    self.nupack_seqs = []
+    self.base_seqs = []
     strand_lengths = [len(strand_struct) for strand_struct in self.struct.split("+")] # Check that lengths match up
     for strand, length in zip(strands, strand_lengths):
       assert isinstance(strand, Strand), "Structure must get strands"
       assert strand.length == length, "Length mismatch: %s, %s, %s" % (name, strand, length)
-      self.nupack_seqs += strand.nupack_seqs
+      self.base_seqs += strand.base_seqs
   
   def fix_seq(self, fixed_seq):
     """Constrian ourselves to a specific sequence."""
@@ -181,7 +181,7 @@ class Structure(object):
       strand.fix_seq(strand_seq)
   
   def __repr__(self):
-    return "Structure(%(name)r, %(struct)r, *%(strands)r)" % self.__dict__
+    return "Structure(%(name)r, %(opt)r, %(struct)r, *%(strands)r)" % self.__dict__
 
 class Kinetics(object):
   def __init__(self, name, inputs, outputs):

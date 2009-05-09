@@ -316,7 +316,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
     os.remove(stname)
     os.remove(wcname)
     os.remove(eqname)
-    os.remove(stname)
+    os.remove(sp_outname)
 
 if __name__ == "__main__":
   import re

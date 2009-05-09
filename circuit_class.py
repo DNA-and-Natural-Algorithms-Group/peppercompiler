@@ -50,7 +50,7 @@ class Circuit(PrintObject):
     
     # Pointers to subgate's objects
     self.seqs = ordered_dict()
-    self.nupack_seqs = ordered_dict()  # Not super-sequences
+    self.base_seqs = ordered_dict()  # Not super-sequences
     self.sup_seqs = ordered_dict()
     self.strands = ordered_dict()
     self.structs = ordered_dict()
@@ -102,12 +102,23 @@ class Circuit(PrintObject):
     
     # Point to all objects in the gate
     # For each type of object: seqs, strands, ...
-    for type_ in "seqs", "nupack_seqs", "sup_seqs", "strands", "structs", "kinetics":
-      gate_objs = this_gate.__dict__[type_] # this_gate.seqs, this_gate.nupack_seqs, ...
-      circuit_objs = self.__dict__[type_]   # self.seqs, self.nupack_seqs, ...
+    for type_ in "seqs", "base_seqs", "sup_seqs", "strands", "structs", "kinetics":
+      gate_objs = this_gate.__dict__[type_] # this_gate.seqs, this_gate.base_seqs, ...
+      circuit_objs = self.__dict__[type_]   # self.seqs, self.base_seqs, ...
       # Point to all of those items from here with a prefix added to the name
       for name, obj in gate_objs.items():
         circuit_objs[gate_name + "-" + name] = obj
+  
+  def output_synthesis(self, prefix, outfile):
+    """Output synthesis of all data into a single file."""
+    if prefix:
+      outfile.write("#\n## Subcircuit %s\n" % prefix[:-1])
+    else:
+      outfile.write("#\n## Top Circuit\n")
+    # For each gate write it's contents with prefix "gatename-".
+    for gate_name, template in self.gates.items():
+      template.output_synthesis(prefix+gate_name+"-", outfile)
+    # TODO: Deal with signal sequence constraints
   
   def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""
@@ -120,7 +131,7 @@ class Circuit(PrintObject):
       template.output_nupack(prefix+gate_name+"-", outfile)
     
     # For each global sequence connecting gates constrain them to be be equal.
-    # To force this constraint I make  them all complimentary to a single dummy strand
+    # To force this constraint I make them all complimentary to a single dummy strand
     if prefix:
       outfile.write("#\n## Circuit %s Connectors\n" % prefix[:-1])
     else: 
@@ -147,7 +158,7 @@ class Circuit(PrintObject):
         elif isinstance(loc_seq, DNA_classes.SuperSequence):
           # If it's a super-seq, list the subsequences
           sig_name = gate_name + "-" + loc_seq.name
-          seqs = string.join([prefix+gate_name+"-"+seq.name for seq in loc_seq.nupack_seqs])
+          seqs = string.join([prefix+gate_name+"-"+seq.name for seq in loc_seq.base_seqs])
         else: # it's a circuit signal
           sig_name = gate_name + "-" + loc_seq
           seqs = prefix + sig_name

@@ -49,7 +49,7 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, keys):
   f = open(seqsname, "w")
   
   f.write("# Sequences\n")
-  for name, seq in system.nupack_seqs.items():
+  for name, seq in system.base_seqs.items():
     f.write("sequence %s\t%s\n" % (name, seq.seq))
   f.write("# Super-Sequences\n")
   for name, seq in system.sup_seqs.items():
@@ -83,18 +83,18 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, keys):
 def apply_design(system, seqs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
   # Assign all the designed sequences
-  for name, seq in system.nupack_seqs.items():
+  for name, seq in system.base_seqs.items():
     seq.seq  = seqs[name]
     assert len(seq.seq) == seq.length
     seq.wc.seq = wc(seq.seq)
     assert seq.wc.seq == seqs[name + "*"]
   
   for sup_seq in system.sup_seqs.values():
-    sup_seq.seq  = string.join([seq.seq for seq in sup_seq.nupack_seqs], "")
-    sup_seq.wc.seq = string.join([seq.seq for seq in sup_seq.wc.nupack_seqs], "")
+    sup_seq.seq  = string.join([seq.seq for seq in sup_seq.base_seqs], "")
+    sup_seq.wc.seq = string.join([seq.seq for seq in sup_seq.wc.base_seqs], "")
   
   for strand in system.strands.values():
-    strand.seq = string.join([seq.seq for seq in strand.nupack_seqs], "")
+    strand.seq = string.join([seq.seq for seq in strand.base_seqs], "")
   
   for name, struct in system.structs.items():
     struct.seq = string.join([strand.seq for strand in struct.strands], "+")

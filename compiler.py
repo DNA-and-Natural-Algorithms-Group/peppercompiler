@@ -20,7 +20,7 @@ def load_fixed(filename):
   else:
     return []
 
-def compiler(basename, args, outputname, savename, fixed_file=None):
+def compiler(basename, args, outputname, savename, fixed_file=None, synth=False):
   """
   Start compiling a specification.
   
@@ -47,7 +47,10 @@ def compiler(basename, args, outputname, savename, fixed_file=None):
   print "System/component compiled into '%s'" % outputname
   outfile = open(outputname, "w")
   outfile.write("## Specification for %s compiled at: %s\n" % (basename, time.ctime()))
-  system.output_nupack("", outfile)
+  if synth:
+    system.output_synthesis("", outfile)
+  else:
+    system.output_nupack("", outfile)
   outfile.close()
 
   # Save compiler state to be reloaded when designer finishes
@@ -79,6 +82,8 @@ if __name__ == "__main__":
   # TODO: implement quiet
   #parser.add_option("-q", "--quiet", action="store_false", dest="verbose")
   parser.add_option("--fixed", help="Fix specific sequences listed in FILE", metavar="FILE")
+  parser.add_option("--synthesis", action="store_true", default=False, help="Output in the new synthesis format instead of .des format")
+  # TODO: implement
   parser.add_option("--output", help="Output file [defaults to BASENAME.des]", metavar="FILE")
   parser.add_option("--save", help="Saved state file [defaults to BASENAME.save]", metavar="FILE")
   (options, args) = parser.parse_args()
@@ -103,4 +108,4 @@ if __name__ == "__main__":
   args, keys = quickargs.get_args(args[1:])
   assert not keys, "Don't provide keywords to compiler.py"
   
-  compiler(basename, args, options.output, options.save, options.fixed)
+  compiler(basename, args, options.output, options.save, options.fixed, options.synthesis)
