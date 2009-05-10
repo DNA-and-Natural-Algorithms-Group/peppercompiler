@@ -22,31 +22,27 @@ class Complex(PrintObject):
   def __init__(self, strands, struct):
     self.strands = strands; self.struct = struct
 
-def convert_ins(compl):
-  """Convert internal representation for inputs into the simpler notation passed to kinfold."""
-  strands = [strand.name for strand in compl.strands]
-  return Complex(strands, compl.struct) # Note: Uses ideal secondary structure as initial struct.
-
-def convert_outs(compl):
-  """Convert output notation, much like convert_ins except that we run untill "DISASSOC"."""
-  strands = [strand.name for strand in compl.strands]
-  return Complex(strands, "DISASSOC")
-
-def test_kinetics(kin, gate, cleanup, trials=24, time=100000, temp=25, conc=10., out_interval=-1):
+def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=10., out_interval=-1):
   """Test times for inputs to combine/seperate into outputs"""
-  ins  = [convert_ins(struct) for struct in kin.inputs]
-  outs = [convert_outs(struct) for struct in kin.outputs]
-  # HACK: We don't want to run until they've reached mfe structure.
-  # Instead we wait for the strands to be in the right structures.
-  # NOTE: This only tests that the 1st output structure is produced!
-  outs_hack = outs[0:1]
-  back = [Complex(ins[0].strands, "DISASSOC")]
-  
-  # Used strands is a set of all strands used in kinetic test, their names and sequences.
   used_strands = ordered_dict()
-  for struct in ins:
-    for strand_name in struct.strands:
-      if strand_name not in used_strands:
-        used_strands[strand_name] = gate.strands[strand_name].seq
+  ins = []
+  for struct in kin.inputs:
+    # And add the starting complexes/structures
+    strand_names = [strand.name for strand in struct.strands]
+    ins.append( Complex(strand_names, struct.struct) )
+    # Keep track of strands that will be used
+    for strand in struct.strands:
+      assert strand.name not in used_strands
+      used_strands[strand.name] = strand.seq
+  
+  outs = []
+  for struct in kin.outputs:
+    strand_names = [strand.name for strand in struct.strands]
+    outs.append( Complex(strand_names, "DISASSOC") )
+  # HACK: Multistrand doesn't work with multiple DISASSOC structures, 
+  #   we just wait for the first one to form.
+  outs_hack = outs[0:1]
+  # HACK: Likewise the backwords reaction must only have one DISASSOC.
+  back = [Complex(ins[0].strands, "DISASSOC")]
   
   return DNAkinfold(used_strands, ins, back, outs_hack, trials, time, temp, conc, out_interval, cleanup)

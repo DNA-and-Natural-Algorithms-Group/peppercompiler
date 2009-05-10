@@ -117,7 +117,7 @@ def kinetic(gate, prefix, cleanup, **keys):
     sys.stdout.flush()
     
     # Call Multistrand instances
-    forward, reverse, overtime, summary = test_kinetics(kin, gate, cleanup, **keys)
+    forward, reverse, overtime, summary = test_kinetics(kin, cleanup, **keys)
     # Process results
     num_for = len(forward)
     num_rev = len(reverse)
