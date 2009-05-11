@@ -45,6 +45,10 @@ def kurtosis(xs):
   return moment(4, xs) / var(xs)**2 - 3
 
 def _get_index(xs, n):
+  """Get a fractionally indexed item by interpolation."""
+  assert 0 <= n <= len(xs) - 1
+  if n == len(xs) - 1:
+    return xs[-1]
   i = int(n // 1) # Integral part
   f = n % 1  # Fractional part
   
@@ -53,22 +57,19 @@ def _get_index(xs, n):
 def median(xs):
   """Sample median."""
   # NOTE: Will be inefficient for large len(xs)
-  xs = copy.copy(xs)
-  xs.sort()
-  
-  mid = len(xs) / 2
-  return _get_index(xs, mid)
+  return quantiles(xs, 0.5)
 
 def quartiles(xs):
   """Divisions between quartiles."""
+  return quantiles(xs, 0.25, 0.5, 0.75)
+
+def quantiles(xs, *quantiles):
+  """Find a set of quantiles in data."""
   # NOTE: Will be inefficient for large len(xs)
   xs = copy.copy(xs)
   xs.sort()
   
-  q1 = len(xs) / 4
-  mid = 2 * q1
-  q3 = 3 * q1
-  return _get_index(xs, q1), _get_index(xs, mid), _get_index(xs, q3)
+  return [_get_index(xs, quant * (len(xs) - 1)) for quant in quantiles]
 
 
 ## Statistical Distributions
