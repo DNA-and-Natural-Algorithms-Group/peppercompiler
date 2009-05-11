@@ -13,8 +13,8 @@ from pyparsing import *
 K = CaselessKeyword
 S = Suppress
 O = Optional
-H = Hidden = lambda x: Empty().setParseAction(lambda s,l,t: x)  # A hidden field, it tags an entry
-Map = lambda func: (lambda s,l,t: map(func, t) )
+H = Hidden = lambda x: Empty().setParseAction(lambda s, l, t: x)  # A hidden field, it tags an entry
+Map = lambda func: (lambda s, l, t: map(func, t) )
 
 def List(expr, delim=""):
   """My delimited list. Allows for length zero list and uses no delimiter by default."""
@@ -26,7 +26,7 @@ def List(expr, delim=""):
 def Flag(expr):
   """A flag identifier. It is either present or not and returns True or False."""
   p = Optional(expr)
-  p.setParseAction(lambda s,l,t: bool(t))
+  p.setParseAction(lambda s, l, t: bool(t))
   return p
 
 import string
@@ -58,10 +58,13 @@ seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes, exact=1
 seq_const_list = List(seq_const)
 
 seq_name = Word(lowers, alphanums+"_") # Sequence name starts with lower case
-seq_var = Group(H("Sequence") + Group(seq_name + Optional("*", default="")))
+seq_var = Group(H("Sequence") + Group(seq_name + Flag("*")))
 
 # Signals used in the declare line seq
-signal_var = Group(seq_name + Optional("*", default=""))
+signal_var = Group(seq_name + Flag("*"))
+# TODO: Allow structures in signal
+#signal_var = Group(Group(seq_name + Optional("*", default="")) + 
+#                   Optional(S("(") + struct_var + S(")")))
 
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
@@ -81,26 +84,28 @@ secondary_struct = Group( Flag("domain") + (exDotParen | HUnotation) )
 
 # declare component <gate name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + List(var, ",") + S(")"), default=[])
-decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, O("+")) + S("->") + List(signal_var, O("+"))
+decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, "+") + S("->") + List(signal_var, "+")
 
 # sequence <name> = <constraints> : <length>
-seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + O(S(":") + integer, default=None)
+seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + \
+            O(S(":") + integer, default=None)
 
 # sup-sequence <name> = <constraints / sequences> : <length>
-sup_seq_stat = K(sup_seq) + \
-               seq_name + S("=") + List(strand_const) + O(S(":") + integer, default=None)
+sup_seq_stat = K(sup_seq) + seq_name + S("=") + List(strand_const) + \
+               O(S(":") + integer, default=None)
 
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(strand_const) + O(S(":") + integer, default=None)
+strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(strand_const) + \
+               O(S(":") + integer, default=None)
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
                 ( Suppress("[") + float_ + Suppress("nt]") ),
                   default=1.0)
-struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, O("+")) + S(":") + secondary_struct
+struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, "+") + S(":") + secondary_struct
 
 # kin <inputs> -> <outputs>
-kin_stat = K(kin) + List(struct_var, O("+")) + S("->") + List(struct_var, O("+"))
+kin_stat = K(kin) + List(struct_var, O("+")) + S("->") + List(struct_var, "+")
 
 
 statement = seq_stat | sup_seq_stat | strand_stat | struct_stat | kin_stat
@@ -123,7 +128,7 @@ def load_gate(filename, args):
     
   try:
     # Load data
-    decl_val, statements = document.parseString(doc, parseAll=True)
+    declare, statements = document.parseString(doc, parseAll=True)
   except ParseBaseException, e:
     print
     print doc
@@ -131,8 +136,9 @@ def load_gate(filename, args):
     print e
     sys.exit(1)
   
+  x, name, params, inputs, outputs = declare
   # Build data
-  gate = Gate(*decl_val[1:])
+  gate = Gate(name, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == seq:
@@ -146,8 +152,8 @@ def load_gate(filename, args):
     elif stat[0] == kin:
       gate.add_kinetics(*stat[1:])
     else:
-      print stat
-      raise Exception
+      raise Exception, "Unexpected statement:\n" + stat
+  gate.add_IO(inputs, outputs)
   return gate
 
 def substitute(filename, args):

@@ -85,6 +85,7 @@ class SuperSequence(object):
     self.name = name
     self.seqs = []
     self.seq = None # Stores the sequence once it has been defined.
+    self.reversed = False
     self.length = 0
     self.base_seqs = []
     wildcard = None
@@ -143,6 +144,7 @@ class SuperSequence(object):
 class ReverseSuperSequence(SuperSequence):
   def __init__(self, wc):
     self.name = wc.name + "*"
+    self.reversed = True
     self.length = wc.length
     self.seqs = [~seq for seq in wc.seqs[::-1]]
     self.seq = None # Stores the sequence once it has been defined.

@@ -6,12 +6,9 @@ from DNA_classes import *
 DEBUG = False
 
 class Gate(PrintObject):
-  def __init__(self, name, params, inputs, outputs):
-    """Initialized the gate with the declare statement"""
-    self.decl_name = name
+  def __init__(self, name, params):
+    self.name = name
     self.params = params
-    self.inputs  = [tuple(x) for x in inputs]
-    self.outputs = [tuple(x) for x in outputs]
     
     self.seqs = ordered_dict()
     self.base_seqs = ordered_dict()  # Not super-sequences
@@ -33,10 +30,11 @@ class Gate(PrintObject):
     assert name not in self.seqs, "Duplicate sequence definition"
     for n, item in enumerate(const):
       if item[0] == "Sequence":
-        if item[1][1] == "":
-          const[n] =  self.seqs[item[1][0]]
+        seq_name, wc = item[1]
+        if wc:
+          const[n] = ~self.seqs[seq_name]
         else:
-          const[n] = ~self.seqs[item[1][0]]
+          const[n] =  self.seqs[seq_name]
     self.seqs[name] = SuperSequence(name, length, *const)
     self.sup_seqs[name] = self.seqs[name]
     # Add references junk sequences
@@ -50,10 +48,11 @@ class Gate(PrintObject):
     assert name not in self.strands, "Duplicate strand definition"
     for n, item in enumerate(const):
       if item[0] == "Sequence":
-        if item[1][1] == "":
-          const[n] =  self.seqs[item[1][0]]
+        seq_name, wc = item[1]
+        if wc:
+          const[n] = ~self.seqs[seq_name]
         else:
-          const[n] = ~self.seqs[item[1][0]]
+          const[n] =  self.seqs[seq_name]
     self.strands[name] = Strand(name, dummy, length, *const)
     # Add references junk sequences
     for seq in self.strands[name].seqs:
@@ -74,7 +73,7 @@ class Gate(PrintObject):
       struct = ""
       # For each strand expand out the structure
       for sub_struct, strand in zip(sub_structs, strands):
-        assert len(sub_struct) == len(strand.seqs), (self.decl_name, name, strand.name, sub_struct, strand.seqs)
+        assert len(sub_struct) == len(strand.seqs), (self.name, name, strand.name, sub_struct, strand.seqs)
         for dp, domain in zip(sub_struct, strand.seqs):
           struct += dp * domain.length
         struct += "+"
@@ -84,15 +83,33 @@ class Gate(PrintObject):
   def add_kinetics(self, inputs, outputs):
     if DEBUG: print "kin", self.kin_num
     for n, struct in enumerate(inputs):
-      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.decl_name, struct)
+      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.name, struct)
       inputs[n] = self.structs[struct]
     for n, struct in enumerate(outputs):
-      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.decl_name, struct)
+      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.name, struct)
       outputs[n] = self.structs[struct]
     
     name = "Kin%d" % self.kin_num
     self.kin_num += 1
     self.kinetics[name] = Kinetics(name, list(inputs), list(outputs))
+  
+  def add_IO(self, inputs, outputs):
+    """Add I/O information once we've read the gate."""
+    self.inputs = []
+    for seq_name, wc in inputs:
+      assert seq_name in self.seqs
+      if wc:
+        self.inputs.append( self.seqs[seq_name].wc )
+      else:
+        self.inputs.append( self.seqs[seq_name] )
+    
+    self.outputs = []
+    for seq_name, wc in outputs:
+      assert seq_name in self.seqs
+      if wc:
+        self.outputs.append( self.seqs[seq_name].wc )
+      else:
+        self.outputs.append( self.seqs[seq_name] )
   
   
   def output_synthesis(self, prefix, outfile):
@@ -162,5 +179,3 @@ class Gate(PrintObject):
       outfile.write("%s : %s\n" % (name, seqs))
       if struct.opt: # Optimization parameter
         outfile.write("%s < %f\n" % (name, struct.opt))
-    
-    ### TODO: do something for prevents

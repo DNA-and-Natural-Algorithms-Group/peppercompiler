@@ -9,7 +9,7 @@ from pyparsing import *
 K = CaselessKeyword
 S = Suppress
 O = Optional
-Map = lambda func: (lambda s,l,t: map(func, t) )  # A useful mapping function
+Map = lambda func: (lambda s, l, t: map(func, t) )  # A useful mapping function
 
 def List(expr, delim=""):
   """My delimited list. Allows for length zero list and uses no delimiter by default."""
@@ -17,6 +17,12 @@ def List(expr, delim=""):
     return Group(ZeroOrMore(expr))
   else:
     return Group(Optional(expr + ZeroOrMore( Suppress(delim) + expr)))
+
+def Flag(expr):
+  """A flag identifier. It is either present or not and returns True or False."""
+  p = Optional(expr)
+  p.setParseAction(lambda s, l, t: bool(t))
+  return p
 
 decl = "declare"
 system = "system"
@@ -29,15 +35,15 @@ ParserElement.setDefaultWhitespaceChars(" \t")
 
 ## Define Grammar
 var = Word(alphas, alphanums+"_") # Variable name
-signal = Group(var + Optional("*", default=""))
-signal_list = List(signal, O("+"))
+signal = Group(var + Flag("*"))
+signal_list = List(signal, "+")
 
 path = Word(alphanums+".-_/~") # Path name in a directory structure
 py_chars = printables.replace(",", "").replace(")", "")
 python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
 
 
-# declare system <cicuit name> = <func name>(<params>): <inputs> -> <outputs>
+# declare system <cicuit name>(<params>): <inputs> -> <outputs>
 decl_params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(system) + var + decl_params + S(":") + signal_list + S("->") + signal_list
 
@@ -70,7 +76,7 @@ def load_circuit(filename, args, path):
     
   try:
     # Load data
-    decl_val, statements = document.parseString(doc, parseAll=True)
+    declare, statements = document.parseString(doc, parseAll=True)
   except ParseBaseException, e:
     print
     print doc
@@ -78,8 +84,9 @@ def load_circuit(filename, args, path):
     print e
     sys.exit(1)
   
+  x, name, params, inputs, outputs = declare
   # Build data
-  circuit = Circuit(path, *decl_val[1:])
+  circuit = Circuit(path, name, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == import_:
@@ -87,8 +94,8 @@ def load_circuit(filename, args, path):
     elif stat[0] == gate:
       circuit.add_gate(*stat[1:])
     else:
-      print stat
-      raise Exception
+      raise Exception, "Unexpected statement:\n" + stat
+  circuit.add_IO(inputs, outputs)
   return circuit
 
 def substitute(filename, args):

@@ -35,16 +35,13 @@ def load_file(basename, args, path="."):
 
 class Circuit(PrintObject):
   """Stores all the information in a circuit's connectivity file"""
-  def __init__(self, path, name, params, inputs, outputs):
+  def __init__(self, path, name, params):
     """Initialized the cicuit with the declare statement"""
     self.path = path  # Local path to load gates relative to.
-    
-    self.decl_name = name
-    self.inputs  = [tuple(x) for x in inputs]
-    self.outputs = [tuple(x) for x in outputs]
+    self.name = name
     
     self.template = ordered_dict()
-    self.glob = ordered_dict()
+    self.signals = ordered_dict()
     self.lengths = ordered_dict()
     self.gates = ordered_dict()
     
@@ -83,22 +80,21 @@ class Circuit(PrintObject):
     if isinstance(this_gate, Circuit): # If it's actually a circuit
       for (glob_name, glob_wc), (loc_name, loc_wc) in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
         wc = (glob_wc != loc_wc)  # Are these signals complementary?
-        if glob_name not in self.glob:
-          self.glob[glob_name] = [(loc_name, gate_name, wc)]
+        if glob_name not in self.signals:
+          self.signals[glob_name] = [(loc_name, gate_name, wc)]
           self.lengths[glob_name] = this_gate.lengths[loc_name]
         else:
-          self.glob[glob_name].append( (loc_name, gate_name, wc) )
+          self.signals[glob_name].append( (loc_name, gate_name, wc) )
           assert self.lengths[glob_name] == this_gate.lengths[loc_name]
     else: # Otherwise it's a gate, so we want to constrain sequences
-      for (glob_name, glob_wc), (loc_name, loc_wc) in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
-        wc = (glob_wc != loc_wc)  # Are these signals complementary?
-        loc_seq = this_gate.seqs[loc_name]
-        if glob_name not in self.glob:
-          self.glob[glob_name] = [(loc_seq, gate_name, wc)]
+      for (glob_name, glob_wc), loc_seq in zip(list(inputs)+list(outputs), this_gate.inputs+this_gate.outputs):
+        wc = (glob_wc != loc_seq.reversed)  # Are these signals complementary?
+        if glob_name not in self.signals:
+          self.signals[glob_name] = [(loc_seq, gate_name, wc)]
           self.lengths[glob_name] = loc_seq.length
         else:
-          self.glob[glob_name].append( (loc_seq, gate_name, wc) )
-          assert self.lengths[glob_name] == loc_seq.length, (glob_name, self.lengths[glob_name], loc_seq.length)
+          self.signals[glob_name].append( (loc_seq, gate_name, wc) )
+          assert self.lengths[glob_name] == loc_seq.length
     
     # Point to all objects in the gate
     # For each type of object: seqs, strands, ...
@@ -108,6 +104,19 @@ class Circuit(PrintObject):
       # Point to all of those items from here with a prefix added to the name
       for name, obj in gate_objs.items():
         circuit_objs[gate_name + "-" + name] = obj
+  
+  def add_IO(self, inputs, outputs):
+    """Add I/O information once we've read the gate."""
+    self.inputs = []
+    for seq_name, wc in inputs:
+      assert seq_name in self.signals
+      self.inputs.append( (seq_name, wc) )
+    
+    self.outputs = []
+    for seq_name, wc in outputs:
+      assert seq_name in self.signals
+      self.outputs.append( (seq_name, wc) )
+  
   
   def output_synthesis(self, prefix, outfile):
     """Output synthesis of all data into a single file."""
@@ -130,28 +139,28 @@ class Circuit(PrintObject):
     for gate_name, template in self.gates.items():
       template.output_nupack(prefix+gate_name+"-", outfile)
     
-    # For each global sequence connecting gates constrain them to be be equal.
+    # For each signal sequence connecting gates constrain them to be be equal.
     # To force this constraint I make them all complimentary to a single dummy strand
     if prefix:
       outfile.write("#\n## Circuit %s Connectors\n" % prefix[:-1])
     else: 
       outfile.write("#\n## Top Circuit Connectors\n")
-    for glob in self.glob:
-      length = self.lengths[glob]
-      glob_name = prefix + glob
-      wc_name = glob_name + "-_WC"  # A dummy variable wc compliment to glob
+    for signal in self.signals:
+      length = self.lengths[signal]
+      signal_name = prefix + signal
+      wc_name = signal_name + "-_WC"  # A dummy variable wc compliment to signal
       
-      outfile.write("#\n## Global %s\n" % glob_name)
-      outfile.write("sequence %s = %s\n" % (glob_name, "N" * length))
+      outfile.write("#\n## Signal %s\n" % signal_name)
+      outfile.write("sequence %s = %s\n" % (signal_name, "N" * length))
       outfile.write("sequence %s = %s\n" % (wc_name, "N" * length))
       
-      dummy_name = "%s-_Self" % glob_name
+      dummy_name = "%s-_Self" % signal_name
       outfile.write("structure %s = %s\n" % (dummy_name, "(" * length + "+" + ")" * length))
-      outfile.write("%s : %s %s\n" % (dummy_name, wc_name, glob_name))
+      outfile.write("%s : %s %s\n" % (dummy_name, wc_name, signal_name))
       
-      # For each instance of the global sequence, build a structure to 
-      #   constrain it to the global one
-      for loc_seq, gate_name, wc in self.glob[glob]:
+      # For each instance of the signal sequence, build a structure to 
+      #   constrain it to the master signal sequence
+      for loc_seq, gate_name, wc in self.signals[signal]:
         if isinstance(loc_seq, DNA_classes.Sequence):
           sig_name = gate_name + "-" + loc_seq.name
           seqs = prefix + sig_name
@@ -163,10 +172,10 @@ class Circuit(PrintObject):
           sig_name = gate_name + "-" + loc_seq
           seqs = prefix + sig_name
         
-        dummy_name = glob_name + "-" + sig_name
+        dummy_name = signal_name + "-" + sig_name
         outfile.write("structure %s = %s\n" % (dummy_name, "(" * length + "+" + ")" * length))
         
-        if wc: # If it's complementary to the global signal, then we can enforce that directly
-          outfile.write("%s : %s %s\n" % (dummy_name, glob_name, seqs))
+        if wc: # If it's complementary to the signal, then we can enforce that directly
+          outfile.write("%s : %s %s\n" % (dummy_name, signal_name, seqs))
         else:  # If it's equal, then we must force it complementary to the complement 'wc_name'
           outfile.write("%s : %s %s\n" % (dummy_name, wc_name, seqs))
