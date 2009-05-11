@@ -24,7 +24,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   strands = dict of strand_name : sequence used in structs
   *_struct = list of structures (each of which is a list of strand_names and a secondary struct)
   temp = temperature (deg C)
-  conc = concentration (mM)
+  conc = concentration (uM)
   sim_time = max time of sim (approx seconds)
   trials = number of trials to run
   """
@@ -38,33 +38,32 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   # Strand Definitions
   f.write("#Strands\n")
   for name, seq in strands.items():
-    f.write("strand_%s,%s\n" % (name, seq))
+    f.write("%s,%s\n" % (name, seq))
   # Start Structure
   f.write("#StartStructure\n")
   for compl in start_struct:
-    s = ["strand_"+x for x in compl.strands]
-    f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    f.write(string.join(compl.strands, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     struct = compl.struct.replace("+", "_")
     f.write(struct + "\n")                        # ((...._..((_))..)..(_..)...)
   f.write("#StopStructures\n")
   # Backward Stop Structure (Where the reaction started and might fall back to)
   for compl in back_struct:
-    s = ["strand_"+x for x in compl.strands]
-    f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    f.write(string.join(compl.strands, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     struct = compl.struct.replace("+", "_")
     f.write(struct + "\n")
-  f.write("TAG: %s\n" % BACK_FLAG)
+  if back_struct: # Don't print the back flag if we have not back structures
+    f.write("TAG: %s\n" % BACK_FLAG)
   # Forward Stop Structure (Where the reaction should go)
   for compl in stop_struct:
-    s = ["strand_"+x for x in compl.strands]
-    f.write(string.join(s, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
+    f.write(string.join(compl.strands, ",") + "\n")  # Seq1,Seq2,Chicken,Seq4
     struct = compl.struct.replace("+", "_")
     f.write(struct + "\n")
-  f.write("TAG: %s\n" % FORWARD_FLAG)
+  if stop_struct: # Don't print the forward flag if we have not stop structures
+    f.write("TAG: %s\n" % FORWARD_FLAG)
   # Other params
   f.write("#Energymodel=NUPACK_DNA_2_3\n")
   f.write("#Temperature=%f\n" % temp)
-  f.write("#Concentration=%f\n" % conc)
+  f.write("#Concentration=%f\n" % (conc/1000) ) # Multistrand uses mM instead of uM
   f.write("#SimTime=%f\n" % sim_time)
   f.write("#NumSims=%d\n" % trials)
   f.write("#Logfile=%s\n" % out_name)

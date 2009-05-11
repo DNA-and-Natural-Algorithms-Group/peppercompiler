@@ -53,6 +53,10 @@ def DNAkinfold(base_infile, params):
 if __name__ == "__main__":
   import sys
   
-  infile = sys.argv[1]
-  params = dict([arg.split("=", 1) for arg in sys.argv[2:]])
+  try:
+    infile = sys.argv[1]
+    params = dict([arg.split("=", 1) for arg in sys.argv[2:]])
+  except:
+    print "usage: python multihelp.py infile [ARG=VAL ...]"
+    sys.exit(1)
   DNAkinfold(infile, params)

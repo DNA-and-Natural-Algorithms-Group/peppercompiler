@@ -22,7 +22,7 @@ class Complex(PrintObject):
   def __init__(self, strands, struct):
     self.strands = strands; self.struct = struct
 
-def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=10., out_interval=-1):
+def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=1.0, out_interval=-1):
   """Test times for inputs to combine/seperate into outputs"""
   used_strands = ordered_dict()
   ins = []
@@ -41,8 +41,28 @@ def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=10., out_i
     outs.append( Complex(strand_names, "DISASSOC") )
   # HACK: Multistrand doesn't work with multiple DISASSOC structures, 
   #   we just wait for the first one to form.
-  outs_hack = outs[0:1]
+  outs = outs[0:1]
   # HACK: Likewise the backwords reaction must only have one DISASSOC.
   back = [Complex(ins[0].strands, "DISASSOC")]
   
-  return DNAkinfold(used_strands, ins, back, outs_hack, trials, time, temp, conc, out_interval, cleanup)
+  return DNAkinfold(used_strands, ins, back, outs, trials, time, temp, conc, out_interval, cleanup)
+
+def test_spuradic(structs, cleanup, trials=24, time=10, temp=25, conc=1.0, out_interval=-1):
+  """Test kinetics for spuratic interaction between structures."""
+  used_strands = ordered_dict()
+  ins = []
+  for struct in structs:
+    # And add the starting complexes/structures
+    strand_names = [strand.name for strand in struct.strands]
+    ins.append( Complex(strand_names, struct.struct) )
+    # Keep track of strands that will be used
+    for strand in struct.strands:
+      # TODO: Use full names for strands, ..., not local names
+      assert strand.name not in used_strands
+      used_strands[strand.name] = strand.seq
+  
+  outs = [] # We are not testing for any forward reactions.
+  # HACK: Likewise the backwords reaction must only have one DISASSOC.
+  back = [Complex(ins[0].strands, "DISASSOC")]
+  
+  return DNAkinfold(used_strands, ins, back, outs, trials, time, temp, conc, out_interval, cleanup)

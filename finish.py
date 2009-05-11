@@ -5,7 +5,7 @@ import sys
 import string
 
 from compiler import load
-from kinetics import read_design, test_kinetics
+from kinetics import read_design, test_kinetics, test_spuradic
 
 from circuit_class import Circuit
 from gate_class import Gate
@@ -24,7 +24,7 @@ def get_gates(obj, prefix=""):
   else:
     raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
 
-def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, keys):
+def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials, time, temp, conc):
   """
   Finish compiling a specification.
   
@@ -59,7 +59,7 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, keys):
     f.write("strand %s\t%s\n" % (name, strand.seq))
   f.write("# Structures\n")
   for name, struct in system.structs.items():
-    f.write("struct %s\t%s\n" % (name, struct.seq))
+    f.write("structure %s\t%s\n" % (name, struct.seq))
   f.close()
   
   # Document all strands that will be used in the final experiment
@@ -75,10 +75,25 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, keys):
   
   # Run Kinetic tests
   if run_kin:
-    print "Testing Kinetics with parameters: ", keys
+    print "Testing Kinetics."
+    print "Trials: %d" % trials
+    print "SimTime: %.1f s" % time
+    print "Temperature: %.1f deg C" % temp
+    print "Concentration: %f uM" % conc
     for gate, prefix in get_gates(system):
-      kinetic(gate, prefix, cleanup, **keys)
-
+      kinetic(gate, prefix, cleanup, trials, time, temp, conc)
+  
+  # Test spuradic kinetics
+  '''
+  print "Input structures to be tested for spuradic kinetics."
+  while True:
+    struct1 = raw_input("Structure 1: ")
+    struct1 = system.structs[struct1]
+    struct2 = raw_input("Structure 2: ")
+    struct2 = system.structs[struct2]
+    # TODO: use different time for reactions we don't expect to go forward.
+    process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, time, temp, conc))
+  '''
 
 def apply_design(system, seqs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
@@ -102,7 +117,7 @@ def apply_design(system, seqs):
 
 
 # TODO: get rid of need for gate, so get rid of recursion.
-def kinetic(gate, prefix, cleanup, **keys):
+def kinetic(gate, prefix, cleanup, trials, time, temp, conc):
   """Test all kinetic pathways in a gate."""
   for kin in gate.kinetics.values():
     # Print testing info
@@ -116,49 +131,53 @@ def kinetic(gate, prefix, cleanup, **keys):
     print
     sys.stdout.flush()
     
-    # Call Multistrand instances
-    forward, reverse, overtime, summary = test_kinetics(kin, cleanup, **keys)
-    # Process results
-    num_for = len(forward)
-    num_rev = len(reverse)
-    num_over = len(overtime)
-    num_trials = num_for + num_rev + num_over
-    
-    if num_over > 0:
-      print
-      print "WARNING: %d/%d trajectories went overtime." % (num_over, num_trials)
-      print "Reported statistics may be unreliable."
-      print
-    
-    # Rate at which collisions that will eventually go forward happen
-    for_coll_rate = sum([coll_rate for (time, coll_rate) in forward]) / num_trials
-    
-    for_rates = [1/time for (time, coll_rate) in forward]
-    for_rate = stat.mean(for_rates)
-    for_rate_stddev = stat.stddev(for_rates)
-    
-    print "* %d/%d trajectories went forward." % (num_for, num_trials)
-    if num_for > 0:
-      print "  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000)
-      print "  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev)
-      print
-    
-    # Rate at which collisions that will eventually reverse happen
-    rev_coll_rate = sum([coll_rate for (time, coll_rate) in reverse]) / num_trials
-    
-    rev_rates = [1/time for (time, coll_rate) in reverse]
-    rev_rate = stat.mean(rev_rates)
-    rev_rate_stddev = stat.stddev(rev_rates)
-    
-    print "* %d/%d trajectories went back." % (num_rev, num_trials)
-    if num_rev > 0:
-      print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
-      print "  Estimated Reverse Trajectory Rate: %f (std-dev %f) /s" % (rev_rate, rev_rate_stddev)
+    # Call Multistrand instances and process results
+    process_kinetics(test_kinetics(kin, cleanup, trials, time, temp, conc))
+
+def process_kinetics(ret):
+  """Process results of multistrand and print summary, etc."""
+  forward, reverse, overtime, summary = ret
+  # Process results
+  num_for = len(forward)
+  num_rev = len(reverse)
+  num_over = len(overtime)
+  num_trials = num_for + num_rev + num_over
+  
+  if num_over > 0:
+    print
+    print "WARNING: %d/%d trajectories went overtime." % (num_over, num_trials)
+    print "Reported statistics may be unreliable."
+    print
+  
+  # Rate at which collisions that will eventually go forward happen
+  for_coll_rate = sum([coll_rate for (time, coll_rate) in forward]) / num_trials
+  
+  for_rates = [1/time for (time, coll_rate) in forward]
+  for_rate = stat.mean(for_rates)
+  for_rate_stddev = stat.stddev(for_rates)
+  
+  print "* %d/%d trajectories went forward." % (num_for, num_trials)
+  if num_for > 0:
+    print "  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000)
+    print "  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev)
+    print
+  
+  # Rate at which collisions that will eventually reverse happen
+  rev_coll_rate = sum([coll_rate for (time, coll_rate) in reverse]) / num_trials
+  
+  rev_rates = [1/time for (time, coll_rate) in reverse]
+  rev_rate = stat.mean(rev_rates)
+  rev_rate_quants = stat.quantiles(rev_rates, .25, .75)
+  
+  print "* %d/%d trajectories went back." % (num_rev, num_trials)
+  if num_rev > 0:
+    print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
+    print "  Estimated Reverse Trajectory Rate: %f (50%% range: %r) /s" % (rev_rate, rev_rate_quants)
 
   
 if __name__ == "__main__":
   import re
-  from optparse import OptionParser
+  from optparse import OptionParser, OptionGroup
   
   # Parse command line options.
   usage = "usage: %prog [options] BASENAME"
@@ -173,10 +192,18 @@ if __name__ == "__main__":
   parser.add_option("--seqs", help="Sequences output file [defaults to BASENAME.seqs]", metavar="FILE")
   parser.add_option("--strands", help="Produce a strands-to-order file", metavar="FILE")
   parser.add_option("--no-kin", action="store_false", dest="run_kin", help="Don't run kinetics")
-  
-  parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp) [Default temporarily]")
-  parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use.")
   #TODO: parser.add_option("--kinetic", help="Custom kinetics output file, defaults to BASENAME.kin")
+  
+  kin_parser = OptionGroup(parser, "Kinetics Options")
+  kin_parser.add_option("--trials", type="int", default=24, help="Number of trials to run [Default = %default]")
+  kin_parser.add_option("--time", type="float", default=100000, help="Simulation seconds [Default = %default]")
+  kin_parser.add_option("--temp", type="float", default=25.0, help="Degrees Celcius [Default = %default]")
+  kin_parser.add_option("--conc", type="float", default=1.0, help="Concentration for all molecules (uM) [Default = %default]")
+  
+  kin_parser.add_option("--no-cleanup", action="store_false", dest="cleanup", help="Keep temporary files. [Default temporarily]")
+  kin_parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use.")
+  parser.add_option_group(kin_parser)
+  
   (options, args) = parser.parse_args()
   
   # Get basename
@@ -196,9 +223,4 @@ if __name__ == "__main__":
   if not options.seqs:
     options.seqs = basename + ".seqs"
   
-  # Eval remaining arguments
-  import quickargs
-  args, keys = quickargs.get_args(args[1:])
-  assert not args
-  
-  finish(options.save, options.design, options.seqs, options.strands, options.run_kin, options.cleanup, keys)
+  finish(options.save, options.design, options.seqs, options.strands, options.run_kin, options.cleanup, options.trials, options.time, options.temp, options.conc)
