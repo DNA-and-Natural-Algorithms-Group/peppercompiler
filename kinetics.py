@@ -51,15 +51,16 @@ def test_spuradic(structs, cleanup, trials=24, time=10, temp=25, conc=1.0, out_i
   """Test kinetics for spuratic interaction between structures."""
   used_strands = ordered_dict()
   ins = []
-  for struct in structs:
+  for i, struct in enumerate(structs):
+    i = str(i)
     # And add the starting complexes/structures
-    strand_names = [strand.name for strand in struct.strands]
+    strand_names = [strand.name + i for strand in struct.strands]
     ins.append( Complex(strand_names, struct.struct) )
     # Keep track of strands that will be used
     for strand in struct.strands:
-      # TODO: Use full names for strands, ..., not local names
-      assert strand.name not in used_strands
-      used_strands[strand.name] = strand.seq
+      name = strand.name + i
+      assert name not in used_strands
+      used_strands[name] = strand.seq
   
   outs = [] # We are not testing for any forward reactions.
   # HACK: Likewise the backwords reaction must only have one DISASSOC.

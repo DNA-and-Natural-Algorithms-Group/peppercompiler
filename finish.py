@@ -24,7 +24,7 @@ def get_gates(obj, prefix=""):
   else:
     raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
 
-def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials, time, temp, conc):
+def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials, time, temp, conc, spurious, spurious_time):
   """
   Finish compiling a specification.
   
@@ -84,16 +84,13 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
       kinetic(gate, prefix, cleanup, trials, time, temp, conc)
   
   # Test spuradic kinetics
-  '''
-  print "Input structures to be tested for spuradic kinetics."
-  while True:
-    struct1 = raw_input("Structure 1: ")
-    struct1 = system.structs[struct1]
-    struct2 = raw_input("Structure 2: ")
-    struct2 = system.structs[struct2]
-    # TODO: use different time for reactions we don't expect to go forward.
-    process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, time, temp, conc))
-  '''
+  if spurious:
+    print "Input structures to be tested for spuradic kinetics."
+    for struct1 in system.structs.values():
+      for struct2 in system.structs.values():
+        print "Testing spurious kinetics of:", struct1.name, struct2.name
+        process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, spurious_time, temp, conc))
+
 
 def apply_design(system, seqs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
@@ -191,14 +188,17 @@ if __name__ == "__main__":
   parser.add_option("--design", help="Design file [defaults to BASENAME.mfe]", metavar="FILE")
   parser.add_option("--seqs", help="Sequences output file [defaults to BASENAME.seqs]", metavar="FILE")
   parser.add_option("--strands", help="Produce a strands-to-order file", metavar="FILE")
-  parser.add_option("--no-kin", action="store_false", dest="run_kin", help="Don't run kinetics")
   #TODO: parser.add_option("--kinetic", help="Custom kinetics output file, defaults to BASENAME.kin")
   
   kin_parser = OptionGroup(parser, "Kinetics Options")
+  kin_parser.add_option("--no-kin", action="store_false", dest="run_kin", help="Don't run kinetics")
   kin_parser.add_option("--trials", type="int", default=24, help="Number of trials to run [Default = %default]")
   kin_parser.add_option("--time", type="float", default=100000, help="Simulation seconds [Default = %default]")
   kin_parser.add_option("--temp", type="float", default=25.0, help="Degrees Celcius [Default = %default]")
   kin_parser.add_option("--conc", type="float", default=1.0, help="Concentration for all molecules (uM) [Default = %default]")
+  
+  kin_parser.add_option("--spurious", action="store_true", help="Run pairwise kinetic simulations to look for spurious interaction.")
+  kin_parser.add_option("--spurious-time", type="float", default=10.0, help="Simulation seconds for spurious simulation [Default = %default]")
   
   kin_parser.add_option("--no-cleanup", action="store_false", dest="cleanup", help="Keep temporary files. [Default temporarily]")
   kin_parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use.")
@@ -223,4 +223,4 @@ if __name__ == "__main__":
   if not options.seqs:
     options.seqs = basename + ".seqs"
   
-  finish(options.save, options.design, options.seqs, options.strands, options.run_kin, options.cleanup, options.trials, options.time, options.temp, options.conc)
+  finish(options.save, options.design, options.seqs, options.strands, options.run_kin, options.cleanup, options.trials, options.time, options.temp, options.conc, options.spurious, options.spurious_time)
