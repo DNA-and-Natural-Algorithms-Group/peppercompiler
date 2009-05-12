@@ -68,3 +68,13 @@ DNA Circuit Compiler requires:
 
 * Python >= 2.5
 * pyparsing >= 1.5.1  (currently included in the directory)
+* Multistrand (available on the cluster at /research/bin/Multistrand or in CVS)
+* NUPACK mfe (available on the cluster at /research/bin/mfe)
+
+design/spurious_design.py requires:
+
+* spuriousC (available on the dna cluster at /research/bin/spuriousC or in CVS)
+
+spuriousC requires:
+
+  * Vienna RNAfold
