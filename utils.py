@@ -30,6 +30,12 @@ def search_file(filename, search_path):
   return None
 
 
+def error(text):
+	"""Return a formatted error message."""
+	red = "\033[31;1m"  # ASCI color code for bold red
+	reset = "\033[m"    # ASCI color code for reset color
+	return red + "ERROR: " + text + reset + "\n"
+
 def mktemp(mode, *args, **keys):
   """Creates a temporary file. Returns the file and filename.
      Like tempfile.mkstemp except that it actually creates a file object."""

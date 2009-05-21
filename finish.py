@@ -3,9 +3,11 @@ from __future__ import division
 
 import sys
 import string
+from subprocess import CalledProcessError
 
 from compiler import load
 from kinetics import read_design, test_kinetics, test_spuradic
+from utils import error
 
 from circuit_class import Circuit
 from gate_class import Gate
@@ -89,7 +91,10 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
     for struct1 in system.structs.values():
       for struct2 in system.structs.values():
         print "Testing spurious kinetics of:", struct1.name, struct2.name
-        process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, spurious_time, temp, conc))
+        try:
+          process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, spurious_time, temp, conc))
+        except CalledProcessError, e:
+          print error(str(e))
 
 
 def apply_design(system, seqs):
