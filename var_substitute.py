@@ -60,15 +60,15 @@ def process(infilename, params):
 if __name__ == "__main__":
   import sys
   
-  import circuit_parser
-  import gate_parser
+  import system_parser
+  import component_parser
   
   def substitute(filename, args):
     # Parse for function declaration
     if re.match(r".*\.sys\Z", filename):
-      param_names = circuit_parser.decl_stat.parseFile(filename)[2]
+      param_names = system_parser.decl_stat.parseFile(filename)[2]
     elif re.match(r".*\.comp\Z", filename):
-      param_names = gate_parser.decl_stat.parseFile(filename)[2]
+      param_names = component_parser.decl_stat.parseFile(filename)[2]
     else:
       raise ValueError, "File %s is neither system nor component type." % filename
         

@@ -1,9 +1,9 @@
-"""Nucleic Acid gate design grammar"""
+"""DNA component design grammar"""
 
 import sys
 
 from HU2dotParen import extended2dotParen, HU2dotParen
-from gate_class import Gate
+from component_class import Component
 from var_substitute import process
 
 from pyparsing import *
@@ -82,7 +82,7 @@ HUnotation = Word(nums + "UH()+ ").setParseAction(Map(HU2dotParen))
 secondary_struct = Group( Flag("domain") + (exDotParen | HUnotation) )
 
 
-# declare component <gate name>(<params>): <inputs> -> <outputs>
+# declare component <component name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, "+") + S("->") + List(signal_var, "+")
 
@@ -115,7 +115,7 @@ document.ignore(pythonStyleComment)
 
 
 
-def load_gate(filename, args):
+def load_component(filename, args):
   """Load component file"""
   try:
     # Open file and do parameter substitution
@@ -138,23 +138,23 @@ def load_gate(filename, args):
   
   x, name, params, inputs, outputs = declare
   # Build data
-  gate = Gate(name, params)
+  component = Component(name, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == seq:
-      gate.add_sequence(*stat[1:])
+      component.add_sequence(*stat[1:])
     elif stat[0] == sup_seq:
-      gate.add_super_sequence(*stat[1:])
+      component.add_super_sequence(*stat[1:])
     elif stat[0] == strand:
-      gate.add_strand(*stat[1:])
+      component.add_strand(*stat[1:])
     elif stat[0] == struct:
-      gate.add_structure(*stat[1:])
+      component.add_structure(*stat[1:])
     elif stat[0] == kin:
-      gate.add_kinetics(*stat[1:])
+      component.add_kinetics(*stat[1:])
     else:
       raise Exception, "Unexpected statement:\n" + stat
-  gate.add_IO(inputs, outputs)
-  return gate
+  component.add_IO(inputs, outputs)
+  return component
 
 def substitute(filename, args):
   # Parse for function declaration

@@ -1,6 +1,6 @@
 import sys
 
-from circuit_class import Circuit
+from system_class import System
 from var_substitute import process
 
 from pyparsing import *
@@ -27,7 +27,7 @@ def Flag(expr):
 decl = "declare"
 system = "system"
 import_ = "import"
-gate = "component"
+component = "component"
 
 # Don't ignore newlines!
 ParserElement.setDefaultWhitespaceChars(" \t")
@@ -50,12 +50,12 @@ decl_stat = K(decl) + S(system) + var + decl_params + S(":") + signal_list + S("
 # import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
 import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
 
-# gate <name> = <template name>(<params>): <inputs> -> <outputs>
-gate_params = O( S("(") + List(python_object, ",") + S(")") , default=[])
-gate_stat = K(gate) + var + S("=") + var + gate_params + S(":") + signal_list + S("->") + signal_list
+# component <name> = <template name>(<params>): <inputs> -> <outputs>
+component_params = O( S("(") + List(python_object, ",") + S(")") , default=[])
+component_stat = K(component) + var + S("=") + var + component_params + S(":") + signal_list + S("->") + signal_list
 
 
-statement = import_stat | gate_stat
+statement = import_stat | component_stat
 
 document = StringStart() + Group(decl_stat) + S("\n") + \
            List(O(Group(statement)), delim="\n") + StringEnd()
@@ -63,14 +63,14 @@ document.ignore(pythonStyleComment)
 
 
 
-def load_circuit(filename, args, path):
-  """Load circuit connectivity file"""
+def load_system(filename, args, path):
+  """Load system connectivity file"""
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
   except ParseBaseException, e:
     print
-    print "Parsing error in circuit:", filename
+    print "Parsing error in system:", filename
     print e
     sys.exit(1)
     
@@ -80,23 +80,23 @@ def load_circuit(filename, args, path):
   except ParseBaseException, e:
     print
     print doc
-    print "Parsing error in circuit:", filename
+    print "Parsing error in system:", filename
     print e
     sys.exit(1)
   
   x, name, params, inputs, outputs = declare
   # Build data
-  circuit = Circuit(path, name, params)
+  system = System(path, name, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == import_:
-      circuit.add_import(*stat[1:])
-    elif stat[0] == gate:
-      circuit.add_gate(*stat[1:])
+      system.add_import(*stat[1:])
+    elif stat[0] == component:
+      system.add_component(*stat[1:])
     else:
       raise Exception, "Unexpected statement:\n" + stat
-  circuit.add_IO(inputs, outputs)
-  return circuit
+  system.add_IO(inputs, outputs)
+  return system
 
 def substitute(filename, args):
   # Parse for function declaration

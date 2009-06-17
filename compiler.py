@@ -4,7 +4,7 @@ import os
 import pickle
 import time
 
-from circuit_class import load_file
+from system_class import load_file
 from utils import match
 
 def parse_fixed(line):

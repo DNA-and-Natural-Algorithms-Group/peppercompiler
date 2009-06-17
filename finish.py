@@ -9,22 +9,22 @@ from compiler import load
 from kinetics import read_design, test_kinetics, test_spuradic
 from utils import error
 
-from circuit_class import Circuit
-from gate_class import Gate
+from system_class import System
+from component_class import Component
 from DNA_classes import wc
 import myStat as stat
 
-def get_gates(obj, prefix=""):
-  """Return all gates and the prefixes showing how to reach them."""
-  if isinstance(obj, Gate):
+def get_components(obj, prefix=""):
+  """Return all components and the prefixes showing how to reach them."""
+  if isinstance(obj, Component):
     return [(obj, prefix)]
-  elif isinstance(obj, Circuit):
-    gates = []
-    for gate_name, gate in obj.gates.items():
-      gates += get_gates(gate, prefix + gate_name + "-")
-    return gates
+  elif isinstance(obj, System):
+    components = []
+    for component_name, component in obj.components.items():
+      components += get_components(component, prefix + component_name + "-")
+    return components
   else:
-    raise Exception, 'Object "%r" is neither a Circuit or Gate.' % obj
+    raise Exception, 'Object "%r" is neither a System or Component.' % obj
 
 def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials, time, temp, conc, spurious, spurious_time):
   """
@@ -82,8 +82,8 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
     print "SimTime: %.1f s" % time
     print "Temperature: %.1f deg C" % temp
     print "Concentration: %f uM" % conc
-    for gate, prefix in get_gates(system):
-      kinetic(gate, prefix, cleanup, trials, time, temp, conc)
+    for component, prefix in get_components(system):
+      kinetic(component, prefix, cleanup, trials, time, temp, conc)
   
   # Test spuradic kinetics
   if spurious:
@@ -118,10 +118,10 @@ def apply_design(system, seqs):
     assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
 
 
-# TODO: get rid of need for gate, so get rid of recursion.
-def kinetic(gate, prefix, cleanup, trials, time, temp, conc):
-  """Test all kinetic pathways in a gate."""
-  for kin in gate.kinetics.values():
+# TODO: get rid of need for component, so get rid of recursion.
+def kinetic(component, prefix, cleanup, trials, time, temp, conc):
+  """Test all kinetic pathways in a component."""
+  for kin in component.kinetics.values():
     # Print testing info
     print
     print "kinetic", prefix[:-1], ":",

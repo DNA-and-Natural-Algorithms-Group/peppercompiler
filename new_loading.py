@@ -1,7 +1,7 @@
 import re
 
-import circuit_class
-import gate_class
+import system_class
+import component_class
 
 def split(string):
     #return string.split()
@@ -74,30 +74,30 @@ def parse_import(rest):
     
     return path, name
 
-def parse_gate(rest):
+def parse_component(rest):
     # TODO: allow variable spacing. Maybe use re.VERBOSE
     p = re.match(r"(\w+) = (\w+)(?:\((.*?)\))?: (.*) ?-> ?(.*)\n", rest)
-    assert p, "Gate syntax incorrect" # TODO: add line and syntax
-    gate_name, templ_name, templ_args, ins, outs = p.groups("")
+    assert p, "Component syntax incorrect" # TODO: add line and syntax
+    component_name, templ_name, templ_args, ins, outs = p.groups("")
     
     # Expand out the lists
     templ_args = split(templ_args)
     ins  = split(ins)
     outs = split(outs)
     
-    return gate_name, templ_name, templ_args, ins, outs
+    return component_name, templ_name, templ_args, ins, outs
 
 def load_system(doc, name, ins, outs):
     """Build a system object from the commands in the file."""
-    system = circuit_class.Circuit(name, None, ins, outs)
+    system = system_class.System(name, None, ins, outs)
     for line in doc:
         command, rest = line.split(None, 1) # Split off first word # TODO: Put in try/except for when this fails
         if command == "import":
             path, name = parse_import(rest)
             system.add_import((path, name)) # TODO: Check rest ... and fix
         elif command == "component":
-            gate_name, templ_name, templ_args, ins, outs = parse_gate(rest)
-            system.add_gate(gate_name, templ_name, templ_args, ins, outs)
+            component_name, templ_name, templ_args, ins, outs = parse_component(rest)
+            system.add_component(component_name, templ_name, templ_args, ins, outs)
         else:
             assert False, "Command " + command + " not defined in system." # TODO: where
     return system
@@ -148,7 +148,7 @@ def load_component(doc, name, ins, outs):
     # TODO: fix
     ins = [(x, None) for x in ins]
     outs = [(x, None) for x in outs]
-    component = gate_class.Gate(name, None, ins, outs)
+    component = component_class.Component(name, None, ins, outs)
     for line in doc:
         command, rest = line.split(None, 1) # Split off first word
         if command == "sequence":
@@ -166,7 +166,7 @@ def load_component(doc, name, ins, outs):
 if __name__ == "__main__":
     import sys
     
-    gate_class.DEBUG = circuit_class.DEBUG = True
+    component_class.DEBUG = system_class.DEBUG = True
     
     filename = sys.argv[1]
     args = map(eval, sys.argv[2:])

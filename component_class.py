@@ -5,7 +5,8 @@ from DNA_classes import *
 
 DEBUG = False
 
-class Gate(PrintObject):
+class Component(PrintObject):
+  """Stores information for a DNA component"""
   def __init__(self, name, params):
     self.name = name
     self.params = params
@@ -94,7 +95,7 @@ class Gate(PrintObject):
     self.kinetics[name] = Kinetics(name, list(inputs), list(outputs))
   
   def add_IO(self, inputs, outputs):
-    """Add I/O information once we've read the gate."""
+    """Add I/O information once we've read the component."""
     self.inputs = []
     for seq_name, wc in inputs:
       assert seq_name in self.seqs
@@ -115,9 +116,9 @@ class Gate(PrintObject):
   def output_synthesis(self, prefix, outfile):
     """Output synthesis of all data into a single file."""
     if prefix:
-      outfile.write("#\n## Gate %s\n" % prefix[:-1])
+      outfile.write("#\n## Component %s\n" % prefix[:-1])
     else:
-      outfile.write("#\n## Top Gate\n")
+      outfile.write("#\n## Top Component\n")
     
     # Define sequences
     for seq in self.base_seqs.values():
@@ -157,9 +158,9 @@ class Gate(PrintObject):
   def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""
     if prefix:
-      outfile.write("#\n## Gate %s\n" % prefix[:-1])
+      outfile.write("#\n## Component %s\n" % prefix[:-1])
     else:
-      outfile.write("#\n## Top Gate\n")
+      outfile.write("#\n## Top Component\n")
     
     # Define structures
     for struct in self.structs.values():
