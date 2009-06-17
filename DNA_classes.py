@@ -2,11 +2,15 @@
 import string
 
 # Global DNA nt groups
-group = {"A": "A", "T": "T", "U": "T", "C": "C", "G": "G",
-         "W": "AT", "S": "CG", "N": "ACGT"} #... Others can be put later if needed ...
+group = {"A": "A", "T": "T", "C": "C", "G": "G",
+         "W": "AT", "S": "CG", "M": "AC", "K": "GT", 
+         "B": "CGT", "V": "ACG", "D": "AGT", "H", "ACT",
+         "N": "ACGT"} # SpuriousC group codes
 rev_group = dict([(v, k) for (k, v) in group.items()])  # A reverse lookup for group.
 complement = {"A": "T", "T": "A", "C": "G", "G": "C",
-              "N": "N", "S": "S", "W": "W"} #... Others can be put later if needed ...
+              "W": "W", "S": "S", "M": "K", "K": "M",
+              "B": "V", "V": "B", "D": "H", "H": "D",
+              "N": "N"} # Should satisfy set(group[complement[X]]) == set(wc(group[X]))
 def wc(seq):
   """Returns the WC complement of a nucleotide sequence."""
   return string.join([complement[nt] for nt in reversed(seq)], "")
