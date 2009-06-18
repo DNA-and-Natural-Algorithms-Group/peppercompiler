@@ -13,7 +13,7 @@ specification, "circuit.des" (for Joe's designer).
 
 Process "circuit.des" with a designer. There is a wrapper for Erik's SpuriousC 
 in "design/". Run
- $ python design/spurious_design.py circuit.des
+ $ python design/spurious_design.py circuit
 
 to produce the design, "circuit.mfe".
 
@@ -46,15 +46,17 @@ options. Therefore, for example, you can run two designs on the same system at
 the same time.
 Ex:
  $ python compiler.py --output=run1.des --save=run1.save examples/Georg_System/Circuit
+ $ python compiler.py --output=run2.des --save=run2.save examples/Georg_System/Circuit
+(These two designs will not interfere with each other.)
 
 === Examples ===
 
 The "examples/" directory has some instructive examples.
-examples/system1/ - Really simple dummy system without parametrization
-examples/system2/ - Same example, with parametrization
-examples/Georg_System/ - Georg's original logic circuit (Nature 2006)
-examples/Lulu/ - Some mock-ups of Lulu's sea-saw systems
-examples/Elisa/ - Self-activating and self-inhibiting transcriptional systems
+* examples/system1/ - Really simple dummy system without parametrization
+* examples/system2/ - Same example, with parametrization
+* examples/Georg_System/ - Georg's original logic circuit (Nature 2006)
+* examples/Lulu/ - Some mock-ups of Lulu's sea-saw systems
+* examples/Elisa/ - Self-activating and self-inhibiting transcriptional systems
 
 === System/Component specification ===
 
@@ -68,13 +70,10 @@ DNA Circuit Compiler requires:
 
 * Python >= 2.5
 * pyparsing >= 1.5.1  (currently included in the directory)
-* Multistrand (available on the cluster at /research/bin/Multistrand or in CVS)
-* NUPACK mfe (available on the cluster at /research/bin/mfe)
+* [[Multistrand]] (available on the cluster at /research/bin/Multistrand or by CVS)
+* NUPACK mfe (available on the cluster at /research/bin/mfe or http://www.nupack.org/downloads)
 
 design/spurious_design.py requires:
 
-* spuriousC (available on the dna cluster at /research/bin/spuriousC or in CVS)
-
-spuriousC requires:
-
-  * Vienna RNAfold
+* spuriousC (available on the dna cluster at /research/bin/spuriousC or by CVS)
+** Vienna RNAfold (available on the dna cluser at /research/bin/RNAfold or http://www.tbi.univie.ac.at/~ivo/RNA/)
