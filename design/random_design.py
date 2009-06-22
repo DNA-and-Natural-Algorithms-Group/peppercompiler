@@ -204,6 +204,16 @@ if __name__ == "__main__":
   import sys
   import re
   
-  in_name = sys.argv[1]
-  out_name = re.sub(r"\.des\Z", r".mfe", in_name) # Makes foo.des => foo.mfe
+  from find_file import find_file
+  
+  in_name = find_file(sys.argv[1])
+  
+  # Infer the basename if a full filename is given
+  basename = infilename
+  p = re.match(r"(.*)\.des\Z", basename)
+  if p:
+    basename = p.group(1)
+  # Set output file name
+  out_name = basename + ".mfe"
+  
   design(in_name, out_name)

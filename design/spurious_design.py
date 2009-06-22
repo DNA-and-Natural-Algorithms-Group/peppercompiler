@@ -273,15 +273,17 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   wcname = basename + ".wc"
   eqname = basename + ".eq"
   sp_outname = basename + ".sp"
-  print "Preparing constraints files for spuriousC."
+  
   #if reuse:
   #  for name in stname, wcname, eqname:
   #    assert os.path.isfile(name), "Error: requested --reuse, but file '%s' doesn't exist" % name
   
   # Prepare the constraints
+  print "Reading design from  file '%s'" % infilename
+  print "Preparing constraints files for spuriousC."
   st, eq, wc, c = prepare(infilename)
   
-  # Fix divergent specifications
+  # Convert specifications
   eq = [x+1 for x in eq]
   for i, x in enumerate(wc):
     if x != -1:
@@ -322,6 +324,8 @@ if __name__ == "__main__":
   import re
   from optparse import OptionParser
   
+  from find_file import find_file, BadFilename
+  
   # Parse command line options.
   usage = "usage: %prog [options] infilename [spuriousC parameters ...]"
   parser = OptionParser(usage=usage)
@@ -338,7 +342,10 @@ if __name__ == "__main__":
   
   if len(args) < 1:
     parser.error("missing required argument infilename")
-  infilename = args[0]
+  try:
+    infilename = find_file(args[0])
+  except BadFilename:
+    parser.error("File not found: neither %s nor %s.des exist. Please supply correct infilename." % (args[0], args[0]))
   
   # Infer the basename if a full filename is given
   basename = infilename
