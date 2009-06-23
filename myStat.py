@@ -5,6 +5,8 @@ import math
 from math import sqrt, exp, log
 import copy
 
+NaN = float("nan")
+
 ## Sample statistics
 
 def mean(xs):
@@ -12,7 +14,7 @@ def mean(xs):
   if len(xs) > 0:
     return sum(xs) / len(xs)
   else:
-    return float("nan")
+    return NaN
 
 def var(xs):
   """Sample variance."""
@@ -21,7 +23,7 @@ def var(xs):
     xs2 = [(x-m)**2 for x in xs]
     return sum(xs2) / (len(xs) - 1)
   else:
-    return float("nan")
+    return NaN
 
 def stddev(xs):
   """Sample standard deviation."""
@@ -34,7 +36,7 @@ def moment(k, xs):
     xs_k = [(x-m)**k for x in xs]
     return sum(xs_k) / len(xs)
   else:
-    return float("nan")
+    return NaN
 
 def skewness(xs):
   """Sample skewness."""
@@ -46,6 +48,8 @@ def kurtosis(xs):
 
 def _get_index(xs, n):
   """Get a fractionally indexed item by interpolation."""
+  if len(xs) == 0:
+    return NaN
   assert 0 <= n <= len(xs) - 1
   if n == len(xs) - 1:
     return xs[-1]
@@ -53,6 +57,14 @@ def _get_index(xs, n):
   f = n % 1  # Fractional part
   
   return (1-f) * xs[i] + f * xs[i+1]
+
+def quantiles(xs, *quantiles):
+  """Find a set of quantiles in data."""
+  # NOTE: Will be inefficient for large len(xs)
+  xs = copy.copy(xs)
+  xs.sort()
+  
+  return [_get_index(xs, quant * (len(xs) - 1)) for quant in quantiles]
 
 def median(xs):
   """Sample median."""
@@ -62,14 +74,6 @@ def median(xs):
 def quartiles(xs):
   """Divisions between quartiles."""
   return quantiles(xs, 0.25, 0.5, 0.75)
-
-def quantiles(xs, *quantiles):
-  """Find a set of quantiles in data."""
-  # NOTE: Will be inefficient for large len(xs)
-  xs = copy.copy(xs)
-  xs.sort()
-  
-  return [_get_index(xs, quant * (len(xs) - 1)) for quant in quantiles]
 
 
 ## Statistical Distributions
@@ -137,17 +141,17 @@ def gamma_mle(xs):
   """
   N = len(xs)
   if N < 1:
-    return float("nan"), float("nan")
+    return NaN, NaN
   
   s = math.log(sum(xs)/N) - sum(map(math.log, xs))/N
   if s != 0:
     k_hat = (3 - s + math.sqrt( (s-3)**2 + 24*s )) / (12*s)  # Approx mle for k
   else:
-    k_hat = float("nan")
+    k_hat = NaN
   
   if k_hat != 0:
     theta_hat = sum(xs) / (N * k_hat)
   else:
-    theta_hat = float("nan")
+    theta_hat = NaN
   
   return k_hat, theta_hat

@@ -6,7 +6,7 @@ import re
 import os
 import subprocess
 
-from utils import mktemp, urandom
+from utils import mktemp, urandom, error
 
 def random_seed():
   """
@@ -84,8 +84,6 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   print "$", command
   subprocess.check_call(command, shell=True)
   
-  res = read_result(out_name)
-  
   f = open(out_name, "r")
   
   # Note: This will load the entire data of the file into lists (could be memory 
@@ -97,7 +95,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   for line in f:
     if line[0] == "(":
       parts = line.split()
-      assert len(parts) == 5, "Error: Multistrand format has changed.\n%s" % line
+      assert len(parts) == 5, error("Multistrand format has changed.\n%s" % line)
       coll_rate = float(parts[2])
       flag = parts[3]
       time = float(parts[4])
@@ -108,7 +106,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
       elif flag == BACK_FLAG:
         reverse.append( (time, coll_rate) )
       else:
-        assert False, "Error: Unexpected stop flag '%s' in Multistrand output.\n%s" % (flag, line)
+        assert False, error("Unexpected stop flag '%s' in Multistrand output.\n%s" % (flag, line))
     else:
       summary += line
   f.close()
@@ -118,60 +116,3 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   	os.remove(out_name)
   
   return forward, reverse, overtime, summary
-
-class Result(object): pass
-
-def read_result(filename):
-  """
-  Read the end of the results to get the rate constants
-  
-  Sample file "tail -7":
-  ...
-  Simulation Complete: 10000 trajectories total.
-  Estimated Collision Reaction Rate: 0.001224 (/M/s)
-  Estimated mean, var Collision Reaction Rate: 0.001224, 0.000000 (/M/s)
-  Forward Trajectory Rate (mean, var): 0.002500, 0.000006 (/s)
-  Forward Trajectories: 389, Average Time: 7.958826e+02
-  Reverse Trajectory Rate (mean,var): 7.377919, 6048.763386 (/s)
-  Reverse Trajectories: 9611, Average Time: 1.164428e+02
-  """
-  lines = subprocess.Popen("tail -7 %s" % filename, shell=True, stdout=subprocess.PIPE).stdout.readlines()
-  
-  res = Result()
-  try:
-    res.num_trials = re.match(r"Simulation Complete: (.+) trajectories total\.\n", lines[0]).group(1)
-    res.num_trials = int(res.num_trials)
-    
-    res.coll_rate, res.coll_var = re.match(r"Estimated mean, var Collision Reaction Rate: (.+), (.+) \(/M/s\)\n", lines[2]).group(1,2)
-    res.coll_rate = float(res.coll_rate)
-    res.coll_var  = float(res.coll_var)
-    
-    res.for_rate, res.for_var = re.match(r"Forward Trajectory Rate \(mean(, var)?\): (N/A|([\d.e+-]+))(, ([\d.e+-]+))? \(/s\)\n", lines[3]).group(3, 5)
-    if res.for_rate != None:
-      res.for_rate = float(res.for_rate)
-    if res.for_var != None:
-      res.for_var  = float(res.for_var)
-    
-    res.for_num, res.for_mean_time = re.match(r"Forward Trajectories: (.+), Average Time: (N/A|([\d.e+-]+))\n", lines[4]).group(1, 3)
-    res.for_num = int(res.for_num)
-    if res.for_mean_time != None:
-      res.for_mean_time = float(res.for_mean_time)
-    
-    res.rev_rate, res.rev_var = re.match(r"Reverse Trajectory Rate \(mean(,var)?\): (N/A|([\d.e+-]+))(, ([\d.e+-]+))? \(/s\)\n", lines[5]).group(3, 5)
-    if res.rev_rate != None:
-      res.rev_rate = float(res.rev_rate)
-    if res.rev_var != None:
-      res.rev_var  = float(res.rev_var)
-    
-    res.rev_num, res.rev_mean_time = re.match(r"Reverse Trajectories: (.+), Average Time: (N/A|([\d.e+-]+))\n", lines[6]).group(1, 3)
-    res.rev_num = int(res.rev_num)
-    if res.rev_mean_time != None:
-      res.rev_mean_time = float(res.rev_mean_time)
-  
-  except AttributeError:
-    print
-    print lines
-    print
-    raise
-  
-  return res
