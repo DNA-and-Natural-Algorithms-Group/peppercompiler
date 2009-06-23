@@ -29,12 +29,25 @@ def search_file(filename, search_path):
   
   return None
 
+def search_sys_path(filename):
+  search_path = os.environ["PATH"].split(os.path.pathsep)
+  return search_file(filename, search_path)
+
+
+## ANSI Colors
+red_tag = "\033[31;1m"   # ANSI color code for bold red
+green_tag = "\033[32;1m" # ANSI color code for bold green
+reset_tag = "\033[m"     # ANSI color code for reset color
+
+def red(text):
+  return red_tag + text + reset_tag
+def green(text):
+  return green_tag + text + reset_tag
+
 
 def error(text):
-	"""Return a formatted error message."""
-	red = "\033[31;1m"  # ASCI color code for bold red
-	reset = "\033[m"    # ASCI color code for reset color
-	return red + "ERROR: " + text + reset + "\n"
+  """Return a formatted error message."""
+  return red("ERROR: " + text)
 
 def mktemp(mode, *args, **keys):
   """Creates a temporary file. Returns the file and filename.

@@ -5,10 +5,7 @@ import subprocess
 import nupack_mfe_grammar as gram
 from utils import mktemp
 
-#Globals
-nupack_mfe = "mfe"
-
-def DNAfold(seq, temp):
+def DNAfold(seq, temp, exe):
   """Runs NUPACK mfe on sequence 'seq' at temperature 'temp'."""
   infile, infilename  = mktemp(mode="w", prefix="mfe_", suffix=".in")
   prefix = infilename[:-3]
@@ -25,7 +22,7 @@ def DNAfold(seq, temp):
   infile.close()
   
   # Call RNAfold
-  command = "%s -T %f -material dna -multi %s" % (nupack_mfe, temp, prefix)
+  command = "%s -T %f -material dna -multi %s" % (exe, temp, prefix)
   #print command
   subprocess.check_call(command, shell=True)
   

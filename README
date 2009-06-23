@@ -3,6 +3,14 @@ It assists DNA programmers in building DNA computers by providing a templating
 language for specifying generic components and interfacing with state of the
 art designers and kinetic simulators to create and test sequences.
 
+=== Setup ===
+
+Run
+ $ python config.py
+to set up the DNA Circuit Compiler to worok with your system. It helps 
+to have NUPACKHOME or VIENNAHOME environment variables set before you 
+begin.
+
 === Basic usage ===
 
 Run
