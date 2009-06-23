@@ -5,7 +5,7 @@ import pickle
 import time
 
 from system_class import load_file
-from utils import match
+from utils import match, error
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
@@ -74,7 +74,12 @@ def load(filename):
 if __name__ == "__main__":
   from optparse import OptionParser
   
-  # Parse command line options.
+  if not os.path.isfile("config_choices.py"):
+    print error("DNA Circuit Compiler is not configured, please run config.py")
+  sys.exit(1)
+  
+  # Parse command line 
+options.
   usage = "usage: %prog [options] BASENAME [parameters ...]"
   parser = OptionParser(usage=usage)
   #parser.set_defaults(verbose=True)

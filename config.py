@@ -50,7 +50,7 @@ def find_vienna_par_file():
     return search_file("dna.par", dirs)
 
 
-print "This configuration script will set up the DNA Compiler to run on your system."
+print "This configuration script will set up the DNA Circuit Compiler to run on your system."
 
 print "Please choose which thermodynamics package to use:"
 print "(1) Nupack mfe (recomended/default)"
