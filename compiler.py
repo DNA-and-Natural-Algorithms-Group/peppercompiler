@@ -72,14 +72,14 @@ def load(filename):
   return obj
 
 if __name__ == "__main__":
+  import sys
   from optparse import OptionParser
   
   if not os.path.isfile("config_choices.py"):
     print error("DNA Circuit Compiler is not configured, please run config.py")
-  sys.exit(1)
+    sys.exit(1)
   
-  # Parse command line 
-options.
+  # Parse command line options.
   usage = "usage: %prog [options] BASENAME [parameters ...]"
   parser = OptionParser(usage=usage)
   #parser.set_defaults(verbose=True)
