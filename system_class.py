@@ -124,9 +124,33 @@ class System(PrintObject):
     else:
       outfile.write("#\n## Top System\n")
     # For each component write it's contents with prefix "name-".
-    for comp_name, template in self.components.items():
-      template.output_synthesis(prefix+comp_name+"-", outfile)
-    # TODO: Deal with signal sequence constraints
+    for component_name, template in self.components.items():
+      template.output_synthesis(prefix+component_name+"-", outfile)
+    
+    # For each signal sequence connecting components constrain them to be be equal.
+    if prefix:
+      outfile.write("#\n## System %s Connectors\n" % prefix[:-1])
+    else: 
+      outfile.write("#\n## Top System Connectors\n")
+    for signal in self.signals:
+      length = self.lengths[signal]
+      signal_name = prefix + signal
+      # Create signal sequence object
+      outfile.write("#\n## Signal %s\n" % signal_name)
+      outfile.write("sequence %s = %s : %d\n" % (signal_name, "N" * length, length))
+      
+      # Constrain all sequences representing that signal
+      outfile.write("equal %s " % signal_name)
+      for loc_seq, component_name, wc in self.signals[signal]:
+        if isinstance(loc_seq, (DNA_classes.Sequence, DNA_classes.SuperSequence)):
+          loc_name = component_name + "-" + loc_seq.name
+        else: # it's a system signal
+          loc_name = component_name + "-" + loc_seq
+        if wc:
+          outfile.write("%s* " % loc_name)
+        else:
+          outfile.write("%s " % loc_name)
+      outfile.write("\n")
   
   def output_nupack(self, prefix, outfile):
     """Compile data into NUPACK format and output it"""

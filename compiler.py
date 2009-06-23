@@ -103,7 +103,10 @@ if __name__ == "__main__":
   
   # Set filename defaults
   if not options.output:
-    options.output = basename + ".des"
+    if options.synthesis:
+      options.output = basename + ".pil"
+    else:
+      options.output = basename + ".des"
   if not options.save:
     options.save = basename + ".save"
   
