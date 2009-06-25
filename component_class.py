@@ -63,22 +63,25 @@ class Component(PrintObject):
   
   def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "struct", name
-    assert name not in self.structs, "Duplicate structure definition"
+    assert name not in self.structs, "Duplicate structure definition for '%s'" % name
     
+    # Convert from list of strand names to list of strands
     for n, strand in enumerate(strands):
       strands[n] = self.strands[strand]
+    # TODO: strands = [self.strands[strand_name] for strand_name in strands]
     
     isdomain, struct = struct
     if isdomain: # This is a domain-based structure
       sub_structs = struct.split("+")
-      struct = ""
+      full_struct = ""
+      assert len(sub_structs) == len(strands), "Mismatched number of strands: structure %s.%s has %d strands, but structures %s implies %d." % (self.name, name, len(strands), struct, len(sub_structs))
       # For each strand expand out the structure
       for sub_struct, strand in zip(sub_structs, strands):
-        assert len(sub_struct) == len(strand.seqs), (self.name, name, strand.name, sub_struct, strand.seqs)
+        assert len(sub_struct) == len(strand.seqs), "Mismatch: strand %s in structure %s.%s has %d domains, but sub-structure %s implies %d" % (strand.name, self.name, name, len(strand.seqs), sub_struct, len(sub_struct))
         for dp, domain in zip(sub_struct, strand.seqs):
-          struct += dp * domain.length
-        struct += "+"
-      struct = struct[:-1] # Get rid of trailing +
+          full_struct += dp * domain.length
+        full_struct += "+"
+      struct = full_struct[:-1] # Get rid of trailing +
     self.structs[name] = Structure(name, opt, struct, *strands)
   
   def add_kinetics(self, inputs, outputs):
