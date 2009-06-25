@@ -1,8 +1,8 @@
 declare component switchA2I(spacer1in,spacer2in,spacer1out,spacer2out):  transcript_plus_in -> transcript_out
 ## Builds a switch controlled by the input activator transcript, and produces the output inhibitor transcript.
-## Activator transcripts have the form GGGAGA<spacer1><recognition:18><act_toe:9><inh_toe:7><spacer2><terminal_hairpin>.
-## Activator transcript_plus is <removal_toe:4><transcript>.
-## Inhibitor transcripts have the form GGGAGA<spacer1><toehold:8><recognition:22>TAATA<spacer2><terminal_hairpin>.
+## Activator transcripts have the form GGGAGA [spacer1] [recognition:18] [act_toe:9] [inh_toe:7] [spacer2] [terminal_hairpin].
+## Activator transcript_plus is [removal_toe:4] [transcript].
+## Inhibitor transcripts have the form GGGAGA [spacer1] [toehold:8] [recognition:22] TAATA [spacer2] [terminal_hairpin].
 
 ##lengths
 #! removal_toe = 4
@@ -35,9 +35,9 @@ sequence spacer2out = <spacer2out>N
 sequence recognition_out = <recognitionI>N
 sequence toehold_out = <toehold>N
 
-sequence transcript_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
-sequence transcript_out = pro3 spacer1out toehold_out recognition_out pro1 spacer2out hairpin1 hairpin2 hairpin1* hairpin2
-sequence transcript_plus_in = removal_toe_in pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+sup-sequence transcript_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+sup-sequence transcript_out = pro3 spacer1out toehold_out recognition_out pro1 spacer2out hairpin1 hairpin2 hairpin1* hairpin2
+sup-sequence transcript_plus_in = removal_toe_in pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
 
 ## Strands
 strand [dummy] Trans_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2

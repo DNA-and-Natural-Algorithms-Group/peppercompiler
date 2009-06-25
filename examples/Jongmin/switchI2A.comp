@@ -1,8 +1,8 @@
 declare component switchI2A(spacer1in,spacer2in,spacer1out,spacer2out):  transcript_in -> transcript_plus_out
 ## Builds a switch controlled by the input inhibitor transcript, and produces the output activator transcript.
-## Inhibitor transcripts have the form GGGAGA<spacer1><toehold:8><recognition:22>TAATA<spacer2><terminal_hairpin>.
-## Activator transcripts have the form GGGAGA<spacer1><recognition:18><act_toe:9><inh_toe:7><spacer2><terminal_hairpin>.
-## Activator transcript_plus is <removal_toe:4><transcript>.
+## Inhibitor transcripts have the form GGGAGA [spacer1] [toehold:8] [recognition:22] TAATA [spacer2] [terminal_hairpin].
+## Activator transcripts have the form GGGAGA [spacer1] [recognition:18] [act_toe:9] [inh_toe:7] [spacer2] [terminal_hairpin].
+## Activator transcript_plus is [removal_toe:4] [transcript].
 
 ##lengths
 #! recognitionI = 22
@@ -36,9 +36,9 @@ sequence inh_toe_out = <inh_toe>N
 sequence removal_toe_out = <removal_toe>N
 
 
-sequence transcript_in = pro3 spacer1in toehold_in recognition_in pro1 spacer2in hairpin1 hairpin2 hairpin1* hairpin2
-sequence transcript_out = pro3 spacer1out recognition_out act_toe_out inh_toe_out* spacer2out hairpin1 hairpin2 hairpin1* hairpin2
-sequence transcript_plus_out = removal_toe_out pro3 spacer1out recognition_out act_toe_out inh_toe_out* spacer2out hairpin1 hairpin2 hairpin1* hairpin2
+sup-sequence transcript_in = pro3 spacer1in toehold_in recognition_in pro1 spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+sup-sequence transcript_out = pro3 spacer1out recognition_out act_toe_out inh_toe_out* spacer2out hairpin1 hairpin2 hairpin1* hairpin2
+sup-sequence transcript_plus_out = removal_toe_out pro3 spacer1out recognition_out act_toe_out inh_toe_out* spacer2out hairpin1 hairpin2 hairpin1* hairpin2
 
 
 ## Strands
@@ -56,10 +56,10 @@ strand Switch_anti = transcript_out* pro3* pro2*
 ## Structures
 structure Transcript = Trans_in : domain ......(.).
 structure Activator = Act_in : domain ...
-structure TransAct = Trans_in + Act_in : domain ..((((.).+)))
+structure TransAct = Trans_in + Act_in : domain ..(((.(.).+)))
 
-structure Switch_Off = Switch_code + Switch_anti : domain ...(((+)))
-structure Switch_On  = Switch_code + Switch_anti + Act_in : domain ((((((+)))+))).
+structure Switch_Off = Switch_code + Switch_anti : domain ..(((+)))
+structure Switch_On  = Switch_code + Switch_anti + Act_in : domain (((((+)))+)).
 
 ## Kinetics involving the switch
 kinetic Activator + Switch_Off -> Switch_On
