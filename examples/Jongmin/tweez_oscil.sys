@@ -1,0 +1,11 @@
+declare system tweez_oscil: ->
+
+import activate_trans
+import inhibit_trans
+import tweezer
+
+component Act1 = activate_trans(22, 7, 5, 36): rI2 -> rA1
+component Inh1 = inhibit_trans(22, 7, 5, 36): rA1 -> rI2
+component slave = inhibit_trans(22, 7, 5, 36); rA1 -> close
+component Tweezer = tweezer(20, 15, 6): close -> 
+
