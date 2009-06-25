@@ -310,7 +310,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   subprocess.check_call(command, shell=True)
   
   # Process results
-  print "Processing results of spruriousC."
+  print "Processing results of spuriousC."
   process_result(c, sp_outname, outfilename)
   print "Done, results saved to '%s'" % outfilename
   if cleanup:
