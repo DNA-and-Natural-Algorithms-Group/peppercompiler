@@ -8,6 +8,7 @@ import re
 import string
 import tempfile
 
+## Custom regular expression wrapper
 class ParseException(Exception): pass
 
 def match(regex, line):
@@ -20,16 +21,17 @@ def match(regex, line):
   else:
     raise ParseException("regex '%s' does not match line:\n%r" % (regex, line))
 
+## Search for file in list of directories
 def search_file(filename, search_path):
   """Find a file with this name in search_path."""
   for dir in search_path:
     file_path = os.path.join(dir, filename)
     if os.path.isfile(file_path):
       return file_path
-  
   return None
 
 def search_sys_path(filename):
+  """Search for file in system path."""
   search_path = os.environ["PATH"].split(os.path.pathsep)
   return search_file(filename, search_path)
 
@@ -45,9 +47,15 @@ def green(text):
   return green_tag + text + reset_tag
 
 
+## Error and warning messages
 def error(text):
   """Return a formatted error message."""
   return red("ERROR: " + text)
+
+def warning(text):
+  """Return a formatted warning message."""
+  return red("Warning: " + text)
+
 
 def mktemp(mode, *args, **keys):
   """Creates a temporary file. Returns the file and filename.

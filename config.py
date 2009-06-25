@@ -3,6 +3,12 @@
 Configure the DNACircuitCompiler to run on your system.
 """
 
+# TODO: configure more things.
+#  * spuriousC
+#  * Multistrand
+#  * ...
+
+import sys
 import os
 
 from utils import search_file, search_sys_path, red, green
@@ -116,7 +122,12 @@ else:
 
 
 ## Write configuration file
-f = open("config_choices.py", "w")
+# We need to write the configuration file in the same directory as this script.
+path = sys.argv[0]  # path to this script
+dir = os.path.dirname(path)  # directory this script is in
+config_file = os.path.join(dir, "config_choices.py")
+
+f = open(config_file, "w")
 f.write("NUPACK = 'NUPACK'\n")
 f.write("VIENNA = 'VIENNA'\n")
 if thermo == NUPACK:

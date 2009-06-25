@@ -1,12 +1,13 @@
 """Selector for DNAfold."""
-import os
-from subprocess import CalledProcessError
+import sys
 
-if not os.path.isfile("config_choices.py"):
+from utils import error
+
+try:
+  import config_choices as config
+except ImportError:
   print error("DNA Circuit Compiler is not configured, please run config.py")
   sys.exit(1)
-
-import config_choices as config
 
 def DNAfold(seq, temp=25):
   """Run the installed thermodynamic mfe package"""
