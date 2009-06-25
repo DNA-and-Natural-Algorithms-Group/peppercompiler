@@ -126,10 +126,10 @@ class Component(PrintObject):
       outfile.write("sequence %s = %s : %d\n" % (name, seq.const, seq.length))
     
     # Define super-sequences
-    for seq in self.sup_seqs.values():
-      name = prefix + seq.name
-      const = string.join([seq.name for seq in seq.seqs], " ")
-      outfile.write("sup-sequence %s = %s : %d\n" % (name, const, seq.length))
+    for sup_seq in self.sup_seqs.values():
+      name = prefix + sup_seq.name
+      const = string.join([seq.name for seq in sup_seq.seqs], " ")
+      outfile.write("sup-sequence %s = %s : %d\n" % (name, const, sup_seq.length))
     
     # Define strands
     for strand in self.strands.values():
@@ -139,7 +139,7 @@ class Component(PrintObject):
         dummy = "[dummy]"
       else:
         dummy = ""
-      outfile.write("strands %s %s = %s : %d\n" % (dummy, name, const, seq.length))
+      outfile.write("strands %s %s = %s : %d\n" % (dummy, name, const, strand.length))
     
     # Define structures
     for struct in self.structs.values():
