@@ -327,15 +327,15 @@ if __name__ == "__main__":
   from find_file import find_file, BadFilename
   
   # Parse command line options.
-  usage = "usage: %prog [options] infilename [spuriousC parameters ...]"
+  usage = "usage: %prog [options] infilename [spuriousC_parameters ...]"
   parser = OptionParser(usage=usage)
   parser.set_defaults(verbose=False, cleanup=True)
-  parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
-  parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="Default")
+  parser.add_option("-v", "--verbose", action="store_true", dest="verbose", help="Verbose output from spuriousC")
+  parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="No output from spuriousC [Default]")
   parser.add_option("-o", "--output", help="Output file [defaults to BASENAME.mfe]", metavar="FILE")
   
   parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp)")
-  parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use. [Default]")
+  parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use [Default]")
   # TODO: parser.add_option("--reuse", action="store_true", help="Reuse the .st, .wc and .eq files if they already exist (Saves time if a session was terminated, or if you want to rerun a design).")
   (options, args) = parser.parse_args()
   options.reuse = False # TODO
