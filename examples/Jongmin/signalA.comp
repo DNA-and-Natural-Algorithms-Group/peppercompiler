@@ -46,7 +46,7 @@ strand Inh = inh_toe act_toe* recognition* removal_toe*
 strand [dummy] Switch = recognition* removal_toe* pro1 pro2 ttt pro2* 
 
 ## Structures
-structure Transcript = Trans : domain .......(.).
+structure Transcript = Trans : domain ......(.).
 
 structure Activator = Act : domain ....
 structure Inhibitor = Inh : domain ....

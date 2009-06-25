@@ -53,7 +53,7 @@ strand Switch_anti = transcript_out* pro3* pro2*
 # Sufficient kinetics and thermodynamics for design are provided in the signal module (if the dummy Switch kinetics are used there).
 
 ## Structures
-structure Transcript = Trans_in : domain .......(.).
+structure Transcript = Trans_in : domain ......(.).
 structure Activator = Act_in : domain ....
 structure Inhibitor = Inh_in : domain ....
 structure ActInh = Act_in + Inh_in : domain .(((+.)))
