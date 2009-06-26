@@ -1,5 +1,12 @@
 import re
+import sys
 
+# Extend path to see compiler library
+import sys
+here = sys.path[0] # System path to this module.
+sys.path.append(here+"/..")
+
+from utils import error
 import nupack_in_class
 from DNA_classes import group
 
@@ -46,8 +53,14 @@ def parse_struct(line):
     return name, struct
 
 def parse_seq(line):
-    sequence, name, eq, seq = line.split(None, 3) # TODO: Put in try/except for when this fails
-    assert eq == "=", "Sequence syntax incorrect" # TODO: add line and syntax
+    try:
+        sequence, name, eq, seq = line.split(None, 3) # TODO: Put in try/except for when this fails
+        assert eq == "=", "Sequence syntax incorrect" # TODO: add line and syntax
+    except (ValueError, AssertionError):
+      print error("Invalid sequence statement format:\n"
+                  "Should be: sequence <name> = <constraints>\n"
+                  "Invalid:   %s" % line)
+      sys.exit(1)
     assert set(seq).issubset( set(group.keys()) ), "Sequence constraints must be written out in allowed alphabet. %r not in %r" % (seq, group.keys())
     return name, seq
 
