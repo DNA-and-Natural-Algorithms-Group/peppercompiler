@@ -206,7 +206,7 @@ if __name__ == "__main__":
   
   from find_file import find_file
   
-  in_name = find_file(sys.argv[1])
+  infilename = find_file(sys.argv[1])
   
   # Infer the basename if a full filename is given
   basename = infilename
@@ -214,6 +214,6 @@ if __name__ == "__main__":
   if p:
     basename = p.group(1)
   # Set output file name
-  out_name = basename + ".mfe"
+  outfilename = basename + ".mfe"
   
-  design(in_name, out_name)
+  design(infilename, outfilename)
