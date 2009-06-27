@@ -142,7 +142,7 @@ class Component(PrintObject):
         dummy = "[dummy]"
       else:
         dummy = ""
-      outfile.write("strands %s %s = %s : %d\n" % (dummy, name, const, strand.length))
+      outfile.write("strand %s %s = %s : %d\n" % (dummy, name, const, strand.length))
     
     # Define structures
     for struct in self.structs.values():
