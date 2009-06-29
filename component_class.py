@@ -131,13 +131,13 @@ class Component(PrintObject):
     # Define super-sequences
     for sup_seq in self.sup_seqs.values():
       name = prefix + sup_seq.name
-      const = string.join([seq.name for seq in sup_seq.seqs], " ")
+      const = string.join([prefix + seq.name for seq in sup_seq.seqs], " ")
       outfile.write("sup-sequence %s = %s : %d\n" % (name, const, sup_seq.length))
     
     # Define strands
     for strand in self.strands.values():
       name = prefix + strand.name
-      const = string.join([seq.name for seq in strand.seqs], " ")
+      const = string.join([prefix + seq.name for seq in strand.seqs], " ")
       if strand.dummy:
         dummy = "[dummy]"
       else:
@@ -147,14 +147,14 @@ class Component(PrintObject):
     # Define structures
     for struct in self.structs.values():
       name = prefix + struct.name
-      strands = string.join([strand.name for strand in struct.strands], " + ")
+      strands = string.join([prefix + strand.name for strand in struct.strands], " + ")
       outfile.write("structure [%dnt] %s = %s : %s\n" % (struct.opt, name, strands, struct.struct))
     
     # Define kinetics
     for kin in self.kinetics.values():
       # name = prefix + kin.name
-      inputs = string.join([struct.name for struct in kin.inputs], " + ")
-      outputs = string.join([struct.name for struct in kin.outputs], " + ")
+      inputs = string.join([prefix + struct.name for struct in kin.inputs], " + ")
+      outputs = string.join([prefix + struct.name for struct in kin.outputs], " + ")
       outfile.write("kinetic %s -> %s\n" % (inputs, outputs))
   
   
