@@ -1,4 +1,4 @@
-declare component activate_trans(act, toe, spacer, out): in -> out
+declare component activate_trans(act, toe, spacer, out): in (Transcript_In) -> out (Transcript_Out)
 
 ## Sequences
 # promoter region
