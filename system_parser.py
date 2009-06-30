@@ -63,7 +63,7 @@ document.ignore(pythonStyleComment)
 
 
 
-def load_system(filename, args, path):
+def load_system(filename, args, prefix, path):
   """Load system connectivity file"""
   try:
     # Open file and do parameter substitution
@@ -86,7 +86,7 @@ def load_system(filename, args, path):
   
   x, name, params, inputs, outputs = declare
   # Build data
-  system = System(path, name, params)
+  system = System(path, name, prefix, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == import_:

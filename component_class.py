@@ -7,8 +7,9 @@ DEBUG = False
 
 class Component(PrintObject):
   """Stores information for a DNA component"""
-  def __init__(self, name, params):
+  def __init__(self, name, prefix, params):
     self.name = name
+    self.prefix = prefix  # Prefix for all sequences, structs, etc. in this component.
     self.params = params
     
     self.seqs = ordered_dict()
@@ -24,8 +25,9 @@ class Component(PrintObject):
   def add_sequence(self, name, const, length):
     if DEBUG: print "sequence", name
     assert name not in self.seqs, "Duplicate sequence definition"
-    self.seqs[name] = Sequence(name, length, *const)
-    self.base_seqs[name] = self.seqs[name]
+    seq = Sequence(name, length, *const)
+    seq.full_name = self.prefix + name
+    self.base_seqs[name] = self.seqs[name] = seq
   
   def add_super_sequence(self, name, const, length):
     if DEBUG: print "sup-sequence", name
@@ -37,13 +39,14 @@ class Component(PrintObject):
           const[n] = ~self.seqs[seq_name]
         else:
           const[n] =  self.seqs[seq_name]
-    self.seqs[name] = SuperSequence(name, length, *const)
-    self.sup_seqs[name] = self.seqs[name]
+    seq = SuperSequence(name, length, *const)
+    seq.full_name = self.prefix + name
+    self.sup_seqs[name] = self.seqs[name] = seq
     # Add references junk sequences
-    for seq in self.sup_seqs[name].seqs:
-      if isinstance(seq, JunkSequence):
-        self.seqs[seq.name] = seq
-        self.base_seqs[seq.name] = seq
+    for sub_seq in self.sup_seqs[name].seqs:
+      if isinstance(sub_seq, JunkSequence):
+        self.seqs[seq.name] = sub_seq
+        self.base_seqs[seq.name] = sub_seq
   
   def add_strand(self, dummy, name, const, length):
     if DEBUG: print "strand", name
@@ -56,6 +59,7 @@ class Component(PrintObject):
         else:
           const[n] =  self.seqs[seq_name]
     self.strands[name] = Strand(name, dummy, length, *const)
+    self.strands[name].full_name = self.prefix + name
     # Add references junk sequences
     for seq in self.strands[name].seqs:
       if isinstance(seq, JunkSequence):
@@ -84,6 +88,7 @@ class Component(PrintObject):
         full_struct += "+"
       struct = full_struct[:-1] # Get rid of trailing +
     self.structs[name] = Structure(name, opt, struct, *strands)
+    self.structs[name].full_name = self.prefix + name
   
   def add_kinetics(self, inputs, outputs):
     if DEBUG: print "kin", self.kin_num
@@ -97,6 +102,7 @@ class Component(PrintObject):
     name = "Kin%d" % self.kin_num
     self.kin_num += 1
     self.kinetics[name] = Kinetics(name, list(inputs), list(outputs))
+    self.kinetics[name].full_name = self.prefix + name
   
   def add_IO(self, inputs, outputs):
     """Add I/O information once we've read the component."""

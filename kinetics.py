@@ -28,16 +28,16 @@ def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=1.0, out_i
   ins = []
   for struct in kin.inputs:
     # And add the starting complexes/structures
-    strand_names = [strand.name for strand in struct.strands]
+    strand_names = [strand.full_name for strand in struct.strands]
     ins.append( Complex(strand_names, struct.struct) )
     # Keep track of strands that will be used
     for strand in struct.strands:
-      assert strand.name not in used_strands
-      used_strands[strand.name] = strand.seq
+      assert strand.full_name not in used_strands, (strand, used_strands) # Sanity check
+      used_strands[strand.full_name] = strand.seq
   
   outs = []
   for struct in kin.outputs:
-    strand_names = [strand.name for strand in struct.strands]
+    strand_names = [strand.full_name for strand in struct.strands]
     outs.append( Complex(strand_names, "DISASSOC") )
   # HACK: Multistrand doesn't work with multiple DISASSOC structures, 
   #   we just wait for the first one to form.
@@ -52,13 +52,15 @@ def test_spuradic(structs, cleanup, trials=24, time=10, temp=25, conc=1.0, out_i
   used_strands = ordered_dict()
   ins = []
   for i, struct in enumerate(structs):
+    # We must be able to distinguish two strands which are actually the same 
+    #   strand and thus have the same name. Thus we add a struct # i at the end.
     i = str(i)
     # And add the starting complexes/structures
-    strand_names = [strand.name + i for strand in struct.strands]
+    strand_names = [strand.full_name + i for strand in struct.strands]
     ins.append( Complex(strand_names, struct.struct) )
     # Keep track of strands that will be used
     for strand in struct.strands:
-      name = strand.name + i
+      name = strand.full_name + i
       assert name not in used_strands
       used_strands[name] = strand.seq
   

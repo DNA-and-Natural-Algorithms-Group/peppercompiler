@@ -9,7 +9,7 @@ from utils import ordered_dict, default_ordered_dict, PrintObject
 
 DEBUG = False
 
-def load_file(basename, args, path="."):
+def load_file(basename, args, prefix, path="."):
   """Load the file basename.(sys|comp) with args from path."""
   # Imported in the function to avoid circular import error.
   import os
@@ -29,17 +29,18 @@ def load_file(basename, args, path="."):
   assert not (issys and iscomp), "Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name)
   
   if issys:
-    return load_system(sys_name, args, new_path)
+    return load_system(sys_name, args, prefix, new_path)
   
   else: # iscomp
-    return load_component(comp_name, args)
+    return load_component(comp_name, args, prefix)
 
 class System(PrintObject):
   """Stores all the information in a system's connectivity file"""
-  def __init__(self, path, name, params):
+  def __init__(self, path, name, prefix, params):
     """Initialized the cicuit with the declare statement"""
     self.path = path  # Filesystem path to load components relative to.
     self.name = name
+    self.prefix = prefix  # Prefix for all sub-components.
     
     self.template = ordered_dict()
     self.signals = ordered_dict()
@@ -74,13 +75,13 @@ class System(PrintObject):
     # Setup components
     assert templ_name in self.template, "Template referenced before import: " + templ_name
     assert comp_name not in self.components, "Duplicate component definition: " + comp_name
-    self.components[comp_name] = this_comp = load_file(self.template[templ_name], templ_args, self.path)
+    self.components[comp_name] = this_comp = load_file(self.template[templ_name], templ_args, self.prefix + comp_name + "-", self.path)
     assert len(inputs) == len(this_comp.input_seqs),   "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len( inputs), len(this_comp.input_seqs ))
     assert len(outputs) == len(this_comp.output_seqs), "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len(outputs), len(this_comp.output_seqs))
     # Constrain all component inputs and outputs
     ### TODO: marry these 2 together in a more eligent way.
     if isinstance(this_comp, System): # If it's actually a system
-      for (glob_name, glob_wc), (loc_name, loc_wc) in zip(list(inputs)+list(outputs), this_comp.inputs+this_comp.outputs):
+      for (glob_name, glob_wc), (loc_name, loc_wc) in zip(list(inputs)+list(outputs), this_comp.input_seqs+this_comp.output_seqs):
         wc = (glob_wc != loc_wc)  # Are these signals complementary?
         if glob_name not in self.signals:
           self.signals[glob_name] = [(loc_name, comp_name, wc)]
@@ -88,6 +89,15 @@ class System(PrintObject):
         else:
           self.signals[glob_name].append( (loc_name, comp_name, wc) )
           assert self.lengths[glob_name] == this_comp.lengths[loc_name]
+      # Collect structures that could represent signals
+      for (glob_name, glob_wc), loc_structs in zip(list(outputs), this_comp.output_structs):
+        # TODO: deal with the wc aspect of this appropriately.
+        self.signal_structs[glob_name] += loc_structs
+      # ... and point all dummy inputs to those actual structures.
+      for (glob_name, glob_wc), loc_structs in zip(list(inputs), this_comp.input_structs):
+        # TODO: deal with the wc aspect of this appropriately.
+        for loc_struct in loc_structs:
+          loc_struct.actual_structs = self.signal_structs[glob_name]
     else: # Otherwise it's a component, so we want to constrain sequences
       for (glob_name, glob_wc), loc_seq in zip(list(inputs)+list(outputs), this_comp.input_seqs+this_comp.output_seqs):
         wc = (glob_wc != loc_seq.reversed)  # Are these signals complementary?
@@ -118,15 +128,19 @@ class System(PrintObject):
   
   def add_IO(self, inputs, outputs):
     """Add I/O information once we've read the component."""
-    self.inputs = []
+    self.input_seqs = []
+    self.input_structs = []
     for seq_name, wc in inputs:
       assert seq_name in self.signals
-      self.inputs.append( (seq_name, wc) )
+      self.input_seqs.append( (seq_name, wc) )
+      self.input_structs.append( self.signal_structs[seq_name] )
     
-    self.outputs = []
+    self.output_seqs = []
+    self.output_structs = []
     for seq_name, wc in outputs:
       assert seq_name in self.signals
-      self.outputs.append( (seq_name, wc) )
+      self.output_seqs.append( (seq_name, wc) )
+      self.output_structs.append( self.signal_structs[seq_name] )
   
   
   def output_synthesis(self, prefix, outfile):

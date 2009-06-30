@@ -29,7 +29,7 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False)
   
   print "Compiling '%s' ..." % basename
   # Read in system (or component)
-  system = load_file(basename, args)
+  system = load_file(basename, args, prefix="")
   
   if fixed_file:
     print "Fixing sequences from file '%s'" % fixed_file

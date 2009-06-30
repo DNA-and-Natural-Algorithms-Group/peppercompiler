@@ -113,7 +113,7 @@ document.ignore(pythonStyleComment)
 
 
 
-def load_component(filename, args):
+def load_component(filename, args, prefix):
   """Load component file"""
   try:
     # Open file and do parameter substitution
@@ -136,7 +136,7 @@ def load_component(filename, args):
   
   x, name, params, inputs, outputs = declare
   # Build data
-  component = Component(name, params)
+  component = Component(name, prefix, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == seq:

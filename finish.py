@@ -91,7 +91,7 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
     print "Input structures to be tested for spuradic kinetics."
     for struct1 in system.structs.values():
       for struct2 in system.structs.values():
-        print "Testing spurious kinetics of:", struct1.name, struct2.name
+        print "Testing spurious kinetics of:", struct1.full_name, struct2.full_name
         try:
           process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, spurious_time, temp, conc))
         except CalledProcessError, e:
@@ -164,10 +164,10 @@ def print_kin(kin, gate_name):
   print
   print "kinetic", gate_name, ":",
   for struct in kin.inputs:
-    print struct.name,
+    print struct.full_name,
   print "->",
   for struct in kin.outputs:
-    print struct.name,
+    print struct.full_name,
   print
   sys.stdout.flush()
 
