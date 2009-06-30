@@ -136,10 +136,14 @@ class default_ordered_dict(ordered_dict):
     self.call = call
     ordered_dict.__init__(self)
   def __getitem__(self, key):
-    if not self.call:
-      return self.get(key, self.default)
-    else:
-      return self.get(key, self.default())
+    """Get key. If it doesn't exist, set it to default first."""
+    if key not in self:
+      if not self.call:
+        self[key] = self.default
+      else:
+        self[key] = self.default()
+    
+    return self.get(key)
 
 class ordered_set(set):
   """A standard set that remembers the order you added items in.

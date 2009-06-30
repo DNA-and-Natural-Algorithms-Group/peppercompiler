@@ -19,6 +19,7 @@ class Component(PrintObject):
     self.kinetics = ordered_dict()
     self.kin_num = 0
   
+  
   ## Add information from document statements to object
   def add_sequence(self, name, const, length):
     if DEBUG: print "sequence", name
@@ -99,23 +100,39 @@ class Component(PrintObject):
   
   def add_IO(self, inputs, outputs):
     """Add I/O information once we've read the component."""
-    self.inputs = []
-    for seq_name, wc in inputs:
-      assert seq_name in self.seqs
+    self.input_seqs = []
+    self.input_structs = []
+    for (seq_name, wc), struct_name in inputs:
+      assert seq_name in self.seqs, "Declare statement in component '%s' references undefined sequence '%s'" % (self.name, seq_name)
       if wc:
-        self.inputs.append( self.seqs[seq_name].wc )
+        self.input_seqs.append( self.seqs[seq_name].wc )
       else:
-        self.inputs.append( self.seqs[seq_name] )
+        self.input_seqs.append( self.seqs[seq_name] )
+      
+      if struct_name:
+        assert struct_name in self.structs, "Declare statement in component '%s' references undefined structure '%s'" % (self.name, struct_name)
+        self.input_structs.append( self.structs[struct_name] )
+      else:
+        self.input_structs.append(None)
     
-    self.outputs = []
-    for seq_name, wc in outputs:
-      assert seq_name in self.seqs
+    self.output_seqs = []
+    self.output_structs = []
+    for (seq_name, wc), struct_name in outputs:
+      assert seq_name in self.seqs, "Declare statement in component '%s' references undefined sequence '%s'" % (self.name, seq_name)
       if wc:
-        self.outputs.append( self.seqs[seq_name].wc )
+        self.output_seqs.append( self.seqs[seq_name].wc )
       else:
-        self.outputs.append( self.seqs[seq_name] )
+        self.output_seqs.append( self.seqs[seq_name] )
+      
+      if struct_name:
+        assert struct_name in self.structs, "Declare statement in component '%s' references undefined structure '%s'" % (self.name, struct_name)
+        self.output_structs.append( self.structs[struct_name] )
+      else:
+        self.input_structs.append(None)
+        
   
   
+  ## Outputs
   def output_synthesis(self, prefix, outfile):
     """Output synthesis of all data into a single file."""
     if prefix:

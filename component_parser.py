@@ -60,12 +60,6 @@ seq_const_list = List(seq_const)
 seq_name = Word(lowers, alphanums+"_") # Sequence name starts with lower case
 seq_var = Group(H("Sequence") + Group(seq_name + Flag("*")))
 
-# Signals used in the declare line seq
-signal_var = Group(seq_name + Flag("*"))
-# TODO: Allow structures in signal
-#signal_var = Group(Group(seq_name + Optional("*", default="")) + 
-#                   Optional(S("(") + struct_var + S(")")))
-
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
 #  2) A sequence variable (possibly complimented with *) (Must start with lowercase letter)
@@ -73,6 +67,10 @@ strand_const = seq_const | seq_var
 
 strand_var = var
 struct_var = var
+
+# Signals used in the declare line seq
+signal_var = Group(Group(seq_name + Flag("*")) + 
+                   Optional(S("(") + struct_var + S(")"), default=None))
 
 # Secondary structure can be dot-paren, extended dot-paren or HU notation.
 # 'domain' keyword means that the helix/unpaired segments are by domain

@@ -5,7 +5,7 @@ The System class stores all of the information in a system file.
 import string
 
 import DNA_classes
-from utils import ordered_dict, PrintObject
+from utils import ordered_dict, default_ordered_dict, PrintObject
 
 DEBUG = False
 
@@ -22,15 +22,17 @@ def load_file(basename, args, path="."):
   sys_name = basename+".sys"   # Name if file is a system specification
   comp_name = basename+".comp" # Name if file is a component spec.
   
-  if os.path.isfile(sys_name):
-    assert not os.path.isfile(comp_name), "Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name)
+  issys = os.path.isfile(sys_name)   # Is it a system file?
+  iscomp = os.path.isfile(comp_name) # Is it a component file?
+  
+  assert issys or iscomp, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
+  assert not (issys and iscomp), "Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name)
+  
+  if issys:
     return load_system(sys_name, args, new_path)
   
-  elif os.path.isfile(comp_name):
+  else: # iscomp
     return load_component(comp_name, args)
-  
-  else:
-    raise Exception, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
 
 class System(PrintObject):
   """Stores all the information in a system's connectivity file"""
@@ -42,6 +44,7 @@ class System(PrintObject):
     self.template = ordered_dict()
     self.signals = ordered_dict()
     self.lengths = ordered_dict()
+    self.signal_structs = default_ordered_dict(list, call=True)
     self.components = ordered_dict()
     
     # Pointers to subcomponent's objects
@@ -61,7 +64,7 @@ class System(PrintObject):
         if "/" not in path:
           name = path
         else:
-          name = path[path.rfind("/")+1:]  # Strip off lower directories
+          name = path.split("/")[-1]  # Strip off lower directories
       if DEBUG: print "import", name, path
       assert name not in self.template, "Duplicate import %s" % name
       self.template[name] = path
@@ -72,8 +75,8 @@ class System(PrintObject):
     assert templ_name in self.template, "Template referenced before import: " + templ_name
     assert comp_name not in self.components, "Duplicate component definition: " + comp_name
     self.components[comp_name] = this_comp = load_file(self.template[templ_name], templ_args, self.path)
-    assert len(inputs) == len(this_comp.inputs),   "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len( inputs), len(this_comp.inputs ))
-    assert len(outputs) == len(this_comp.outputs), "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len(outputs), len(this_comp.outputs))
+    assert len(inputs) == len(this_comp.input_seqs),   "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len( inputs), len(this_comp.input_seqs ))
+    assert len(outputs) == len(this_comp.output_seqs), "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len(outputs), len(this_comp.output_seqs))
     # Constrain all component inputs and outputs
     ### TODO: marry these 2 together in a more eligent way.
     if isinstance(this_comp, System): # If it's actually a system
@@ -86,7 +89,7 @@ class System(PrintObject):
           self.signals[glob_name].append( (loc_name, comp_name, wc) )
           assert self.lengths[glob_name] == this_comp.lengths[loc_name]
     else: # Otherwise it's a component, so we want to constrain sequences
-      for (glob_name, glob_wc), loc_seq in zip(list(inputs)+list(outputs), this_comp.inputs+this_comp.outputs):
+      for (glob_name, glob_wc), loc_seq in zip(list(inputs)+list(outputs), this_comp.input_seqs+this_comp.output_seqs):
         wc = (glob_wc != loc_seq.reversed)  # Are these signals complementary?
         if glob_name not in self.signals:
           self.signals[glob_name] = [(loc_seq, comp_name, wc)]
@@ -94,6 +97,15 @@ class System(PrintObject):
         else:
           self.signals[glob_name].append( (loc_seq, comp_name, wc) )
           assert self.lengths[glob_name] == loc_seq.length
+      # Collect structures that could represent signals
+      for (glob_name, glob_wc), loc_struct in zip(list(outputs), this_comp.output_structs):
+        # TODO: deal with the wc aspect of this appropriately.
+        self.signal_structs[glob_name].append(loc_struct)
+      # ... and point all dummy inputs to those actual structures.
+      for (glob_name, glob_wc), loc_struct in zip(list(inputs), this_comp.input_structs):
+        # TODO: deal with the wc aspect of this appropriately.
+        if loc_struct:
+          loc_struct.actual_structs = self.signal_structs[glob_name]
     
     # Point to all objects in the component
     # For each type of object: seqs, strands, ...

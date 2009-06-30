@@ -3,6 +3,7 @@ from __future__ import division
 
 import sys
 import string
+import copy
 from subprocess import CalledProcessError
 
 from compiler import load
@@ -118,23 +119,57 @@ def apply_design(system, seqs):
     assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
 
 
+def choices(x):
+  """
+  Takes a list of lists x and returns all possible choices of one element from each sublist.
+  
+  >>> choices([range(2), range(3), ["foo"]])
+  [ [0, 0, "foo"], [0, 1, "foo"], [0, 2, "foo"], [1, 0, "foo"], [1, 1, "foo"], [1, 2, "foo"] ]
+  """
+  if len(x) == 0:
+    return [[]]
+  
+  else:
+    res = []
+    for item in x[0]:
+      res += [ [item] + sub for sub in choices(x[1:]) ]
+    return res
+
 # TODO: get rid of need for component, so get rid of recursion.
 def kinetic(component, prefix, cleanup, trials, time, temp, conc):
   """Test all kinetic pathways in a component."""
   for kin in component.kinetics.values():
-    # Print testing info
-    print
-    print "kinetic", prefix[:-1], ":",
-    for compl in kin.inputs:
-      print compl.name,
-    print "->",
-    for compl in kin.outputs:
-      print compl.name,
-    print
-    sys.stdout.flush()
+    ## First, we gather the set of all possible input structures.
+    pos_inputs = [None] * len(kin.inputs)
+    for n, struct in enumerate(kin.inputs):
+      # If this is a dummy input structure and there are actual structures that will replace it
+      if struct in component.input_structs and struct.actual_structs:
+        # ... then we list these structures
+        pos_inputs[n] = struct.actual_structs
+      # Otherwise, we just use the dummy default structure.
+      else:
+        pos_inputs[n] = [struct]
     
-    # Call Multistrand instances and process results
-    process_kinetics(test_kinetics(kin, cleanup, trials, time, temp, conc))
+    new_kin = copy.copy(kin)
+    ## Next, we test each permutation of input structures.
+    print_kin(kin, prefix[:-1])
+    for inputs in choices(pos_inputs):
+      new_kin.inputs = inputs
+      print_kin(new_kin, prefix[:-1])
+      res = test_kinetics(new_kin, cleanup, trials, time, temp, conc)
+      process_kinetics(res)
+
+def print_kin(kin, gate_name):
+  """Print kinetic testing info"""
+  print
+  print "kinetic", gate_name, ":",
+  for struct in kin.inputs:
+    print struct.name,
+  print "->",
+  for struct in kin.outputs:
+    print struct.name,
+  print
+  sys.stdout.flush()
 
 def process_kinetics(ret):
   """Process results of multistrand and print summary, etc."""
