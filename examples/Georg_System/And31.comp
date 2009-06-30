@@ -1,4 +1,4 @@
-declare component And31(t, di1, di2, di3, do, c, end): x + y + z -> out
+declare component And31(t, di1, di2, di3, do, c, end): x(InX) + y(InY) + z(InZ) -> out(OUT)
 
 sequence tx = ?N : <t>
 sequence dx = ?N : <di1>

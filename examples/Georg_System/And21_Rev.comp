@@ -1,4 +1,4 @@
-declare component And21_Rev(t, di1, di2, do, c, end): x + y -> out
+declare component And21_Rev(t, di1, di2, do, c, end): x(InX) + y(InY) -> out(OUT)
 
 sequence tx = ?N : <t>
 sequence dx = ?N : <di1>

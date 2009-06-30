@@ -1,4 +1,4 @@
-declare component Translate_Loop(t, di, do, c, end): in -> out
+declare component Translate_Loop(t, di, do, c, end): in(IN) -> out(OUT)
 
 sequence toe_in = ?N : <t>
 sequence data_in = ?N : <di>
