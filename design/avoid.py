@@ -14,7 +14,7 @@ import sys
 import random
 
 from spurious_design import NOTHING
-import DNA_classes
+import DNA_nupack_classes as DNA_classes
 
 def last(n, foo):
   """Gets the last n items in foo."""

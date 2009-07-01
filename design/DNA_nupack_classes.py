@@ -27,8 +27,6 @@ class Sequence(object):
     return self.wc
   def get_seq(self):
     return self.seq
-  def __repr__(self):
-    return "Sequence(%(name)r, %(seq)r)" % self.__dict__
 
 class ReverseSequence(Sequence):
   """Complements of defined sequences"""
@@ -40,8 +38,6 @@ class ReverseSequence(Sequence):
     self.wc = wc
   def get_seq(self):
     return seq_comp(self.wc.seq)
-  def __repr__(self):
-    return "~Sequence(%(name)r, %(seq)r)" % self.wc.__dict__
 
 def get_bonds(struct):
   bonds = []

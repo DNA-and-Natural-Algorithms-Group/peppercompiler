@@ -9,7 +9,7 @@ import random
 import string
 
 from nupack_in_parser import load_design
-from DNA_classes import group, complement
+from DNA_nupack_classes import group, complement
 
 # Extend path to see compiler library
 import sys

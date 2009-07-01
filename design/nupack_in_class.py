@@ -1,4 +1,4 @@
-from DNA_classes import *
+from DNA_nupack_classes import *
 
 # Extend path to see compiler library
 import sys

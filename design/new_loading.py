@@ -8,7 +8,7 @@ sys.path.append(here+"/..")
 
 from utils import error
 import nupack_in_class
-from DNA_classes import group
+from DNA_nupack_classes import group
 
 def load_file(filename):
   """Load a NUPACK style input file."""

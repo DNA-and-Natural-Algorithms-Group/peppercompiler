@@ -9,7 +9,7 @@ import subprocess
 import os
 
 from new_loading import load_file
-from DNA_classes import group, rev_group, complement
+from DNA_nupack_classes import group, rev_group, complement
 
 # Extend path to see compiler library
 import sys
