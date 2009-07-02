@@ -103,7 +103,7 @@ opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
 struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, "+") + S(":") + secondary_struct
 
 # kin <inputs> -> <outputs>
-kin_stat = K(kin) + List(struct_var, O("+")) + S("->") + List(struct_var, "+")
+kin_stat = K(kin) + List(struct_var, "+") + S("->") + List(struct_var, "+")
 
 
 statement = seq_stat | sup_seq_stat | strand_stat | struct_stat | kin_stat
