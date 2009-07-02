@@ -1,6 +1,7 @@
+import sys
 import string
 
-from utils import ordered_dict, PrintObject
+from utils import ordered_dict, PrintObject, error
 from DNA_classes import *
 
 DEBUG = False
@@ -20,18 +21,27 @@ class Component(PrintObject):
     self.kinetics = ordered_dict()
     self.kin_num = 0
   
+  def assert_(self, statement, message):
+    """Raise error if statement is false. Adds component information to message."""
+    prefix = "In component %s: " % self.name
+    if not statement:
+      print error(prefix + message)
+      sys.exit(1)
   
   ## Add information from document statements to object
   def add_sequence(self, name, const, length):
     if DEBUG: print "sequence", name
-    assert name not in self.seqs, "Duplicate sequence definition"
-    seq = Sequence(name, length, *const)
+    self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
+    try:
+      seq = Sequence(name, length, *const)
+    except AssertionError, e:
+      self.assert_(False, str(e))
     seq.full_name = self.prefix + name
     self.base_seqs[name] = self.seqs[name] = seq
   
   def add_super_sequence(self, name, const, length):
     if DEBUG: print "sup-sequence", name
-    assert name not in self.seqs, "Duplicate sequence definition"
+    self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     for n, item in enumerate(const):
       if item[0] == "Sequence":
         seq_name, wc = item[1]
@@ -39,18 +49,21 @@ class Component(PrintObject):
           const[n] = ~self.seqs[seq_name]
         else:
           const[n] =  self.seqs[seq_name]
-    seq = SuperSequence(name, length, *const)
+    try:
+      seq = SuperSequence(name, length, *const)
+    except AssertionError, e:
+      self.assert_(False, str(e))
     seq.full_name = self.prefix + name
     self.sup_seqs[name] = self.seqs[name] = seq
-    # Add references junk sequences
+    # Add anonymous sequences
     for sub_seq in self.sup_seqs[name].seqs:
-      if isinstance(sub_seq, JunkSequence):
+      if isinstance(sub_seq, AnonymousSequence):
         self.seqs[seq.name] = sub_seq
         self.base_seqs[seq.name] = sub_seq
   
   def add_strand(self, dummy, name, const, length):
     if DEBUG: print "strand", name
-    assert name not in self.strands, "Duplicate strand definition"
+    self.assert_( name not in self.strands, "Duplicate strand definition for '%s'" % name )
     for n, item in enumerate(const):
       if item[0] == "Sequence":
         seq_name, wc = item[1]
@@ -58,45 +71,51 @@ class Component(PrintObject):
           const[n] = ~self.seqs[seq_name]
         else:
           const[n] =  self.seqs[seq_name]
-    self.strands[name] = Strand(name, dummy, length, *const)
+    try:
+      self.strands[name] = Strand(name, dummy, length, *const)
+    except AssertionError, e:
+      self.assert_(False, str(e))
     self.strands[name].full_name = self.prefix + name
-    # Add references junk sequences
+    # Add anonymous sequences
     for seq in self.strands[name].seqs:
-      if isinstance(seq, JunkSequence):
+      if isinstance(seq, AnonymousSequence):
         self.seqs[seq.name] = seq
         self.base_seqs[seq.name] = seq
   
   def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "struct", name
-    assert name not in self.structs, "Duplicate structure definition for '%s'" % name
+    self.assert_( name not in self.structs, "Duplicate structure definition for '%s'" % name )
     
     # Convert from list of strand names to list of strands
     for n, strand in enumerate(strands):
+      self.assert_( strand in self.strands, "Strand '%s' referenced before definion (in structure '%s')" % (strand, name) )
       strands[n] = self.strands[strand]
-    # TODO: strands = [self.strands[strand_name] for strand_name in strands]
     
     isdomain, struct = struct
     if isdomain: # This is a domain-based structure
       sub_structs = struct.split("+")
       full_struct = ""
-      assert len(sub_structs) == len(strands), "Mismatched number of strands: structure %s.%s has %d strands, but structures %s implies %d." % (self.name, name, len(strands), struct, len(sub_structs))
+      self.assert_( len(sub_structs) == len(strands), "Mismatched number of strands: Structure %s has %d strands, but structures %s implies %d." % (name, len(strands), struct, len(sub_structs)) )
       # For each strand expand out the structure
       for sub_struct, strand in zip(sub_structs, strands):
-        assert len(sub_struct) == len(strand.seqs), "Mismatch: strand %s in structure %s.%s has %d domains, but sub-structure %s implies %d" % (strand.name, self.name, name, len(strand.seqs), sub_struct, len(sub_struct))
+        self.assert_( len(sub_struct) == len(strand.seqs), "Mismatch: Strand %s in structure %s has %d domain(s), but sub-structure %s implies %d" % (strand.name, name, len(strand.seqs), sub_struct, len(sub_struct)) )
         for dp, domain in zip(sub_struct, strand.seqs):
           full_struct += dp * domain.length
         full_struct += "+"
       struct = full_struct[:-1] # Get rid of trailing +
-    self.structs[name] = Structure(name, opt, struct, *strands)
+    try:
+      self.structs[name] = Structure(name, opt, struct, *strands)
+    except AssertionError, e:
+      self.assert_(False, str(e))
     self.structs[name].full_name = self.prefix + name
   
   def add_kinetics(self, inputs, outputs):
     if DEBUG: print "kin", self.kin_num
     for n, struct in enumerate(inputs):
-      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.name, struct)
+      self.assert_( struct in self.structs, "Kinetic statement uses structure '%s' before it is defined." % struct )
       inputs[n] = self.structs[struct]
     for n, struct in enumerate(outputs):
-      assert struct in self.structs, "Kinetic statement in component '%s' uses structure '%s' before it is defined." % (self.name, struct)
+      self.assert_( struct in self.structs, "Kinetic statement uses structure '%s' before it is defined." % struct )
       outputs[n] = self.structs[struct]
     
     name = "Kin%d" % self.kin_num
@@ -109,14 +128,14 @@ class Component(PrintObject):
     self.input_seqs = []
     self.input_structs = []
     for (seq_name, wc), struct_name in inputs:
-      assert seq_name in self.seqs, "Declare statement in component '%s' references undefined sequence '%s'" % (self.name, seq_name)
+      self.assert_( seq_name in self.seqs, "Declare statement references undefined sequence '%s'" % seq_name )
       if wc:
         self.input_seqs.append( self.seqs[seq_name].wc )
       else:
         self.input_seqs.append( self.seqs[seq_name] )
       
       if struct_name:
-        assert struct_name in self.structs, "Declare statement in component '%s' references undefined structure '%s'" % (self.name, struct_name)
+        self.assert_( struct_name in self.structs, "Declare statement references undefined structure '%s'" %  struct_name )
         self.input_structs.append( self.structs[struct_name] )
       else:
         self.input_structs.append(None)
@@ -124,14 +143,14 @@ class Component(PrintObject):
     self.output_seqs = []
     self.output_structs = []
     for (seq_name, wc), struct_name in outputs:
-      assert seq_name in self.seqs, "Declare statement in component '%s' references undefined sequence '%s'" % (self.name, seq_name)
+      self.assert_( seq_name in self.seqs, "Declare statement references undefined sequence '%s'" % seq_name )
       if wc:
         self.output_seqs.append( self.seqs[seq_name].wc )
       else:
         self.output_seqs.append( self.seqs[seq_name] )
       
       if struct_name:
-        assert struct_name in self.structs, "Declare statement in component '%s' references undefined structure '%s'" % (self.name, struct_name)
+        self.assert_( struct_name in self.structs, "Declare statement references undefined structure '%s'" %  struct_name )
         self.output_structs.append( self.structs[struct_name] )
       else:
         self.output_structs.append(None)

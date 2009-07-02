@@ -28,16 +28,16 @@ class Sequence(object):
     const = list(constraints)
     lengths = [num for num, code in const]
     wilds = lengths.count(WILDCARD)
-    assert wilds <= 1, "Too many wildcards in sequence"
+    assert wilds <= 1, "Too many wildcards in sequence %s" % name
     if wilds == 0: # no wildcards
       self.length = sum(lengths)
       if length != None:
-        assert self.length == length, "Sequence length mismatch. %s: %r != %r" % (name, self.length, length)
+        assert self.length == length, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, length)
     else: # one wildcard
       self.length = length
       check_length = sum([x for x in lengths if x != WILDCARD])
       delta = length - check_length
-      assert delta >= 0, "Sequence length mismatch"
+      assert delta >= 0, "Sequence %s too short (%r > %r)" % (name, length, check_length)
       i = lengths.index(WILDCARD)
       const[i] = (delta, const[i][1])
     
@@ -54,7 +54,7 @@ class Sequence(object):
     for const_nt, fixed_nt in zip(self.const, fixed_seq):
       const_set = set(group[const_nt])
       fixed_set = set(group[fixed_nt])
-      assert fixed_set.issubset( const_set ), "You cannot fix a sequence to something it is not allowed to be."
+      assert fixed_set.issubset( const_set ), "fix_seq: sequence %s is not a subset of constraint %s for sequence %s" % (fixed_seq, self.const, self.name)
     self.const = fixed_seq
   
   def __invert__(self):
@@ -74,13 +74,13 @@ class ReverseSequence(Sequence):
   def __repr__(self):
     return "~Sequence(%(name)r, %(length)r, %(const)r)" % self.wc.__dict__
 
-class JunkSequence(Sequence):
-  """Sequences we don't need lables for"""
-  junk_num = 0
+class AnonymousSequence(Sequence):
+  """Sequences we didn't lable and are thus anonymous."""
+  num = 0
   def __init__(self, length, *const):
-    name = "_Junk"+repr(JunkSequence.junk_num)
+    name = "_Anon"+repr(AnonymousSequence.num)
     Sequence.__init__(self, name, length, *const)
-    JunkSequence.junk_num += 1
+    AnonymousSequence.num += 1
 
 
 class SuperSequence(object):
@@ -106,29 +106,29 @@ class SuperSequence(object):
         self.base_seqs.append(item)
         self.length += item.length
       else:
-        # Otherwise it's a junk constraint
-        ### TODO-maybe: combine adjacent junk sections together into one
+        # Otherwise it's a anonymous constraint
+        ### TODO-maybe: combine adjacent anonymous sections together into one
         num, code = item
         if num != WILDCARD:
-          junk_seq = JunkSequence(num, item)
-          self.seqs.append(junk_seq)
-          self.base_seqs.append(junk_seq)
-          self.length += junk_seq.length
+          anon_seq = AnonymousSequence(num, item)
+          self.seqs.append(anon_seq)
+          self.base_seqs.append(anon_seq)
+          self.length += anon_seq.length
         else:
-          assert not wildcard, "Multiple wildcards"
+          assert not wildcard, "Too many wildcards in super-sequence %s" % name
           wildcard = (len(self.seqs), len(self.base_seqs), item) # Index and entry of wildcard
           
     if not wildcard:
       if length != None:
-        assert self.length == length, "Super Sequence length mismatch. %s: %r != %r" % (name, self.length, length)
+        assert self.length == length, "Length mismatch for super-sequence %s (%r != %r)" % (name, self.length, length)
     else:
       delta = length - self.length
-      assert delta >= 0, "Super Sequence too short. %s: %r > %r" % (name, self.length, length)
+      assert delta >= 0, "Super-sequence %s too short (%r > %r)" % (name, self.length, length)
       i, j, item = wildcard
-      junk_seq = JunkSequence(delta, item)
-      self.seqs.insert(i, junk_seq)
-      self.base_seqs.insert(j, junk_seq)
-      self.length += junk_seq.length
+      anon_seq = AnonymousSequence(delta, item)
+      self.seqs.insert(i, anon_seq)
+      self.base_seqs.insert(j, anon_seq)
+      self.length += anon_seq.length
     self.wc = ReverseSuperSequence(self)
   
   def fix_seq(self, fixed_seq):
@@ -173,16 +173,16 @@ class Structure(object):
     self.strands = list(strands)
     self.seq = None # Stores the sequence once it has been defined.
     self.base_seqs = []
-    strand_lengths = [len(strand_struct) for strand_struct in self.struct.split("+")] # Check that lengths match up
-    for strand, length in zip(strands, strand_lengths):
-      assert isinstance(strand, Strand), "Structure must get strands"
-      assert strand.length == length, "Length mismatch: %s, %s, %s" % (name, strand, length)
+    sub_structs = [strand_struct for strand_struct in self.struct.split("+")] # Check that lengths match up
+    for strand, sub_struct in zip(strands, sub_structs):
+      assert isinstance(strand, Strand), "Structure %s must get strands" % name
+      assert strand.length == len(sub_struct), "Mismatch: Strand %s in structure %s has length %d, but sub-structure %s implies %d" % (strand.name, name, strand.length, sub_struct, len(sub_struct))
       self.base_seqs += strand.base_seqs
   
   def fix_seq(self, fixed_seq):
     """Constrian ourselves to a specific sequence."""
     strand_seqs = fixed_seq.split("+")
-    assert len(strand_seqs) == len(self.stands)
+    assert len(strand_seqs) == len(self.stands), "fix_seq: structure %s cannot have sequence fixed to %s because it has %d strands" % (self.name, fixed_seq, len(self.strands))
     for strand, strand_seq in zip(self.strands, strand_seqs):
       strand.fix_seq(strand_seq)
   
