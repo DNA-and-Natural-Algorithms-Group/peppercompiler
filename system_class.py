@@ -45,7 +45,8 @@ class System(PrintObject):
     self.template = ordered_dict()
     self.signals = ordered_dict()
     self.lengths = ordered_dict()
-    self.signal_structs = default_ordered_dict(list, call=True)
+    self.signal_structs = default_ordered_dict(list, call=True)  # Structures output as signals
+    self.signal_dummy_structs = default_ordered_dict(list, call=True)  # Dummy structures marked as inputs of signals
     self.components = ordered_dict()
     
     # Pointers to subcomponent's objects
@@ -96,6 +97,7 @@ class System(PrintObject):
       # ... and point all dummy inputs to those actual structures.
       for (glob_name, glob_wc), loc_structs in zip(list(inputs), this_comp.input_structs):
         # TODO: deal with the wc aspect of this appropriately.
+        self.signal_dummy_structs[glob_name] += loc_structs
         for loc_struct in loc_structs:
           loc_struct.actual_structs = self.signal_structs[glob_name]
     else: # Otherwise it's a component, so we want to constrain sequences
@@ -114,6 +116,7 @@ class System(PrintObject):
       # ... and point all dummy inputs to those actual structures.
       for (glob_name, glob_wc), loc_struct in zip(list(inputs), this_comp.input_structs):
         # TODO: deal with the wc aspect of this appropriately.
+        self.signal_dummy_structs[glob_name].append(loc_struct)
         if loc_struct:
           loc_struct.actual_structs = self.signal_structs[glob_name]
     
@@ -133,7 +136,7 @@ class System(PrintObject):
     for seq_name, wc in inputs:
       assert seq_name in self.signals
       self.input_seqs.append( (seq_name, wc) )
-      self.input_structs.append( self.signal_structs[seq_name] )
+      self.input_structs.append( self.signal_dummy_structs[seq_name] )
     
     self.output_seqs = []
     self.output_structs = []

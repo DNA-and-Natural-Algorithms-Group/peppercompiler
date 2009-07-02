@@ -150,7 +150,7 @@ def load_component(filename, args, prefix):
     elif stat[0] == kin:
       component.add_kinetics(*stat[1:])
     else:
-      raise Exception, "Unexpected statement:\n" + stat
+      raise Exception, "Unexpected statement:\n%s" % stat
   component.add_IO(inputs, outputs)
   return component
 

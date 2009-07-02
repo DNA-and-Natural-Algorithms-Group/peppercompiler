@@ -94,7 +94,7 @@ def load_system(filename, args, prefix, path):
     elif stat[0] == component:
       system.add_component(*stat[1:])
     else:
-      raise Exception, "Unexpected statement:\n" + stat
+      raise Exception, "Unexpected statement:\n%s" % stat
   system.add_IO(inputs, outputs)
   return system
 

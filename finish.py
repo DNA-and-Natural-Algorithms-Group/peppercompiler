@@ -3,7 +3,7 @@ from __future__ import division
 
 import sys
 import string
-import copy
+from copy import copy
 from subprocess import CalledProcessError
 
 from compiler import load
@@ -150,14 +150,40 @@ def kinetic(component, prefix, cleanup, trials, time, temp, conc):
       else:
         pos_inputs[n] = [struct]
     
-    new_kin = copy.copy(kin)
     ## Next, we test each permutation of input structures.
     print_kin(kin, prefix[:-1])
     for inputs in choices(pos_inputs):
-      new_kin.inputs = inputs
+      new_kin = sub_inputs(kin, inputs)
       print_kin(new_kin, prefix[:-1])
       res = test_kinetics(new_kin, cleanup, trials, time, temp, conc)
       process_kinetics(res)
+
+def sub_inputs(kin, inputs):
+  """Substitute actual strands from structures in 'inputs' for the dummy strands in kin"""
+  new_kin = copy(kin)
+  ## Replacing inputs is easy
+  new_kin.inputs = inputs
+  
+  ## Replacing outputs requires searching through and substituting strands
+  new_kin.outputs = copy(kin.outputs)
+  # First create a dictionary of all replacements
+  replace = {}
+  assert len(inputs) == len(kin.inputs)
+  for real_struct, dummy_struct in zip(inputs, kin.inputs):
+    for real_strand, dummy_strand in zip(real_struct.strands, dummy_struct.strands):
+      replace[dummy_strand.full_name] = real_strand
+  
+  # Then go through the outputs and actually replace them
+  for n, struct in enumerate(new_kin.outputs):
+    new_struct = copy(struct)
+    new_kin.outputs[n] = new_struct
+    new_struct.struct = None  # HACK: We don't use the structure for now, so we don't have to deal with this.
+    new_struct.strands = copy(struct.strands)
+    for m, strand in enumerate(new_struct.strands):
+      if strand.full_name in replace:
+        new_struct.strands[m] = replace[strand.full_name]
+  
+  return new_kin
 
 def print_kin(kin, gate_name):
   """Print kinetic testing info"""
