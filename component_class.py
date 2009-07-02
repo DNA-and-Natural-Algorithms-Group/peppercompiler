@@ -134,7 +134,7 @@ class Component(PrintObject):
         assert struct_name in self.structs, "Declare statement in component '%s' references undefined structure '%s'" % (self.name, struct_name)
         self.output_structs.append( self.structs[struct_name] )
       else:
-        self.input_structs.append(None)
+        self.output_structs.append(None)
         
   
   
