@@ -38,6 +38,7 @@ def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=1.0, out_i
   outs = []
   for struct in kin.outputs:
     strand_names = [strand.full_name for strand in struct.strands]
+    # TODO: check for conservation of strands
     outs.append( Complex(strand_names, "DISASSOC") )
   # HACK: Multistrand doesn't currently work with multiple DISASSOC structures, 
   #   we just wait for the first one to form.
