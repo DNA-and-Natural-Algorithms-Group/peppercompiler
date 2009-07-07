@@ -23,13 +23,15 @@ def process(infilename, params):
   out = ""
   
   for line in f_in:
+    # Remove comments
+    line = re.sub(r"#.*", "", line)
+    
     # Evaluate length lines
     m = re.match(r"\s*length\s+(\w+)\s*=\s*(.*)", line)
     if m:
       name, val = m.groups()
       val = eval(val, params)
       params[name] = val
-      out += "# " + line  # Add the commented out expression
       continue
     
     def eval_brackets(s):
@@ -50,7 +52,11 @@ def process(infilename, params):
         return this_out
       else:
         return line
-    out += duplicate(line)
+    lines = duplicate(line)
+    
+    # Don't add blank lines
+    if lines.strip():
+      out += lines
   
   f_in.close()
   return out
