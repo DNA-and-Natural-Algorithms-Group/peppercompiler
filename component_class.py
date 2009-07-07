@@ -33,7 +33,7 @@ class Component(PrintObject):
     if DEBUG: print "sequence", name
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     try:
-      seq = Sequence(name, length, *const)
+      seq = Sequence(name, length, const)
     except AssertionError, e:
       self.assert_(False, str(e))
     seq.full_name = self.prefix + name
@@ -53,7 +53,7 @@ class Component(PrintObject):
         assert item[0] == "Anonymous", item
         const[n] = item[1]
     try:
-      seq = SuperSequence(name, length, *const)
+      seq = SuperSequence(name, length, const)
     except AssertionError, e:
       self.assert_(False, str(e))
     seq.full_name = self.prefix + name
@@ -79,7 +79,7 @@ class Component(PrintObject):
         assert item[0] == "Anonymous", item
         const[n] = item[1]
     try:
-      self.strands[name] = Strand(name, dummy, length, *const)
+      self.strands[name] = Strand(name, dummy, length, const)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.strands[name].full_name = self.prefix + name
@@ -111,7 +111,7 @@ class Component(PrintObject):
         full_struct += "+"
       struct = full_struct[:-1] # Get rid of trailing +
     try:
-      self.structs[name] = Structure(name, opt, struct, *strands)
+      self.structs[name] = Structure(name, opt, struct, strands)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.structs[name].full_name = self.prefix + name

@@ -22,7 +22,7 @@ WILDCARD = "?"
 
 class Sequence(object):
   """Container for sequences"""
-  def __init__(self, name, length, *constraints):
+  def __init__(self, name, length, constraints):
     self.name = name
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
@@ -83,13 +83,13 @@ class AnonymousSequence(Sequence):
   num = 0
   def __init__(self, length, const):
     name = "_Anon"+repr(AnonymousSequence.num)
-    Sequence.__init__(self, name, length, *const)
+    Sequence.__init__(self, name, length, const)
     AnonymousSequence.num += 1
 
 
 class SuperSequence(object):
   """Logical grouping of sequences"""
-  def __init__(self, name, length, *constraints):
+  def __init__(self, name, length, constraints):
     self.name = name
     self.seqs = []
     self.seq = None # Stores the sequence once it has been defined.
@@ -147,7 +147,7 @@ class SuperSequence(object):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
   def __repr__(self):
-    return "SuperSequence(%(name)r, %(length)r, *%(seqs)r)" % self.__dict__
+    return "SuperSequence(%(name)r, %(length)r, %(seqs)r)" % self.__dict__
 
 class ReverseSuperSequence(SuperSequence):
   def __init__(self, wc):
@@ -161,15 +161,15 @@ class ReverseSuperSequence(SuperSequence):
 
 class Strand(SuperSequence):
   """Container for strands"""
-  def __init__(self, name, dummy, length, *constraints):
-    SuperSequence.__init__(self, name, length, *constraints)
+  def __init__(self, name, dummy, length, constraints):
+    SuperSequence.__init__(self, name, length, constraints)
     self.dummy = dummy
   def __repr__(self):
-    return "Strand(%(name)r, %(dummy)r, %(length)r, *%(seqs)r)" % self.__dict__
+    return "Strand(%(name)r, %(dummy)r, %(length)r, %(seqs)r)" % self.__dict__
 
 class Structure(object):
   """Container for structures/complexes"""
-  def __init__(self, name, opt, struct, *strands):
+  def __init__(self, name, opt, struct, strands):
     self.name = name
     self.opt = opt
     self.struct = struct
@@ -191,7 +191,7 @@ class Structure(object):
       strand.fix_seq(strand_seq)
   
   def __repr__(self):
-    return "Structure(%(name)r, %(opt)r, %(struct)r, *%(strands)r)" % self.__dict__
+    return "Structure(%(name)r, %(opt)r, %(struct)r, %(strands)r)" % self.__dict__
 
 class Kinetics(object):
   def __init__(self, name, inputs, outputs):
