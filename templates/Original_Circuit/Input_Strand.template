@@ -1,6 +1,0 @@
-declare Input_Strand(seq, length): -> out(OUT)
-
-sequence  out = <seq> : <length>
-strand    Out = out : <length>
-structure OUT = Out : U<length>
-
