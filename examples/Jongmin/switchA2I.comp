@@ -15,29 +15,29 @@ declare component switchA2I(spacer1in,spacer2in,spacer1out,spacer2out):  transcr
 
 ## Sequences
 # promoter region
-sequence pro1 = TAATA
-sequence pro2 = CGACTCACTATA
-sequence pro3 = GGGAGA
+sequence pro1 = "TAATA"
+sequence pro2 = "CGACTCACTATA"
+sequence pro3 = "GGGAGA"
 
 # terminating hairpin
-sequence hairpin1 = CTGAC
-sequence hairpin2 = AAA
+sequence hairpin1 = "CTGAC"
+sequence hairpin2 = "AAA"
 
-sequence spacer1in = <spacer1in>N
-sequence spacer2in = <spacer2in>N
-sequence recognition_in = <recognitionA>N
-sequence act_toe_in = <act_toe>N
-sequence inh_toe_in = <inh_toe>N
-sequence removal_toe_in = <removal_toe>N
+sequence spacer1in = "<spacer1in>N"
+sequence spacer2in = "<spacer2in>N"
+sequence recognition_in = "<recognitionA>N"
+sequence act_toe_in = "<act_toe>N"
+sequence inh_toe_in = "<inh_toe>N"
+sequence removal_toe_in = "<removal_toe>N"
 
-sequence spacer1out = <spacer1out>N
-sequence spacer2out = <spacer2out>N
-sequence recognition_out = <recognitionI>N
-sequence toehold_out = <toehold>N
+sequence spacer1out = "<spacer1out>N"
+sequence spacer2out = "<spacer2out>N"
+sequence recognition_out = "<recognitionI>N"
+sequence toehold_out = "<toehold>N"
 
-sup-sequence transcript_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
-sup-sequence transcript_out = pro3 spacer1out toehold_out recognition_out pro1 spacer2out hairpin1 hairpin2 hairpin1* hairpin2
-sup-sequence transcript_plus_in = removal_toe_in pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+sequence transcript_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+sequence transcript_out = pro3 spacer1out toehold_out recognition_out pro1 spacer2out hairpin1 hairpin2 hairpin1* hairpin2
+sequence transcript_plus_in = removal_toe_in pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
 
 ## Strands
 strand [dummy] Trans_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2

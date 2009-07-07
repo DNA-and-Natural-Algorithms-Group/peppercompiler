@@ -12,29 +12,28 @@ declare component signalI(spacer1,spacer2):  -> transcript
 
 ## Sequences
 # promoter region
-sequence pro1 = TAATA
-sequence pro2 = CGACTCACTATA
-sequence pro3 = GGGAGA
+sequence pro1 = "TAATA"
+sequence pro2 = "CGACTCACTATA"
+sequence pro3 = "GGGAGA"
 
 # terminating hairpin
-sequence hairpin1 = CTGAC
-sequence hairpin2 = AAA
-sequence ttt = TTT
+sequence hairpin1 = "CTGAC"
+sequence hairpin2 = "AAA"
 
-sequence spacer1 = <spacer1>N
-sequence spacer2 = <spacer2>N
+sequence spacer1 = "<spacer1>N"
+sequence spacer2 = "<spacer2>N"
 
-sequence recognition = <recognition>N
-sequence toehold = <toehold>N
+sequence recognition = "<recognition>N"
+sequence toehold = "<toehold>N"
 
-sup-sequence transcript = pro3 spacer1 toehold recognition pro1 spacer2 hairpin1 hairpin2 hairpin1* hairpin2
+sequence transcript = pro3 spacer1 toehold recognition pro1 spacer2 hairpin1 hairpin2 hairpin1* hairpin2
 
 ## Strands  (note: we have to spell this out again, only for the reason that the "domain-level" structures need it)
 strand Trans = pro3 spacer1 toehold recognition pro1 spacer2 hairpin1 hairpin2 hairpin1* hairpin2
 strand Act = pro1* recognition* toehold*
 # note that Trans should be RNA, not DNA.  But we don't yet have a good notation for indicating that.
 
-strand [dummy] Switch = recognition pro1 pro2 ttt pro2* 
+strand [dummy] Switch = recognition pro1 pro2 "TTT" pro2*
 
 ## Structures
 structure Transcript = Trans : domain ......(.).

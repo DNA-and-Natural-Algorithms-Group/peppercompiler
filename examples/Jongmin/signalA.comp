@@ -16,26 +16,25 @@ declare component signalA(spacer1,spacer2):  -> transcript_plus
 
 ## Sequences
 # promoter region
-sequence pro1 = TAATA
-sequence pro2 = CGACTCACTATA
-sequence pro3 = GGGAGA
+sequence pro1 = "TAATA"
+sequence pro2 = "CGACTCACTATA"
+sequence pro3 = "GGGAGA"
 
 # terminating hairpin
-sequence hairpin1 = CTGAC
-sequence hairpin2 = AAA
-sequence ttt = TTT
+sequence hairpin1 = "CTGAC"
+sequence hairpin2 = "AAA"
 
-sequence spacer1 = <spacer1>N
-sequence spacer2 = <spacer2>N
+sequence spacer1 = "<spacer1>N"
+sequence spacer2 = "<spacer2>N"
 
-sequence recognition = <recognition>N
-sequence act_toe = <act_toe>N
-sequence inh_toe = <inh_toe>N
-sequence removal_toe = <removal_toe>N
+sequence recognition = "<recognition>N"
+sequence act_toe = "<act_toe>N"
+sequence inh_toe = "<inh_toe>N"
+sequence removal_toe = "<removal_toe>N"
 
 # (virtual) sequence information for linking between components
 
-sup-sequence transcript_plus = removal_toe pro3 spacer1 recognition act_toe inh_toe* spacer2 hairpin1 hairpin2 hairpin1* hairpin2
+sequence transcript_plus = removal_toe pro3 spacer1 recognition act_toe inh_toe* spacer2 hairpin1 hairpin2 hairpin1* hairpin2
 
 ## Strands
 strand Trans = pro3 spacer1 recognition act_toe inh_toe* spacer2 hairpin1 hairpin2 hairpin1* hairpin2
@@ -43,7 +42,7 @@ strand Act = pro1* removal_toe recognition act_toe
 strand Inh = inh_toe act_toe* recognition* removal_toe*
 # note that Trans should be RNA, not DNA.  But we don't yet have a good notation for indicating that
 
-strand [dummy] Switch = recognition* removal_toe* pro1 pro2 ttt pro2* 
+strand [dummy] Switch = recognition* removal_toe* pro1 pro2 "TTT" pro2*
 
 ## Structures
 structure Transcript = Trans : domain ......(.).
