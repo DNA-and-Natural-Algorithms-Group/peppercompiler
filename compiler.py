@@ -35,7 +35,7 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False)
     print "Fixing sequences from file '%s'" % fixed_file
     fixed_sequences = load_fixed(fixed_file)
     for type_, name, fixed_seq in fixed_sequences:
-      if type_ in ("sequence", "super-sequence"):
+      if type_ in "sequence":
         system.seqs[name].fix_seq( fixed_seq )
       elif type_ == "strand":
         system.strands[name].fix_seq( fixed_seq )

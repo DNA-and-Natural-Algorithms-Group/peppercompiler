@@ -52,11 +52,8 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
   f = open(seqsname, "w")
   
   f.write("# Sequences\n")
-  for name, seq in system.base_seqs.items():
+  for name, seq in system.seqs.items():
     f.write("sequence %s\t%s\n" % (name, seq.seq))
-  f.write("# Super-Sequences\n")
-  for name, seq in system.sup_seqs.items():
-    f.write("super-sequence %s\t%s\n" % (name, seq.seq))
   f.write("# Strands\n")
   for name, strand in system.strands.items():
     f.write("strand %s\t%s\n" % (name, strand.seq))
