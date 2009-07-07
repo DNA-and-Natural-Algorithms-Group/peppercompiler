@@ -22,7 +22,7 @@ WILDCARD = "?"
 
 class Sequence(object):
   """Container for sequences"""
-  def __init__(self, name, length, constraints):
+  def __init__(self, name, constraints, length=None):
     self.name = name
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
@@ -81,15 +81,15 @@ class ReverseSequence(Sequence):
 class AnonymousSequence(Sequence):
   """Sequences we didn't lable and are thus anonymous."""
   num = 0
-  def __init__(self, length, const):
+  def __init__(self, const, length=None):
     name = "_Anon"+repr(AnonymousSequence.num)
-    Sequence.__init__(self, name, length, const)
+    Sequence.__init__(self, name, const, length)
     AnonymousSequence.num += 1
 
 
 class SuperSequence(object):
   """Logical grouping of sequences"""
-  def __init__(self, name, length, constraints):
+  def __init__(self, name, constraints, length=None):
     self.name = name
     self.seqs = []
     self.seq = None # Stores the sequence once it has been defined.
@@ -112,7 +112,7 @@ class SuperSequence(object):
       else:
         # Otherwise it's a anonymous constraint
         try:
-          anon_seq = AnonymousSequence(None, item)
+          anon_seq = AnonymousSequence(item)
           self.seqs.append(anon_seq)
           self.base_seqs.append(anon_seq)
           self.length += anon_seq.length
@@ -128,7 +128,7 @@ class SuperSequence(object):
       wild_length = length - self.length  # Wildcard is set so that total length is right
       assert wild_length >= 0, "Sequence %s too short (%r > %r)" % (name, self.length, length)
       i, j, item = wildcard
-      anon_seq = AnonymousSequence(wild_length, item)
+      anon_seq = AnonymousSequence(item, wild_length)
       self.seqs.insert(i, anon_seq)
       self.base_seqs.insert(j, anon_seq)
       self.length += anon_seq.length
@@ -147,7 +147,7 @@ class SuperSequence(object):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
   def __repr__(self):
-    return "SuperSequence(%(name)r, %(length)r, %(seqs)r)" % self.__dict__
+    return "SuperSequence(%(name)r, %(seqs)r, %(length)r)" % self.__dict__
 
 class ReverseSuperSequence(SuperSequence):
   def __init__(self, wc):
@@ -161,15 +161,15 @@ class ReverseSuperSequence(SuperSequence):
 
 class Strand(SuperSequence):
   """Container for strands"""
-  def __init__(self, name, dummy, length, constraints):
-    SuperSequence.__init__(self, name, length, constraints)
+  def __init__(self, name, constraints, length=None, dummy=False):
+    SuperSequence.__init__(self, name, constraints, length)
     self.dummy = dummy
   def __repr__(self):
-    return "Strand(%(name)r, %(dummy)r, %(length)r, %(seqs)r)" % self.__dict__
+    return "Strand(%(name)r, %(seqs)r, %(length)r, %(dummy)r)" % self.__dict__
 
 class Structure(object):
   """Container for structures/complexes"""
-  def __init__(self, name, opt, struct, strands):
+  def __init__(self, name, strands, struct, opt=None):
     self.name = name
     self.opt = opt
     self.struct = struct

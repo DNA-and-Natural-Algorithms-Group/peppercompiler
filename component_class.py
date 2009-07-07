@@ -33,27 +33,41 @@ class Component(PrintObject):
     if DEBUG: print "sequence", name
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     try:
-      seq = Sequence(name, length, const)
+      seq = Sequence(name, const, length)
     except AssertionError, e:
       self.assert_(False, str(e))
     seq.full_name = self.prefix + name
     self.base_seqs[name] = self.seqs[name] = seq
   
+  def clean_const(self, old_const, name):
+    """Replace all refferences to sequences with the actual sequences, expand domains, etc."""
+    const = []
+    for item in old_const:
+      if item[0] == "Sequence":
+        seq_name, wc = item[1]
+        self.assert_( seq_name in self.seqs, "Sequence '%s' referenced before definion (in sequence/strand '%s')" % (seq_name, name) )
+        if not wc:
+          const.append( self.seqs[seq_name] )
+        else:
+          const.append( self.seqs[seq_name].wc )
+      elif item[0] == "domains":
+        seq_name, wc = item[1]
+        self.assert_( seq_name in self.sup_seqs, "Sequence '%s' referenced before definion (in sequence/strand '%s')" % (seq_name, name) )
+        if not wc:
+          const += self.sup_seqs[seq_name].seqs
+        else:
+          const += self.sup_seqs[seq_name].wc.seqs
+      else:
+        assert item[0] == "Anonymous", item
+        const.append( item[1] )
+    return const
+  
   def add_super_sequence(self, name, const, length):
     if DEBUG: print "sup-sequence", name
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
-    for n, item in enumerate(const):
-      if item[0] == "Sequence":
-        seq_name, wc = item[1]
-        if wc:
-          const[n] = ~self.seqs[seq_name]
-        else:
-          const[n] =  self.seqs[seq_name]
-      else:
-        assert item[0] == "Anonymous", item
-        const[n] = item[1]
+    const = self.clean_const(const, name)
     try:
-      seq = SuperSequence(name, length, const)
+      seq = SuperSequence(name, const, length)
     except AssertionError, e:
       self.assert_(False, str(e))
     seq.full_name = self.prefix + name
@@ -67,19 +81,9 @@ class Component(PrintObject):
   def add_strand(self, dummy, name, const, length):
     if DEBUG: print "strand", name
     self.assert_( name not in self.strands, "Duplicate strand definition for '%s'" % name )
-    for n, item in enumerate(const):
-      if item[0] == "Sequence":
-        seq_name, wc = item[1]
-        self.assert_( seq_name in self.seqs, "Sequence '%s' referenced before definion (in strand '%s')" % (seq_name, name) )
-        if wc:
-          const[n] = ~self.seqs[seq_name]
-        else:
-          const[n] =  self.seqs[seq_name]
-      else:
-        assert item[0] == "Anonymous", item
-        const[n] = item[1]
+    const = self.clean_const(const, name)
     try:
-      self.strands[name] = Strand(name, dummy, length, const)
+      self.strands[name] = Strand(name, const, length, dummy)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.strands[name].full_name = self.prefix + name
@@ -111,7 +115,7 @@ class Component(PrintObject):
         full_struct += "+"
       struct = full_struct[:-1] # Get rid of trailing +
     try:
-      self.structs[name] = Structure(name, opt, struct, strands)
+      self.structs[name] = Structure(name, strands, struct, opt)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.structs[name].full_name = self.prefix + name

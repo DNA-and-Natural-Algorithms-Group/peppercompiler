@@ -63,7 +63,9 @@ seq_var = Group(seq_name + Flag("*"))
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
 #  2) A sequence variable (possibly complimented with *) (Must start with lowercase letter)
-sup_seq_const = Group(H("Anonymous") + seq_const) | Group(H("Sequence") + seq_var)
+sup_seq_const = ( Group(H("Anonymous") + seq_const) |
+                  Group("domains" + S("(") + seq_var + S(")")) |
+                  Group(H("Sequence") + seq_var) )
 
 strand_var = var
 struct_var = var
@@ -84,12 +86,12 @@ params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, "+") + S("->") + List(signal_var, "+")
 
 # sequence <name> = <constraints> : <length>
-seq_stat  = K(seq)  + seq_name + S("=") + List(sup_seq_const) + \
-            Optional(S(":") + integer, default=None)
+seq_stat = K(seq)  + seq_name + S("=") + List(sup_seq_const) + \
+           Optional(S(":") + integer, default=None)
 
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(sup_seq_const) + \
-               Optional(S(":") + integer, default=None)
+strand_stat = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(sup_seq_const) + \
+              Optional(S(":") + integer, default=None)
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
