@@ -125,13 +125,14 @@ class SuperSequence(object):
       assert self.length == length or length == None, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, length)
     else:
       if length == None: raise WildError("Sequence %s has a ?. but no length specified" % name)
-      wild_length = length - check_length  # Wildcard is set so that total length is right
+      wild_length = length - self.length  # Wildcard is set so that total length is right
       assert wild_length >= 0, "Sequence %s too short (%r > %r)" % (name, self.length, length)
       i, j, item = wildcard
       anon_seq = AnonymousSequence(wild_length, item)
       self.seqs.insert(i, anon_seq)
       self.base_seqs.insert(j, anon_seq)
       self.length += anon_seq.length
+      assert self.length == length
     self.wc = ReverseSuperSequence(self)
   
   def fix_seq(self, fixed_seq):
