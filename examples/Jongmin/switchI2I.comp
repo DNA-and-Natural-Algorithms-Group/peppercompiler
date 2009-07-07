@@ -30,7 +30,7 @@ sequence transcript_in = pro3 spacer1in toehold_in recognition_in pro1 spacer2in
 sequence transcript_out = pro3 spacer1out toehold_out recognition_out pro1 spacer2out hairpin1 hairpin2 hairpin1* hairpin2
 
 ## Strands
-strand [dummy] Trans_in = pro3 spacer1in toehold_in recognition_in pro1 spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+strand [dummy] Trans_in = domains(transcript_in)
 strand [dummy] Act_in = pro1* recognition_in* toehold_in*
 # Note that the dummy strands are actually real, but they are already included in the "signal" component.
 # Note that Trans should be RNA, not DNA.  But we don't yet have a good notation for indicating that.

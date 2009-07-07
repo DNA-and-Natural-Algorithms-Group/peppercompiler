@@ -24,8 +24,8 @@ sequence end4 = "3N"
 sequence end = end1 end2 end3 end4
 
 ## Strands
-strand [dummy] Trans_in = act act_toe inh_toe* # = in
-strand Trans_out = pro3 spacer1 out spacer2 end1 end2 end3 end4
+strand [dummy] Trans_in = domains(in) # 4 domains
+strand Trans_out = pro3 spacer1 out spacer2 domains(end) # 8 domains
 
 strand Act = pro1* act act_toe
 strand Inh = inh_toe act_toe* act*

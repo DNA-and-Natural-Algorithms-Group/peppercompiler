@@ -36,11 +36,11 @@ sequence removal_toe_out = "<removal_toe>N"
 sequence transcript_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
 sequence transcript_out = pro3 spacer1out recognition_out act_toe_out inh_toe_out* spacer2out hairpin1 hairpin2 hairpin1* hairpin2
 
-sequence transcript_plus_in = removal_toe_in pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
-sequence transcript_plus_out = removal_toe_out pro3 spacer1out recognition_out act_toe_out inh_toe_out* spacer2out hairpin1 hairpin2 hairpin1* hairpin2
+sequence transcript_plus_in = removal_toe_in transcript_in
+sequence transcript_plus_out = removal_toe_out transcript_out
 
 ## Strands
-strand [dummy] Trans_in = pro3 spacer1in recognition_in act_toe_in inh_toe_in* spacer2in hairpin1 hairpin2 hairpin1* hairpin2
+strand [dummy] Trans_in = domains(transcript_in)
 strand [dummy] Act_in = pro1* removal_toe_in recognition_in act_toe_in
 strand [dummy] Inh_in = inh_toe_in act_toe_in* recognition_in* removal_toe_in*
 # Note that the dummy strands are actually real, but they are already included in the "signal" component.

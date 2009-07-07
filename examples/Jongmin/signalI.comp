@@ -28,8 +28,7 @@ sequence toehold = "<toehold>N"
 
 sequence transcript = pro3 spacer1 toehold recognition pro1 spacer2 hairpin1 hairpin2 hairpin1* hairpin2
 
-## Strands  (note: we have to spell this out again, only for the reason that the "domain-level" structures need it)
-strand Trans = pro3 spacer1 toehold recognition pro1 spacer2 hairpin1 hairpin2 hairpin1* hairpin2
+strand Trans = domains(transcript)
 strand Act = pro1* recognition* toehold*
 # note that Trans should be RNA, not DNA.  But we don't yet have a good notation for indicating that.
 
