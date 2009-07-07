@@ -3,7 +3,7 @@ Does some simple processing:
  * <expr>  are evaluated
  * {a,b} are seperated onto multiple lines (as in shell scripting)
  
-Lines begining with #! may be used to set variables
+Lines begining with length may be used to set variables
 
 So, the string:
  I have {two,three,four} apples worth $<(3-5+17)/4>.
@@ -23,14 +23,13 @@ def process(infilename, params):
   out = ""
   
   for line in f_in:
-    # Execute #! lines
-    if line[:2] == "#!":
-      m = string.split(line[2:], "=")
-      val = eval(m[-1], params)
-      del m[-1]
-      for x in m:
-        params[x.strip()] = val
-      out += line
+    # Evaluate length lines
+    m = re.match(r"\s*length\s+(\w+)\s*=\s*(.*)", line)
+    if m:
+      name, val = m.groups()
+      val = eval(val, params)
+      params[name] = val
+      out += "# " + line  # Add the commented out expression
       continue
     
     def eval_brackets(s):
@@ -40,9 +39,9 @@ def process(infilename, params):
     
     def duplicate(line):
       # Replace first {...,expr,...} with expr for each expression in list
-      m = re.search(r"{[^{}]*?}", line)
+      m = re.search(r"{([^{}]*?)}", line)
       if m:
-        ops = m.group()[1:-1].split(",")
+        ops = m.group(1).split(",")
         start = line[:m.start()]
         end = line[m.end():]
         this_out = ""
