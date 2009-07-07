@@ -7,8 +7,8 @@ declare component signalI(spacer1,spacer2):  -> transcript
 ## However, for semantic completeness one would want to include those reactions as well.
 
 # lengths
-#! recognition = 22
-#! toehold = 8
+length recognition = 22
+length toehold = 8
 
 ## Sequences
 # promoter region

@@ -9,10 +9,10 @@ declare component signalA(spacer1,spacer2):  -> transcript_plus
 ## However, for semantic completeness one would want to include those reactions as well.
 
 ##lengths
-#! removal_toe = 4
-#! recognition = 18
-#! act_toe = 9
-#! inh_toe = 7
+length removal_toe = 4
+length recognition = 18
+length act_toe = 9
+length inh_toe = 7
 
 ## Sequences
 # promoter region

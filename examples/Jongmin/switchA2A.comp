@@ -4,10 +4,10 @@ declare component switchA2A(spacer1in,spacer2in,spacer1out,spacer2out):  transcr
 ## Activator transcript_plus is [removal_toe:4] [transcript].
 
 ##lengths
-#! removal_toe = 4
-#! recognition = 18
-#! act_toe = 9
-#! inh_toe = 7
+length removal_toe = 4
+length recognition = 18
+length act_toe = 9
+length inh_toe = 7
 
 ## Sequences
 # promoter region

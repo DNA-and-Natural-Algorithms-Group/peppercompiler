@@ -3,8 +3,8 @@ declare component switchI2I(spacer1in,spacer2in,spacer1out,spacer2out):  transcr
 ## Inhibitor transcripts have the form GGGAGA [spacer1] [toehold:8] [recognition:22] TAATA [spacer2] [terminal_hairpin].
 
 ##lengths
-#! recognition = 22
-#! toehold = 8
+length recognition = 22
+length toehold = 8
 
 ## Sequences
 # promoter region
