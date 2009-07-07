@@ -67,6 +67,7 @@ class Component(PrintObject):
     for n, item in enumerate(const):
       if item[0] == "Sequence":
         seq_name, wc = item[1]
+        self.assert_( seq_name in self.seqs, "Sequence '%s' referenced before definion (in strand '%s')" % (seq_name, name) )
         if wc:
           const[n] = ~self.seqs[seq_name]
         else:

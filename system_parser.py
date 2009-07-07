@@ -2,6 +2,7 @@ import sys
 
 from system_class import System
 from var_substitute import process
+from utils import print_linenums
 
 from pyparsing import *
 
@@ -79,7 +80,7 @@ def load_system(filename, args, prefix, path):
     declare, statements = document.parseString(doc, parseAll=True)
   except ParseBaseException, e:
     print
-    print doc
+    print_linenums(doc)
     print "Parsing error in system:", filename
     print e
     sys.exit(1)

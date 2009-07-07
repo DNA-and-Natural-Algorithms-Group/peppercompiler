@@ -8,6 +8,12 @@ import re
 import string
 import tempfile
 
+def print_linenums(text):
+   """Print text with line numbers prepended. Start counting at line 1 to fit with pyparsings line numberings"""
+   for n, line in enumerate(text.split("\n")):
+     line_num = "%3d:" % (n + 1)
+     print line_num + line
+
 ## Custom regular expression wrapper
 class ParseException(Exception): pass
 

@@ -116,8 +116,8 @@ class System(PrintObject):
       # ... and point all dummy inputs to those actual structures.
       for (glob_name, glob_wc), loc_struct in zip(list(inputs), this_comp.input_structs):
         # TODO: deal with the wc aspect of this appropriately.
-        self.signal_dummy_structs[glob_name].append(loc_struct)
         if loc_struct:
+          self.signal_dummy_structs[glob_name].append(loc_struct)
           loc_struct.actual_structs = self.signal_structs[glob_name]
     
     # Point to all objects in the component
@@ -172,9 +172,9 @@ class System(PrintObject):
       outfile.write("equal %s " % signal_name)
       for loc_seq, component_name, wc in self.signals[signal]:
         if isinstance(loc_seq, (DNA_classes.Sequence, DNA_classes.SuperSequence)):
-          loc_name = component_name + "-" + loc_seq.name
-        else: # it's a system signal
-          loc_name = component_name + "-" + loc_seq
+          loc_name = loc_seq.full_name
+        else: # it's a system signal, so it's just a name
+          loc_name = prefix + component_name + "-" + loc_seq
         if wc:
           outfile.write("%s* " % loc_name)
         else:

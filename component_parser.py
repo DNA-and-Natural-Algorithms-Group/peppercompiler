@@ -5,6 +5,7 @@ import sys
 from HU2dotParen import extended2dotParen, HU2dotParen
 from component_class import Component
 from var_substitute import process
+from utils import print_linenums
 
 from pyparsing import *
 
@@ -129,7 +130,7 @@ def load_component(filename, args, prefix):
     declare, statements = document.parseString(doc, parseAll=True)
   except ParseBaseException, e:
     print
-    print doc
+    print_linenums(doc)
     print "Parsing error in component:", filename
     print e
     sys.exit(1)
