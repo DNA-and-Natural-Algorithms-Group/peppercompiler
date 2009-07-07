@@ -15,6 +15,9 @@ def wc(seq):
   """Returns the WC complement of a nucleotide sequence."""
   return string.join([complement[nt] for nt in reversed(seq)], "")
 
+class WildError(AssertionError):
+  """For when a sequence is defined a wildcard, but without a length."""
+
 WILDCARD = "?"
 
 class Sequence(object):
@@ -34,12 +37,13 @@ class Sequence(object):
       if length != None:
         assert self.length == length, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, length)
     else: # one wildcard
+      if length == None: raise WildError("Sequence %s has a ?. but no length specified" % name)
       self.length = length
       check_length = sum([x for x in lengths if x != WILDCARD])
-      delta = length - check_length
-      assert delta >= 0, "Sequence %s too short (%r > %r)" % (name, length, check_length)
+      wild_length = length - check_length  # Wildcard is set so that total length is right
+      assert wild_length >= 0, "Sequence %s too short (%r > %r)" % (name, length, check_length)
       i = lengths.index(WILDCARD)
-      const[i] = (delta, const[i][1])
+      const[i] = (wild_length, const[i][1])
     
     self.const = ""
     for (num, base) in const:
@@ -77,7 +81,7 @@ class ReverseSequence(Sequence):
 class AnonymousSequence(Sequence):
   """Sequences we didn't lable and are thus anonymous."""
   num = 0
-  def __init__(self, length, *const):
+  def __init__(self, length, const):
     name = "_Anon"+repr(AnonymousSequence.num)
     Sequence.__init__(self, name, length, *const)
     AnonymousSequence.num += 1
@@ -107,25 +111,24 @@ class SuperSequence(object):
         self.length += item.length
       else:
         # Otherwise it's a anonymous constraint
-        ### TODO-maybe: combine adjacent anonymous sections together into one
-        num, code = item
-        if num != WILDCARD:
-          anon_seq = AnonymousSequence(num, item)
+        try:
+          anon_seq = AnonymousSequence(None, item)
           self.seqs.append(anon_seq)
           self.base_seqs.append(anon_seq)
           self.length += anon_seq.length
-        else:
+        except WildError:
           assert not wildcard, "Too many wildcards in super-sequence %s" % name
           wildcard = (len(self.seqs), len(self.base_seqs), item) # Index and entry of wildcard
+        
           
     if not wildcard:
-      if length != None:
-        assert self.length == length, "Length mismatch for super-sequence %s (%r != %r)" % (name, self.length, length)
+      assert self.length == length or length == None, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, length)
     else:
-      delta = length - self.length
-      assert delta >= 0, "Super-sequence %s too short (%r > %r)" % (name, self.length, length)
+      if length == None: raise WildError("Sequence %s has a ?. but no length specified" % name)
+      wild_length = length - check_length  # Wildcard is set so that total length is right
+      assert wild_length >= 0, "Sequence %s too short (%r > %r)" % (name, self.length, length)
       i, j, item = wildcard
-      anon_seq = AnonymousSequence(delta, item)
+      anon_seq = AnonymousSequence(wild_length, item)
       self.seqs.insert(i, anon_seq)
       self.base_seqs.insert(j, anon_seq)
       self.length += anon_seq.length

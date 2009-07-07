@@ -2,26 +2,26 @@ declare component activate_trans(act, toe, spacer, out): in (Transcript_In) -> o
 
 ## Sequences
 # promoter region
-sequence pro1 = TAATA
-sequence pro2 = CGACTCACTATA
-sequence pro3 = GGGAGA
+sequence pro1 = "TAATA"
+sequence pro2 = "CGACTCACTATA"
+sequence pro3 = "GGGAGA"
 
-sequence spacer1 = <spacer>N
-sequence spacer2 = <spacer>N
+sequence spacer1 = "<spacer>N"
+sequence spacer2 = "<spacer>N"
 
-sequence act = <act>N
-sequence act_toe = <toe>N
-sequence inh_toe = <toe>N
+sequence act = "<act>N"
+sequence act_toe = "<toe>N"
+sequence inh_toe = "<toe>N"
 
-sup-sequence in = act act_toe inh_toe*
+sequence in = act act_toe inh_toe*
 
-sequence out = <out>N
+sequence out = "<out>N"
 
-sequence end1 = 5N
-sequence end2 = 3N
-sequence end3 = 5N
-sequence end4 = 3N
-sup-sequence end = end1 end2 end3 end4
+sequence end1 = "5N"
+sequence end2 = "3N"
+sequence end3 = "5N"
+sequence end4 = "3N"
+sequence end = end1 end2 end3 end4
 
 ## Strands
 strand [dummy] Trans_in = act act_toe inh_toe* # = in

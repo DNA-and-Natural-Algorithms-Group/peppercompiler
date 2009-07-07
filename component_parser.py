@@ -40,7 +40,6 @@ NAcodes = "ACGTUNSWRYMKVHBD"
 decl = "declare"
 component = "component"
 seq = "sequence"
-sup_seq = "sup-sequence"
 strand = "strand"
 struct = "structure"
 kin = "kinetic"
@@ -55,23 +54,22 @@ integer = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"+-.eE").setParseAction(Map(float))
 
 # Sequence const could be ?N, 3N or N
-seq_const = Group(( "?" | Optional(integer, default=1) ) + Word(NAcodes, exact=1))
-seq_const_list = List(seq_const)
+seq_const = S('"') + List(Group( Optional(integer | "?", default=1) +
+                                 Word(NAcodes, exact=1))) + S('"')
 
-seq_name = Word(lowers, alphanums+"_") # Sequence name starts with lower case
-seq_var = Group(H("Sequence") + Group(seq_name + Flag("*")))
+seq_name = var
+seq_var = Group(seq_name + Flag("*"))
 
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
 #  2) A sequence variable (possibly complimented with *) (Must start with lowercase letter)
-strand_const = seq_const | seq_var
+sup_seq_const = Group(H("Anonymous") + seq_const) | Group(H("Sequence") + seq_var)
 
 strand_var = var
 struct_var = var
 
 # Signals used in the declare line seq
-signal_var = Group(Group(seq_name + Flag("*")) + 
-                   Optional(S("(") + struct_var + S(")"), default=None))
+signal_var = Group(seq_var + Optional(S("(") + struct_var + S(")"), default=None))
 
 # Secondary structure can be dot-paren, extended dot-paren or HU notation.
 # 'domain' keyword means that the helix/unpaired segments are by domain
@@ -86,16 +84,12 @@ params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, "+") + S("->") + List(signal_var, "+")
 
 # sequence <name> = <constraints> : <length>
-seq_stat  = K(seq)  + seq_name + S("=") + List(seq_const) + \
-            O(S(":") + integer, default=None)
-
-# sup-sequence <name> = <constraints / sequences> : <length>
-sup_seq_stat = K(sup_seq) + seq_name + S("=") + List(strand_const) + \
-               O(S(":") + integer, default=None)
+seq_stat  = K(seq)  + seq_name + S("=") + List(sup_seq_const) + \
+            Optional(S(":") + integer, default=None)
 
 # strand <name> = <constraints / sequences> : <length>
-strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(strand_const) + \
-               O(S(":") + integer, default=None)
+strand_stat  = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(sup_seq_const) + \
+               Optional(S(":") + integer, default=None)
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
@@ -107,7 +101,7 @@ struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, "+") + S(
 kin_stat = K(kin) + List(struct_var, "+") + S("->") + List(struct_var, "+")
 
 
-statement = seq_stat | sup_seq_stat | strand_stat | struct_stat | kin_stat
+statement = seq_stat | strand_stat | struct_stat | kin_stat
 document = StringStart() + ZeroOrMore(S("\n")) + Group(decl_stat) + S("\n") + \
            List(O(Group(statement)), "\n") + StringEnd()
 document.ignore(pythonStyleComment)
@@ -135,21 +129,27 @@ def load_component(filename, args, prefix):
     print e
     sys.exit(1)
   
-  x, name, params, inputs, outputs = declare
+  stat, name, params, inputs, outputs = declare
   # Build data
   component = Component(name, prefix, params)
   for stat in statements:
     #print list(stat)
     if stat[0] == seq:
-      component.add_sequence(*stat[1:])
-    elif stat[0] == sup_seq:
-      component.add_super_sequence(*stat[1:])
+      stat, name, const, length = stat
+      if len(const) == 1 and const[0][0] == "Anonymous":
+        component.add_sequence(name, const[0][1], length)
+      else:
+        component.add_super_sequence(name, const, length)
+    
     elif stat[0] == strand:
       component.add_strand(*stat[1:])
+    
     elif stat[0] == struct:
       component.add_structure(*stat[1:])
+    
     elif stat[0] == kin:
       component.add_kinetics(*stat[1:])
+    
     else:
       raise Exception, "Unexpected statement:\n%s" % stat
   component.add_IO(inputs, outputs)

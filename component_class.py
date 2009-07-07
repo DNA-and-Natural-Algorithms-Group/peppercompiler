@@ -49,6 +49,9 @@ class Component(PrintObject):
           const[n] = ~self.seqs[seq_name]
         else:
           const[n] =  self.seqs[seq_name]
+      else:
+        assert item[0] == "Anonymous", item
+        const[n] = item[1]
     try:
       seq = SuperSequence(name, length, *const)
     except AssertionError, e:
@@ -72,6 +75,9 @@ class Component(PrintObject):
           const[n] = ~self.seqs[seq_name]
         else:
           const[n] =  self.seqs[seq_name]
+      else:
+        assert item[0] == "Anonymous", item
+        const[n] = item[1]
     try:
       self.strands[name] = Strand(name, dummy, length, *const)
     except AssertionError, e:
