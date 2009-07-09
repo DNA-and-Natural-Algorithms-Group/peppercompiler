@@ -99,10 +99,13 @@ def apply_design(system, seqs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
   # Assign all the designed sequences
   for name, seq in system.base_seqs.items():
-    seq.seq  = seqs[name]
-    assert len(seq.seq) == seq.length
-    seq.wc.seq = wc(seq.seq)
-    assert seq.wc.seq == seqs[name + "*"]
+    if not seq.dummy:
+      seq.seq  = seqs[name]
+      assert len(seq.seq) == seq.length
+      seq.wc.seq = wc(seq.seq)
+      assert seq.wc.seq == seqs[name + "*"]
+    else:
+      seq.seq = seq.wc.seq = ""
   
   for sup_seq in system.sup_seqs.values():
     sup_seq.seq  = string.join([seq.seq for seq in sup_seq.base_seqs], "")

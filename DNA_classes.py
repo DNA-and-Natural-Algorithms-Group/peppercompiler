@@ -22,8 +22,10 @@ WILDCARD = "?"
 
 class Sequence(object):
   """Container for sequences"""
-  def __init__(self, name, constraints, length=None):
+  def __init__(self, constraints, name, prefix, length=None):
     self.name = name
+    self.prefix = prefix
+    self.full_name = prefix + name
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
     
@@ -49,6 +51,13 @@ class Sequence(object):
     for (num, base) in const:
       self.const += base * num  # We represent constriants in long-form
     
+    # Sequences of length 0 must be treated specially, they are not passed on 
+    #   to lower levels, but are allowed for the convinience of users.
+    if self.length == 0:
+      self.dummy = True
+    else:
+      self.dummy = False
+    
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
   
@@ -65,32 +74,36 @@ class Sequence(object):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
   def __repr__(self):
-    return "Sequence(%(name)r, %(length)r, %(const)r)" % self.__dict__
+    return "Sequence(%(const)r, %(name)r, %(prefix)r, %(length)r)" % self.__dict__
 
 class ReverseSequence(Sequence):
   """Complements of defined sequences"""
   def __init__(self, wc):
     self.name = wc.name + "*"
+    self.full_name = wc.full_name + "*"
     self.length = wc.length
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = True
+    self.dummy = wc.dummy
     self.wc = wc
   def __repr__(self):
-    return "~Sequence(%(name)r, %(length)r, %(const)r)" % self.wc.__dict__
+    return "~" + repr(self.wc)
 
 class AnonymousSequence(Sequence):
   """Sequences we didn't lable and are thus anonymous."""
   num = 0
-  def __init__(self, const, length=None):
+  def __init__(self, const, prefix, length=None):
     name = "_Anon"+repr(AnonymousSequence.num)
-    Sequence.__init__(self, name, const, length)
+    Sequence.__init__(self, const, name, prefix, length)
     AnonymousSequence.num += 1
 
 
 class SuperSequence(object):
   """Logical grouping of sequences"""
-  def __init__(self, name, constraints, length=None):
+  def __init__(self, constraints, name, prefix, length=None):
     self.name = name
+    self.prefix = prefix
+    self.full_name = prefix + name
     self.seqs = []
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
@@ -99,28 +112,27 @@ class SuperSequence(object):
     wildcard = None
     # Process constraints
     for item in constraints:
-      if isinstance(item, SuperSequence):
-        # Expand previous super-sequence
-        self.seqs.append(item)
-        self.base_seqs += item.base_seqs
-        self.length += item.length
-      elif isinstance(item, Sequence):
+      if isinstance(item, Sequence):
         # If item is a previously defined sequence, leave it alone, it's good
         self.seqs.append(item)
         self.base_seqs.append(item)
         self.length += item.length
+      elif isinstance(item, SuperSequence):
+        # Expand previous super-sequence
+        self.seqs.append(item)
+        self.base_seqs += item.base_seqs
+        self.length += item.length
       else:
         # Otherwise it's a anonymous constraint
         try:
-          anon_seq = AnonymousSequence(item)
+          anon_seq = AnonymousSequence(item, prefix)
           self.seqs.append(anon_seq)
           self.base_seqs.append(anon_seq)
           self.length += anon_seq.length
         except WildError:
           assert not wildcard, "Too many wildcards in super-sequence %s" % name
           wildcard = (len(self.seqs), len(self.base_seqs), item) # Index and entry of wildcard
-        
-          
+    
     if not wildcard:
       assert self.length == length or length == None, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, length)
     else:
@@ -128,11 +140,19 @@ class SuperSequence(object):
       wild_length = length - self.length  # Wildcard is set so that total length is right
       assert wild_length >= 0, "Sequence %s too short (%r > %r)" % (name, self.length, length)
       i, j, item = wildcard
-      anon_seq = AnonymousSequence(item, wild_length)
+      anon_seq = AnonymousSequence(item, prefix, wild_length)
       self.seqs.insert(i, anon_seq)
       self.base_seqs.insert(j, anon_seq)
       self.length += anon_seq.length
       assert self.length == length
+    
+    # Sequences of length 0 must be treated specially, they are not passed on 
+    #   to lower levels, but are allowed for the convinience of users.
+    if self.length == 0:
+      self.dummy = True
+    else:
+      self.dummy = False
+    
     self.wc = ReverseSuperSequence(self)
   
   def fix_seq(self, fixed_seq):
@@ -147,30 +167,35 @@ class SuperSequence(object):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
   def __repr__(self):
-    return "SuperSequence(%(name)r, %(seqs)r, %(length)r)" % self.__dict__
+    return "SuperSequence(%(seqs)r, %(name)r, %(prefix)r, %(length)r)" % self.__dict__
 
 class ReverseSuperSequence(SuperSequence):
   def __init__(self, wc):
     self.name = wc.name + "*"
+    self.prefix = wc.prefix
+    self.full_name = wc.full_name + "*"
     self.reversed = True
     self.length = wc.length
     self.seqs = [~seq for seq in wc.seqs[::-1]]
     self.seq = None # Stores the sequence once it has been defined.
     self.base_seqs = [~seq for seq in wc.base_seqs[::-1]]
+    self.dummy = wc.dummy
     self.wc = wc
 
 class Strand(SuperSequence):
   """Container for strands"""
-  def __init__(self, name, constraints, length=None, dummy=False):
-    SuperSequence.__init__(self, name, constraints, length)
+  def __init__(self, constraints, name, prefix, length=None, dummy=False):
+    SuperSequence.__init__(self, constraints, name, prefix, length)
     self.dummy = dummy
   def __repr__(self):
-    return "Strand(%(name)r, %(seqs)r, %(length)r, %(dummy)r)" % self.__dict__
+    return "Strand(%(seqs)r, %(name)r, %(prefix)r, %(length)r, %(dummy)r)" % self.__dict__
 
 class Structure(object):
   """Container for structures/complexes"""
-  def __init__(self, name, strands, struct, opt=None):
+  def __init__(self, strands, struct, name, prefix, opt=None):
     self.name = name
+    self.prefix = prefix
+    self.full_name = prefix + name
     self.opt = opt
     self.struct = struct
     self.mfe_struct = None # Stores the actual mfe structure once it's known
@@ -191,12 +216,14 @@ class Structure(object):
       strand.fix_seq(strand_seq)
   
   def __repr__(self):
-    return "Structure(%(name)r, %(opt)r, %(struct)r, %(strands)r)" % self.__dict__
+    return "Structure(%(strands)r, %(struct)r, %(name)r, %(prefix)r, %(opt)r)" % self.__dict__
 
 class Kinetics(object):
-  def __init__(self, name, inputs, outputs):
+  def __init__(self, inputs, outputs, name, prefix):
     self.name = name
+    self.prefix = prefix
+    self.full_name = prefix + name
     self.inputs = inputs
     self.outputs = outputs      
   def __repr__(self):
-    return "Kinetics(%(name)r, %(inputs)r, %(outputs)r)" % self.__dict__
+    return "Kinetics(%(inputs)r, %(outputs)r, %(name)r, %(prefix)r)" % self.__dict__

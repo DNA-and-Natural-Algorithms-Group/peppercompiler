@@ -25,18 +25,17 @@ class Component(PrintObject):
     """Raise error if statement is false. Adds component information to message."""
     prefix = "In component %s: " % self.name
     if not statement:
-      print error(prefix + message)
+      print error(prefix + str(message))
       sys.exit(1)
   
   ## Add information from document statements to object
   def add_sequence(self, name, const, length):
-    if DEBUG: print "sequence", name
+    if DEBUG: print "%s: sequence %s" % (self.name, name)
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     try:
-      seq = Sequence(name, const, length)
+      seq = Sequence(const, name, self.prefix, length)
     except AssertionError, e:
       self.assert_(False, str(e))
-    seq.full_name = self.prefix + name
     self.base_seqs[name] = self.seqs[name] = seq
   
   def clean_const(self, old_const, name):
@@ -47,54 +46,64 @@ class Component(PrintObject):
         seq_name, wc = item[1]
         self.assert_( seq_name in self.seqs, "Sequence '%s' referenced before definion (in sequence/strand '%s')" % (seq_name, name) )
         if not wc:
-          const.append( self.seqs[seq_name] )
+          seq = self.seqs[seq_name]
         else:
-          const.append( self.seqs[seq_name].wc )
+          seq = self.seqs[seq_name].wc
+        const.append(seq)
+      
       elif item[0] == "domains":
         seq_name, wc = item[1]
         self.assert_( seq_name in self.sup_seqs, "Sequence '%s' referenced before definion (in sequence/strand '%s')" % (seq_name, name) )
         if not wc:
-          const += self.sup_seqs[seq_name].seqs
+          seq = self.sup_seqs[seq_name]
         else:
-          const += self.sup_seqs[seq_name].wc.seqs
+          seq = self.sup_seqs[seq_name].wc
+        const += seq.seqs
+      
       else:
         assert item[0] == "Anonymous", item
         const.append( item[1] )
+    
     return const
   
   def add_super_sequence(self, name, const, length):
-    if DEBUG: print "sup-sequence", name
+    if DEBUG: print "%s: super-sequence %s" % (self.name, name)
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     const = self.clean_const(const, name)
     try:
-      seq = SuperSequence(name, const, length)
+      seq = SuperSequence(const, name, self.prefix, length)
     except AssertionError, e:
       self.assert_(False, str(e))
-    seq.full_name = self.prefix + name
     self.sup_seqs[name] = self.seqs[name] = seq
     # Add anonymous sequences
-    for sub_seq in self.sup_seqs[name].seqs:
-      if isinstance(sub_seq, AnonymousSequence):
-        self.seqs[seq.name] = sub_seq
-        self.base_seqs[seq.name] = sub_seq
+    for seq in self.sup_seqs[name].seqs:
+      if seq.reversed: # Look for the standard form of the sequences
+        seq = seq.wc
+      if seq.name not in self.seqs:
+        self.assert_(isinstance(seq, AnonymousSequence), "In super-sequence %s, sequence %s has not been defined yet." % (name, seq.name))
+        self.seqs[seq.name] = seq
+        self.base_seqs[seq.name] = seq
   
   def add_strand(self, dummy, name, const, length):
-    if DEBUG: print "strand", name
+    if DEBUG: print "%s: strand %s" % (self.name, name)
     self.assert_( name not in self.strands, "Duplicate strand definition for '%s'" % name )
     const = self.clean_const(const, name)
     try:
-      self.strands[name] = Strand(name, const, length, dummy)
+      self.strands[name] = Strand(const, name, self.prefix, length, dummy)
     except AssertionError, e:
       self.assert_(False, str(e))
-    self.strands[name].full_name = self.prefix + name
-    # Add anonymous sequences
+    self.assert_(self.strands[name].length > 0, "Strand %s was defined with length 0" % name)
+    # Add anonymous sequences we just created to the lists
     for seq in self.strands[name].seqs:
-      if isinstance(seq, AnonymousSequence):
+      if seq.reversed: # Look for the standard form of the sequences
+        seq = seq.wc
+      if seq.name not in self.seqs:
+        self.assert_(isinstance(seq, AnonymousSequence), "In strand %s, sequence %s has not been defined yet." % (name, seq.name))
         self.seqs[seq.name] = seq
         self.base_seqs[seq.name] = seq
   
   def add_structure(self, opt, name, strands, struct):
-    if DEBUG: print "struct", name
+    if DEBUG: print "%s: structure %s" % (self.name, name)
     self.assert_( name not in self.structs, "Duplicate structure definition for '%s'" % name )
     
     # Convert from list of strand names to list of strands
@@ -115,13 +124,12 @@ class Component(PrintObject):
         full_struct += "+"
       struct = full_struct[:-1] # Get rid of trailing +
     try:
-      self.structs[name] = Structure(name, strands, struct, opt)
+      self.structs[name] = Structure(strands, struct, name, self.prefix, opt)
     except AssertionError, e:
       self.assert_(False, str(e))
-    self.structs[name].full_name = self.prefix + name
   
   def add_kinetics(self, inputs, outputs):
-    if DEBUG: print "kin", self.kin_num
+    if DEBUG: print "%s: kinetics Kin%d" % (self.name, self.kin_num)
     for n, struct in enumerate(inputs):
       self.assert_( struct in self.structs, "Kinetic statement uses structure '%s' before it is defined." % struct )
       inputs[n] = self.structs[struct]
@@ -131,8 +139,7 @@ class Component(PrintObject):
     
     name = "Kin%d" % self.kin_num
     self.kin_num += 1
-    self.kinetics[name] = Kinetics(name, list(inputs), list(outputs))
-    self.kinetics[name].full_name = self.prefix + name
+    self.kinetics[name] = Kinetics(list(inputs), list(outputs), name, self.prefix)
   
   def add_IO(self, inputs, outputs):
     """Add I/O information once we've read the component."""
@@ -178,36 +185,33 @@ class Component(PrintObject):
     
     # Define sequences
     for seq in self.base_seqs.values():
-      name = prefix + seq.name
-      outfile.write("sequence %s = %s : %d\n" % (name, seq.const, seq.length))
+      if not seq.dummy:
+        outfile.write("sequence %s = %s : %d\n" % (seq.full_name, seq.const, seq.length))
     
     # Define super-sequences
     for sup_seq in self.sup_seqs.values():
-      name = prefix + sup_seq.name
-      const = string.join([prefix + seq.name for seq in sup_seq.seqs], " ")
-      outfile.write("sup-sequence %s = %s : %d\n" % (name, const, sup_seq.length))
+      if not seq.dummy:
+        const = string.join([seq.full_name for seq in sup_seq.seqs if not seq.dummy], " ")
+        outfile.write("sup-sequence %s = %s : %d\n" % (sup_seq.full_name, const, sup_seq.length))
     
     # Define strands
     for strand in self.strands.values():
-      name = prefix + strand.name
-      const = string.join([prefix + seq.name for seq in strand.seqs], " ")
+      const = string.join([seq.full_name for seq in strand.seqs if not seq.dummy], " ")
       if strand.dummy:
-        dummy = "[dummy]"
+        dummy = "[dummy] "
       else:
         dummy = ""
-      outfile.write("strand %s %s = %s : %d\n" % (dummy, name, const, strand.length))
+      outfile.write("strand %s%s = %s : %d\n" % (dummy, strand.full_name, const, strand.length))
     
     # Define structures
     for struct in self.structs.values():
-      name = prefix + struct.name
-      strands = string.join([prefix + strand.name for strand in struct.strands], " + ")
-      outfile.write("structure [%dnt] %s = %s : %s\n" % (struct.opt, name, strands, struct.struct))
+      strands = string.join([strand.full_name for strand in struct.strands], " + ")
+      outfile.write("structure [%dnt] %s = %s : %s\n" % (struct.opt, struct.full_name, strands, struct.struct))
     
     # Define kinetics
     for kin in self.kinetics.values():
-      # name = prefix + kin.name
-      inputs = string.join([prefix + struct.name for struct in kin.inputs], " + ")
-      outputs = string.join([prefix + struct.name for struct in kin.outputs], " + ")
+      inputs = string.join([struct.full_name for struct in kin.inputs], " + ")
+      outputs = string.join([struct.full_name for struct in kin.outputs], " + ")
       outfile.write("kinetic %s -> %s\n" % (inputs, outputs))
   
   
@@ -220,19 +224,18 @@ class Component(PrintObject):
     
     # Define structures
     for struct in self.structs.values():
-      name = prefix + struct.name
-      outfile.write("structure %s = %s\n" % (name, struct.struct))
+      outfile.write("structure %s = %s\n" % (struct.full_name, struct.struct))
       # TODO-maybe: test that all sequences are used.
     
     # Define sequences
     for seq in self.base_seqs.values():
-      name = prefix + seq.name
-      outfile.write("sequence %s = %s\n" % (name, seq.const))
+      self.assert_(isinstance(seq, Sequence), "Expected Sequence object instead of %r" % seq)
+      if not seq.dummy:
+        outfile.write("sequence %s = %s\n" % (seq.full_name, seq.const))
     
     # Apply sequences to structures and set objective function
     for struct in self.structs.values():
-      name = prefix + struct.name
-      seqs = string.join([prefix+seq.name for seq in struct.base_seqs])
-      outfile.write("%s : %s\n" % (name, seqs))
+      seqs = string.join([seq.full_name for seq in struct.base_seqs if not seq.dummy])
+      outfile.write("%s : %s\n" % (struct.full_name, seqs))
       if struct.opt: # Optimization parameter
-        outfile.write("%s < %f\n" % (name, struct.opt))
+        outfile.write("%s < %f\n" % (struct.full_name, struct.opt))

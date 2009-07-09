@@ -105,10 +105,11 @@ class System(PrintObject):
         wc = (glob_wc != loc_seq.reversed)  # Are these signals complementary?
         if glob_name not in self.signals:
           self.signals[glob_name] = [(loc_seq, comp_name, wc)]
+          assert not loc_seq.dummy, "In system %s: Signal %s represented by a dummy (length 0) sequence %s. Dummy signals are not allowed." % (self.name, glob_name, loc_seq.name)
           self.lengths[glob_name] = loc_seq.length
         else:
           self.signals[glob_name].append( (loc_seq, comp_name, wc) )
-          assert self.lengths[glob_name] == loc_seq.length, "In system %s: Lengths of signal %s is inconsistent (%d != %d)" % (self.name, glob_name, self.lengths[glob_name], loc_seq.length)
+          assert self.lengths[glob_name] == loc_seq.length, "In system %s: Lengths of signal %s is inconsistent between %s and %s (%d != %d)" % (self.name, glob_name, self.signals[glob_name][0].full_name, loc_seq.full_name, self.lengths[glob_name], loc_seq.length)
       # Collect structures that could represent signals
       for (glob_name, glob_wc), loc_struct in zip(list(outputs), this_comp.output_structs):
         # TODO: deal with the wc aspect of this appropriately.
@@ -219,7 +220,7 @@ class System(PrintObject):
         elif isinstance(loc_seq, DNA_classes.SuperSequence):
           # If it's a super-seq, list the subsequences
           sig_name = comp_name + "-" + loc_seq.name
-          seqs = string.join([prefix+comp_name+"-"+seq.name for seq in loc_seq.base_seqs])
+          seqs = string.join([prefix+comp_name+"-"+seq.name for seq in loc_seq.base_seqs if not seq.dummy])
         else: # it's a system signal
           sig_name = comp_name + "-" + loc_seq
           seqs = prefix + sig_name
