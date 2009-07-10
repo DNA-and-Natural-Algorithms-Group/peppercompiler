@@ -143,7 +143,8 @@ def kinetic(component, prefix, cleanup, trials, time, temp, conc):
     pos_inputs = [None] * len(kin.inputs)
     for n, struct in enumerate(kin.inputs):
       # If this is a dummy input structure and there are actual structures that will replace it
-      if struct in component.input_structs and struct.actual_structs:
+      #   AND: if the dummy structure is just a single strand (otherwise, we may not know what to do).
+      if struct in component.input_structs and struct.actual_structs and len(struct.strands) == 1:
         # ... then we list these structures
         pos_inputs[n] = struct.actual_structs
       # Otherwise, we just use the dummy default structure.
@@ -170,18 +171,22 @@ def sub_inputs(kin, inputs):
   replace = {}
   assert len(inputs) == len(kin.inputs)
   for real_struct, dummy_struct in zip(inputs, kin.inputs):
-    for real_strand, dummy_strand in zip(real_struct.strands, dummy_struct.strands):
-      replace[dummy_strand.full_name] = real_strand
+    if dummy_struct != real_struct:
+      assert len(dummy_struct.strands) == 1, repr(dummy_struct)
+      dummy_strand = dummy_struct.strands[0]
+      replace[dummy_strand.full_name] = real_struct.strands
   
   # Then go through the outputs and actually replace them
   for n, struct in enumerate(new_kin.outputs):
     new_struct = copy(struct)
     new_kin.outputs[n] = new_struct
     new_struct.struct = None  # HACK: We don't use the structure for now, so we don't have to deal with this.
-    new_struct.strands = copy(struct.strands)
-    for m, strand in enumerate(new_struct.strands):
+    new_struct.strands = []
+    for strand in struct.strands:
       if strand.full_name in replace:
-        new_struct.strands[m] = replace[strand.full_name]
+        new_struct.strands += replace[strand.full_name]
+      else:
+        new_struct.strands.append(strand)
   
   return new_kin
 
