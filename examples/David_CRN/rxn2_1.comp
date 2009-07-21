@@ -2,18 +2,18 @@ declare component rxn2_1(t, bm): x1 + x2 -> x3
 
 # Domains
 # Toeholds: d1, d3, d4, d6, d7, d9
-sequence d1 = <t>N
-sequence d3 = <t>N
-sequence d4 = <t>N
-sequence d6 = <t>N
-sequence d7 = <t>N
-sequence d9 = <t>N
+sequence d1 = "<t>N"
+sequence d3 = "<t>N"
+sequence d4 = "<t>N"
+sequence d6 = "<t>N"
+sequence d7 = "<t>N"
+sequence d9 = "<t>N"
 
 # Branch migration domains: d2, d5, d8, d10
-sequence d2 = <bm>N
-sequence d5 = <bm>N
-sequence d8 = <bm>N
-sequence d10 = <bm>N
+sequence d2 = "<bm>N"
+sequence d5 = "<bm>N"
+sequence d8 = "<bm>N"
+sequence d10 = "<bm>N"
 
 # I/O sequences
 sup-sequence x1 = d1 d2 d3
