@@ -21,8 +21,8 @@ component OneBlock_bottom = DAOEtile5up_hp: r6* + g1* -> r1 + r2
 
 component CarryZero_left   = DAOEtile3up: r5* + b7* -> og1 + b4
 component CarryZero_bottom = DAOEtile5up: r6* + og1* -> b7 + b2
-component CarryOne_left   = DAOEtile3up_hp: b5* + r7* -> og1 + r4
-component CarryOne_bottom = DAOEtile5up_hp: b6* + g1* -> r7 + r2
+component CarryOne_left    = DAOEtile3up_hp: b5* + r7* -> og1 + r4
+component CarryOne_bottom  = DAOEtile5up_hp: b6* + g1* -> r7 + r2
 
 component Bottom_BC = DAOEdoubletile35bh_down: m1* + k1 -> k2 + m1
 component Top_BC    = DAOEdoubletile35hi_up: e1* + g2* -> og1* + e1 + inert2
