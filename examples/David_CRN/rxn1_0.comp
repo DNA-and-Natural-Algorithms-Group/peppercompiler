@@ -9,7 +9,7 @@ sequence d3 = "<t>N"
 sequence d2 = "<bm>N"
 
 # I/O sequences
-sup-sequence x1 = d1 d2 d3
+sequence x1 = d1 d2 d3
 
 # Strands
 strand x1 = d1 d2 d3

@@ -12,8 +12,8 @@ sequence d2 = "<bm>N"
 sequence d5 = "<bm>N"
 
 # I/O sequences
-sup-sequence x1 = d1 d2 d3
-sup-sequence x2 = d4 d5 d6
+sequence x1 = d1 d2 d3
+sequence x2 = d4 d5 d6
 
 # Strands
 strand x1 = d1 d2 d3

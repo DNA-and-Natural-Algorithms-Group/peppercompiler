@@ -17,9 +17,9 @@ sequence d10 = "<bm>N"
 sequence d11 = "<bm>N"
 
 # I/O sequences
-sup-sequence x1 = d1 d2 d3
-sup-sequence x2 = d4 d5 d6
-sup-sequence x3 = d7 d8 d9
+sequence x1 = d1 d2 d3
+sequence x2 = d4 d5 d6
+sequence x3 = d7 d8 d9
 
 # Strands
 strand x1 = d1 d2 d3
