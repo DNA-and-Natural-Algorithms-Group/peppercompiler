@@ -17,6 +17,7 @@ here = sys.path[0] # System path to this module.
 sys.path.append(here+"/..")
 
 from DNAfold import DNAfold
+from utils import error
 
 # HACK
 group["_"] = ""
@@ -326,6 +327,10 @@ if __name__ == "__main__":
   
   from find_file import find_file, BadFilename
   
+  if sys.version_info < (2, 5):
+    print error("Must use python 2.5 or greater.")
+    sys.exit(1)
+    
   # Parse command line options.
   usage = "usage: %prog [options] infilename [spuriousC_parameters ...]"
   parser = OptionParser(usage=usage)

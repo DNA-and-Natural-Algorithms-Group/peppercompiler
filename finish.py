@@ -2,13 +2,17 @@
 from __future__ import division
 
 import sys
+from utils import error
+if sys.version_info < (2, 5):
+  print error("Must use python 2.5 or greater.")
+  sys.exit(1)
+
 import string
 from copy import copy
 from subprocess import CalledProcessError
 
 from compiler import load
 from kinetics import read_design, test_kinetics, test_spuradic
-from utils import error
 
 from system_class import System
 from component_class import Component

@@ -1,11 +1,18 @@
 #!/usr/bin/env python
+
+import sys
+from utils import error
+if sys.version_info < (2, 5):
+  print error("Must use python 2.5 or greater.")
+  sys.exit(1)
+
 import re
 import os
 import pickle
 import time
 
 from system_class import load_file
-from utils import match, warning
+from utils import match, warning, error
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""

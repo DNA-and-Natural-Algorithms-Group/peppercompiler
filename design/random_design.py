@@ -17,6 +17,7 @@ here = sys.path[0] # System path to this module.
 sys.path.append(here+"/..")
 
 from DNAfold import DNAfold
+from utils import error
 
 def random_choice(group):
   """Randomly chooses an element (and gives sensical error if group has size 0)."""
@@ -206,6 +207,10 @@ if __name__ == "__main__":
   
   from find_file import find_file
   
+  if sys.version_info < (2, 5):
+    print error("Must use python 2.5 or greater.")
+    sys.exit(1)
+    
   infilename = find_file(sys.argv[1])
   
   # Infer the basename if a full filename is given
