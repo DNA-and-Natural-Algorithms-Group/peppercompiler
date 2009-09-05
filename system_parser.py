@@ -2,7 +2,7 @@ import sys
 
 from system_class import System
 from var_substitute import process
-from utils import print_linenums
+from utils import print_linenums, error
 
 from pyparsing import *
 
@@ -103,7 +103,9 @@ def substitute(filename, args):
   # Parse for function declaration
   param_names = decl_stat.parseFile(filename)[2]
   params = {}
-  assert len(param_names) == len(args), "Argument mismatch loading %s: len(%s) != len(%s)" % (filename, param_names, args)
+  if len(param_names) != len(args):
+    print error("System %s takes %d parameters %r, %d given %r." % (filename, len(param_names), tuple(param_names), len(args), tuple(args)))
+    sys.exit(1)
   for name, val in zip(param_names, args):
     params[name] = val
   return process(filename, params)
