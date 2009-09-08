@@ -9,7 +9,7 @@ import subprocess
 import os
 
 from new_loading import load_file
-from DNA_nupack_classes import group, rev_group, complement
+from DNA_nupack_classes import group, rev_group, complement, seq_comp
 
 # Extend path to see compiler library
 import sys
@@ -63,7 +63,7 @@ class Connections(object):
     self.structs = spec.structs.values()
     self.seqs = spec.seqs.values()
     
-    # HACK: Adding psuedo-structures for sequences
+    # HACK: Adding pseudo-structures for sequences
     self.num_structs = len(self.structs) + len(self.seqs)
     
     self.struct_length = [None] * self.num_structs
@@ -76,7 +76,7 @@ class Connections(object):
         seq_const[seq.num][seq.reversed].append((s, i))
         i += seq.length
       self.struct_length[s] = i
-    # And for each sequence psuedo-structure
+    # And for each sequence pseudo-structure
     for seq_num, seq in enumerate(self.seqs):
       s = len(self.structs) + seq_num
       seq_const[seq.num][seq.reversed].append((s, 0))
@@ -162,7 +162,10 @@ def prepare(in_name):
     eq += [NOTHING, NOTHING]
     wc += [NOTHING, NOTHING]
     st += [" ", " "]
-  # The psuedo-structures.
+  # Mark the end of the real structures (next are pseudo-structures we will remove later
+  real_length = len(st) - 2
+  assert len(st) == len(eq) == len(wc)
+  # The pseudo-structures.
   for seq_num, seq in enumerate(c.seqs):
     s = len(c.structs) + seq_num
     for i in xrange(c.struct_length[s]):
@@ -214,16 +217,12 @@ def prepare(in_name):
       j = wc[i]
       st[i] = complement[st[j]]
   
-  
-  # Print SpuriousC style files
+  # Get rid of pseudo structures
+  st = st[:real_length]
+  # Also clear any pointers to these pseudo-structures
+  eq = [x if x < real_length else NOTHING for x in eq[:real_length]]
+  wc = [x if x < real_length else NOTHING for x in wc[:real_length]]
   return st, eq, wc, c
-
-def print_list(foo, filename, format):
-  """Prints a list to a file using space seperation format."""
-  f = open(filename, "w")
-  for x in foo:
-    f.write(format % x)
-  f.close()
 
 def process_result(c, inname, outname):
   """Output sequences in Joe's format."""
@@ -239,34 +238,48 @@ def process_result(c, inname, outname):
   f = open(outname, "w")
   for s, struct in enumerate(c.structs):
     # Save the sequence
-    struct.seq = seqs[s].replace(" ", "+")
-    struct.mfe_struct, dG = DNAfold(struct.seq)
-    #print repr(struct.seq)
+    struct.nseq = seqs[s].replace(" ", "+")
+    struct.mfe_struct, dG = DNAfold(struct.nseq)
+    #print repr(struct.nseq)
+    
+    # Extract sequences for domains (seqs)
+    full_seq = struct.nseq.replace("+", "")
+    i = 0 # index of start of next domain
+    for seq in struct.seqs:
+      seq.nseq = full_seq[i:i+seq.length]
+      seq.wc.nseq = seq_comp(seq.nseq)
+      i += seq.length
+    assert i == struct.length, "Sequences in struct %s have total length %d != %d, the length of the struct" % (struct.name, i, struct.length)
     
     # Write structure (with dummy content)
     f.write("%d:%s\n" % (0, struct.name))
-    gc_content = (struct.seq.count("C") + struct.seq.count("G")) / len(struct.seq)
-    f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
+    gc_content = (struct.nseq.count("C") + struct.nseq.count("G")) / struct.length
+    f.write("%s %f %f %d\n" % (struct.nseq, 0, gc_content, 0))
     f.write("%s\n" % struct.struct)   # Target structure
     f.write("%s\n" % struct.mfe_struct)  # Dummy MFE structure
   
-  # HACK: we stored the sequences as structures.
   for seq_num, seq in enumerate(c.seqs):
-    s = len(c.structs) + seq_num
-    seq.seq = seqs[s]
-    
-    # Write sequence (with dummy content)
-    f.write("%d:%s\n" % (0, seq.name))
-    gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
-    f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
-    f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
-    # Write wc of sequence (with dummy content)
-    seq = seq.wc
-    f.write("%d:%s\n" % (0, seq.name))
-    #wc_seq = string.join([complement[symb] for symb in seq.seq[::-1]], "")
-    f.write("%s %f %f %d\n" % (seq.get_seq(), 0, gc_content, 0))
-    f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+    # TODO: not returning some sequences may crash finish.py
+    if seq.nseq:
+      # Write sequence (with dummy content)
+      f.write("%d:%s\n" % (0, seq.name))
+      gc_content = (seq.nseq.count("C") + seq.nseq.count("G")) / seq.length
+      f.write("%s %f %f %d\n" % (seq.nseq, 0, gc_content, 0))
+      f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+      # Write wc of sequence (with dummy content)
+      seq = seq.wc
+      f.write("%d:%s\n" % (0, seq.name))
+      #wc_seq = string.join([complement[symb] for symb in seq.nseq[::-1]], "")
+      f.write("%s %f %f %d\n" % (seq.nseq, 0, gc_content, 0))
+      f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
   f.write("Total n(s*) = %f" % 0)
+  f.close()
+
+def print_list(xs, filename, format):
+  """Prints a list 'xs' to a file using space seperation format."""
+  f = open(filename, "w")
+  for x in xs:
+    f.write(format % x)
   f.close()
 
 def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=False, extra_pars=""):

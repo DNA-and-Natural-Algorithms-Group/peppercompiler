@@ -154,7 +154,7 @@ def end_iter(foo):
 
 def build_seq(struct):
   """Produce flat sequence for a structure by expanding out the strands and subsequences/subdomains."""
-  return string.join([ string.join([seq.get_seq() for seq in strand], "") for strand in struct.strands], "+")
+  return string.join([ string.join([seq.seq for seq in strand], "") for strand in struct.strands], "+")
 
 def score(structs):
   """Find unwanted base-pairing"""
@@ -196,7 +196,7 @@ def output_sequences(d, connect, fn):
     seq = seq.wc
     f.write("%d:%s\n" % (0, seq.name))
     #wc_seq = string.join([complement[symb] for symb in seq.seq[::-1]], "")
-    f.write("%s %f %f %d\n" % (seq.get_seq(), 0, gc_content, 0))
+    f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
     f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
   f.write("Total n(s*) = %f" % 0)
   f.close()

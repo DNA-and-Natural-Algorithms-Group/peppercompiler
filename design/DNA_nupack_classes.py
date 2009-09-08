@@ -17,6 +17,7 @@ class Sequence(object):
   def __init__(self, name, template_seq, num):
     self.name = name
     self.seq = template_seq
+    self.nseq = None
     self.num = num
     self.reversed = False
     self.length = len(self.seq)
@@ -25,19 +26,17 @@ class Sequence(object):
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""
     return self.wc
-  def get_seq(self):
-    return self.seq
 
 class ReverseSequence(Sequence):
   """Complements of defined sequences"""
   def __init__(self, wc):
     self.name = wc.name + "*"
+    self.seq = seq_comp(wc.seq)
+    self.nseq = None
     self.length = wc.length
     self.num = wc.num
     self.reversed = True
     self.wc = wc
-  def get_seq(self):
-    return seq_comp(self.wc.seq)
 
 def get_bonds(struct):
   bonds = []
@@ -62,14 +61,17 @@ class Structure(object):
   def __init__(self, name, struct):
     self.name = name
     self.struct = struct
+    self.length = len(struct.replace("+", ""))
     self.bonds = get_bonds(struct)
     self.seqs = None
     self.seq = None
+    self.nseq = None
   def set_seqs(self, seqs):
     """Set the sequences for a structure."""
     assert not self.seqs, "Sequences have already been set for this structure."
     self.seqs = tuple(seqs)
-    self.seq = string.join([seq.get_seq() for seq in self.seqs], "")
+    assert self.length == sum([seq.length for seq in self.seqs])
+    self.seq = string.join([seq.seq for seq in self.seqs], "")
 
   def seq_loc(self, index):
     """Find out which sequence of the structure that the index falls into."""

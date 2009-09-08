@@ -22,14 +22,7 @@ statement = Group(Suppress(int_ + ":") + var + Suppress(LineEnd()) + \
                   struct + Suppress(LineEnd()) + \
                   struct + Suppress(LineEnd()) )
 
-# (struct1, struct2, sequence, n(s*), gc content, mfe distance, ideal struct, actual mfe struct)
-# Ignoring arbitrary integer ids
-bad_inter = Group(Suppress(int_ + ":") + var + Suppress("N") + var + Suppress(LineEnd()) + \
-                  seq + float_ + float_ + int_ + Suppress(LineEnd()) + \
-                  struct + Suppress(LineEnd()) + \
-                  struct + Suppress(LineEnd()) )
-
 end_statement = Suppress("Total n(s*) =") + float_
 
 # Ignoring bad interactions for now.
-document = StringStart() + List(statement) + Suppress(List(bad_inter)) + end_statement + Suppress(ZeroOrMore(LineEnd())) + StringEnd()
+document = StringStart() + List(statement) + end_statement + Suppress(ZeroOrMore(LineEnd())) + StringEnd()
