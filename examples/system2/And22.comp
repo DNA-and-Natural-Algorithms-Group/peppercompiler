@@ -1,10 +1,10 @@
 declare component And22(t, d): x + y -> s + c
 
 ## Sequences
-sequence x = <t+d>N : <t+d>
-sequence s = <t+d>N : <t+d>
-sequence c = <t+d>N : <t+d>
-sequence y = <t+d>N : <t+d>
+sequence x = "<t+d>N" : <t+d>
+sequence s = "<t+d>N" : <t+d>
+sequence c = "<t+d>N" : <t+d>
+sequence y = "<t+d>N" : <t+d>
 
 
 ## Strands
