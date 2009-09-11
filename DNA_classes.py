@@ -29,37 +29,44 @@ class Sequence(object):
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
     
+    self.length, self.const = self._get_length_const(length, list(constraints))
+    
+    # Sequences of length 0 must be treated specially, they are not passed on 
+    #   to lower levels, but are allowed for the convinience of users.
+    self.dummy = (self.length == 0)
+    
+    # Keep track of whether this sequence has been used in a strand yet.
+    # If it never is, it will not be designed by most designers, so we warn user
+    self.in_strand = False
+    
+    # Build the dummy sequence for the W-C complement
+    self.wc = ReverseSequence(self)
+  
+  def _get_length_const(self, length, constraints):
+    """Work out all the complicated wildcard rules to get the precise length and constraints list."""
     # Check length and resolve wildcard
-    const = list(constraints)
-    lengths = [num for num, code in const]
+    lengths = [num for num, code in constraints]
     wilds = lengths.count(WILDCARD)
     assert wilds <= 1, "Too many wildcards in sequence %s" % name
     if wilds == 0: # no wildcards
-      self.length = sum(lengths)
-      if length != None:
-        assert self.length == length, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, length)
+      seq_lengths = sum(lengths)
+      if length:
+        assert length == seq_lengths, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, seq_length)
+      else: # If length was not specified (None), we set it
+        length = seq_lengths
     else: # one wildcard
       if length == None: raise WildError("Sequence %s has a ?. but no length specified" % name)
-      self.length = length
       check_length = sum([x for x in lengths if x != WILDCARD])
       wild_length = length - check_length  # Wildcard is set so that total length is right
       assert wild_length >= 0, "Sequence %s too short (%r > %r)" % (name, length, check_length)
       i = lengths.index(WILDCARD)
-      const[i] = (wild_length, const[i][1])
+      constraints[i] = (wild_length, constraints[i][1])
     
-    self.const = ""
-    for (num, base) in const:
-      self.const += base * num  # We represent constriants in long-form
+    const = ""
+    for (num, base) in constraints:
+      const += base * num  # We represent constriants in long-form
     
-    # Sequences of length 0 must be treated specially, they are not passed on 
-    #   to lower levels, but are allowed for the convinience of users.
-    if self.length == 0:
-      self.dummy = True
-    else:
-      self.dummy = False
-    
-    # Build the dummy sequence for the W-C complement
-    self.wc = ReverseSequence(self)
+    return length, const
   
   def fix_seq(self, fixed_seq):
     """Constrian ourselves to a specific sequence."""
@@ -187,6 +194,11 @@ class Strand(SuperSequence):
   def __init__(self, constraints, name, prefix, length=None, dummy=False):
     SuperSequence.__init__(self, constraints, name, prefix, length)
     self.dummy = dummy
+    
+    # Keep track of whether this strand has been used in a structure yet.
+    # If it never is, it may not be designed by some designers, so we warn user
+    self.in_structure = False
+    
   def __repr__(self):
     return "Strand(%(seqs)r, %(name)r, %(prefix)r, %(length)r, %(dummy)r)" % self.__dict__
 

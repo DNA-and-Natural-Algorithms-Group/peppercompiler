@@ -1,7 +1,7 @@
 import sys
 import string
 
-from utils import ordered_dict, PrintObject, error
+from utils import ordered_dict, PrintObject, error, warning
 from DNA_classes import *
 
 DEBUG = False
@@ -97,6 +97,7 @@ class Component(PrintObject):
     for seq in self.strands[name].seqs:
       if seq.reversed: # Look for the standard form of the sequences
         seq = seq.wc
+      seq.in_strand = True
       if seq.name not in self.seqs:
         self.assert_(isinstance(seq, AnonymousSequence), "In strand %s, sequence %s has not been defined yet." % (name, seq.name))
         self.seqs[seq.name] = seq
@@ -110,6 +111,7 @@ class Component(PrintObject):
     for n, strand in enumerate(strands):
       self.assert_( strand in self.strands, "Strand '%s' referenced before definion (in structure '%s')" % (strand, name) )
       strands[n] = self.strands[strand]
+      strands[n].in_structure = True
     
     isdomain, struct = struct
     if isdomain: # This is a domain-based structure
@@ -186,6 +188,7 @@ class Component(PrintObject):
     # Define sequences
     for seq in self.base_seqs.values():
       if not seq.dummy:
+        if not seq.in_strand: print warning("Sequence %s is defined but never used in a strand. It probably will not be deisgned." % seq.full_name)
         outfile.write("sequence %s = %s : %d\n" % (seq.full_name, seq.const, seq.length))
     
     # Define super-sequences
@@ -196,6 +199,7 @@ class Component(PrintObject):
     
     # Define strands
     for strand in self.strands.values():
+      if not strand.in_structure: print warning("Strand %s is defined but never used in a structure. It may not be deisgned." % strand.full_name)
       const = string.join([seq.full_name for seq in strand.seqs if not seq.dummy], " ")
       if strand.dummy:
         dummy = "[dummy] "
@@ -222,14 +226,21 @@ class Component(PrintObject):
     else:
       outfile.write("#\n## Top Component\n")
     
+    used_seqs = set()
+    
     # Define structures
     for struct in self.structs.values():
       outfile.write("structure %s = %s\n" % (struct.full_name, struct.struct))
-      # TODO-maybe: test that all sequences are used.
-    
+      # Add all sequences in this structure to set of used sequences.
+      used_seqs.update([ x for x in struct.base_seqs if not x.reversed] + \
+                       [~x for x in struct.base_seqs if x.reversed])
+  
     # Define sequences
     for seq in self.base_seqs.values():
       self.assert_(isinstance(seq, Sequence), "Expected Sequence object instead of %r" % seq)
+      if seq not in used_seqs:
+        print warning("Sequence %s is defined, but never used in a structure. It may not be designed." % seq.full_name)
+      
       if not seq.dummy:
         outfile.write("sequence %s = %s\n" % (seq.full_name, seq.const))
     

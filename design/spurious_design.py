@@ -19,6 +19,8 @@ sys.path.append(here+"/..")
 from DNAfold import DNAfold
 from utils import error
 
+DEBUG = True
+
 # HACK
 group["_"] = ""
 rev_group[""] = "_"
@@ -230,15 +232,18 @@ def process_result(c, inname, outname):
   f = open(inname, "r")
   nts = f.read()
   f.close()
-  # Find and seperate structures. Sequences are stored on the last line.
+  # File has all sorts of runtime info.
+  # The final sequences are stored on the last full line.
   nts = nts.split("\n")[-2]
   #print repr(nts)
-  seqs = string.split(nts, "  ")
+  seqs = string.split(nts, "  ") # Sequences for each structure
   
   f = open(outname, "w")
-  for s, struct in enumerate(c.structs):
+  assert len(c.structs) == len(seqs), "%d != %d" % (len(c.structs), len(seqs))
+  for struct, nseq in zip(c.structs, seqs):
+    if DEBUG: print struct.name, nseq
     # Save the sequence
-    struct.nseq = seqs[s].replace(" ", "+")
+    struct.nseq = nseq.replace(" ", "+")
     struct.mfe_struct, dG = DNAfold(struct.nseq)
     #print repr(struct.nseq)
     
