@@ -210,7 +210,7 @@ def prepare(in_name):
       if st[j] == "_" and "_" not in (st[i], old_stj):
         print
         print i, j, st[i], old_stj
-  # Propogate the changes
+  # Propagate the changes
   for i in xrange(len(eq)):
     if eq[i] != NOTHING and eq[i] < i:
       j = eq[i]

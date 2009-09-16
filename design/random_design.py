@@ -107,7 +107,7 @@ def design(infilename, outfile):
       data = connect.data[seq_num][loc]
       data[True].base = random_choice(data[True].const)
       data[False].base = complement[ data[True].base ]
-    # Propogate mutations
+    # Propagate mutations
     for i, seq in enumerate(d.seqs.values()):
       for j, symb in enumerate(seq.seq):
         seq.seq = str_replace(seq.seq, j, connect.data[i][j][True].base)
