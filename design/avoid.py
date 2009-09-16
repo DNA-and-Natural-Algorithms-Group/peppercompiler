@@ -1,6 +1,6 @@
 """
 The k-sequence avoidance algorithm attempts to construct sequences which avoid 
-having any subsequences of length k which are complimentary unless explicitly
+having any subsequences of length k which are complementary unless explicitly
 forced to be so.
 
 Considered extension:
@@ -43,7 +43,7 @@ class Design(object):
     """
     Avoid k-subsequence repeats or complementarity 
     with constraints that nt be in st, and 
-    eq and wc specify representatives for equality and complimentarity.
+    eq and wc specify representatives for equality and complementarity.
     """
     # We will recurse at least self.n times.
     # This might fail on to.dna for >25,000 recursion with Seg Fault!

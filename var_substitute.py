@@ -1,7 +1,7 @@
 """
 Does some simple processing:
  * <expr>  are evaluated
- * {a,b} are seperated onto multiple lines (as in shell scripting)
+ * {a,b} are separated onto multiple lines (as in shell scripting)
  
 Lines begining with length may be used to set variables
 

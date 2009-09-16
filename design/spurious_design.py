@@ -29,13 +29,13 @@ complement["_"] = "_"
 def intersect_groups(x1, x2):
   g1 = group[x1]; g2 = group[x2]
   inter = set(g1).intersection(set(g2))
-  #assert len(inter) > 0, "System overconstrained. %s and %s cannot be equal." % (x1, x2)
+  #assert len(inter) > 0, "System over-constrained. %s and %s cannot be equal." % (x1, x2)
   inter = list(inter)
   inter.sort()
   inter = string.join(inter, "")
   return rev_group[inter]
 
-# SpuriousC notation for nothing (specifically, there being no wc compliment).
+# SpuriousC notation for nothing (specifically, there being no wc complement).
 NOTHING = -1
 
 def min_(foo):
@@ -53,7 +53,7 @@ def min_rep(*terms):
 class Connections(object):
   """
   Keeps track of which parts of dna sequence are constrained to be equal or 
-  complimentary to which other parts.
+  complementary to which other parts.
   """
   def __init__(self, spec):
     # TODO: split strands in a structure.
@@ -100,10 +100,10 @@ class Connections(object):
           self.table[(s, i)] = (rep_wc, rep_eq)
   
   def apply_wc(self, x, y):
-    """Apply WC complimentarity condition between items."""
+    """Apply WC complementarity condition between items."""
     eq_x, wc_x = self.table[x]
     eq_y, wc_y = self.table[y]
-    # x is complimentary to y so merge their representatives.
+    # x is complementary to y so merge their representatives.
     new_eq_x = new_wc_y = min_rep(eq_x, wc_y)
     new_eq_y = new_wc_x = min_rep(eq_y, wc_x)
     
@@ -130,7 +130,7 @@ def prepare(in_name):
   spec = load_file(in_name)
   
   # Load structures and subsequences into Connections object
-  # and connect subsequences that are equal and complimentary.
+  # and connect subsequences that are equal and complementary.
   c = Connections(spec)
   
   # Connect regions that are constrained to helixes.
@@ -281,7 +281,7 @@ def process_result(c, inname, outname):
   f.close()
 
 def print_list(xs, filename, format):
-  """Prints a list 'xs' to a file using space seperation format."""
+  """Prints a list 'xs' to a file using space separation format."""
   f = open(filename, "w")
   for x in xs:
     f.write(format % x)
@@ -314,7 +314,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   print_list(eq, eqname, "%d ")
   
   if "_" in st:
-    print "System overconstrained."
+    print "System over-constrained."
     sys.exit(1)
   
   # Run SpuriousC

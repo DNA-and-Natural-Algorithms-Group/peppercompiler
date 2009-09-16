@@ -62,7 +62,7 @@ seq_var = Group(seq_name + Flag("*"))
 
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
-#  2) A sequence variable (possibly complimented with *) (Must start with lowercase letter)
+#  2) A sequence variable (possibly complemented with *) (Must start with lowercase letter)
 sup_seq_const = ( Group(H("Anonymous") + seq_const) |
                   Group("domains" + S("(") + seq_var + S(")")) |
                   Group(H("Sequence") + seq_var) )

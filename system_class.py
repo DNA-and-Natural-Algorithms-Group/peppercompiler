@@ -193,7 +193,7 @@ class System(PrintObject):
       template.output_nupack(prefix+comp_name+"-", outfile)
     
     # For each signal sequence connecting components constrain them to be be equal.
-    # To force this constraint I make them all complimentary to a single dummy strand
+    # To force this constraint I make them all complementary to a single dummy strand
     if prefix:
       outfile.write("#\n## System %s Connectors\n" % prefix[:-1])
     else: 
@@ -201,7 +201,7 @@ class System(PrintObject):
     for signal in self.signals:
       length = self.lengths[signal]
       signal_name = prefix + signal
-      wc_name = signal_name + "-_WC"  # A dummy variable wc compliment to signal
+      wc_name = signal_name + "-_WC"  # A dummy variable wc complement to signal
       
       outfile.write("#\n## Signal %s\n" % signal_name)
       outfile.write("sequence %s = %s\n" % (signal_name, "N" * length))

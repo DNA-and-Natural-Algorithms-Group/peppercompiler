@@ -23,7 +23,7 @@ class Complex(PrintObject):
     self.strands = strands; self.struct = struct
 
 def test_kinetics(kin, cleanup, trials=24, time=100000, temp=25, conc=1.0, out_interval=-1):
-  """Test times for inputs to combine/seperate into outputs"""
+  """Test times for inputs to combine/separate into outputs"""
   used_strands = ordered_dict()
   ins = []
   for struct in kin.inputs:
