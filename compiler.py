@@ -15,7 +15,8 @@ from utils import match, warning, error
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  type_, name, seq = match(r"(\w+) ([\w_-]+) ([ATCG]+)(?: #.*)?", line)
+  m = match(r"(\w+) ([\w_-]+) ([ATCG]+)(?: #.*)?", line)
+  type_, name, seq = m.groups()
   return type_, name, seq
 
 def load_fixed(filename):

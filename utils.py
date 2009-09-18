@@ -22,11 +22,7 @@ def match(regex, line):
   """Match *entire* line to regex converting all spaces into '\s+' and allowing trailing spaces."""
   regex = regex.replace(" ", r"\s+")
   regex += r"\s*\Z"
-  parse = re.match(regex, line)
-  if parse:
-    return parse.groups()
-  else:
-    raise ParseException("regex '%s' does not match line:\n%r" % (regex, line))
+  return re.match(regex, line)
 
 ## Search for file in list of directories
 def search_file(filename, search_path):
