@@ -42,7 +42,7 @@ def load_file(filename):
     elif pieces[1] == "<": # Set the objective function for a structure
       pass
     else:
-      assert False, "Command not valid.\n" + line # TODO: more info
+      error("Parse Error in file '%s': Command '%s' not valid.\n%s" % (filename, pieces[0], line)) # TODO: more info
   
   return spec
 
@@ -56,10 +56,9 @@ def parse_seq(line):
     sequence, name, eq, seq = line.split(None, 3) # TODO: Put in try/except for when this fails
     assert eq == "=", "Sequence syntax incorrect" # TODO: add line and syntax
   except (ValueError, AssertionError):
-    print error("Invalid sequence statement format:\n"
-                "Should be: sequence <name> = <constraints>\n"
-                "Invalid:   %s" % line)
-    sys.exit(1)
+    error("Invalid sequence statement format:\n"
+          "Should be: sequence <name> = <constraints>\n"
+          "Invalid:   %s" % line)
   assert set(seq).issubset( set(group.keys()) ), "Sequence constraints must be written out in allowed alphabet. %r not in %r" % (seq, group.keys())
   return name, seq
 

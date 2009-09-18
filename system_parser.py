@@ -104,8 +104,7 @@ def substitute(filename, args):
   param_names = decl_stat.parseFile(filename)[2]
   params = {}
   if len(param_names) != len(args):
-    print error("System %s takes %d parameters %r, %d given %r." % (filename, len(param_names), tuple(param_names), len(args), tuple(args)))
-    sys.exit(1)
+    error("System %s takes %d parameters %r, %d given %r." % (filename, len(param_names), tuple(param_names), len(args), tuple(args)))
   for name, val in zip(param_names, args):
     params[name] = val
   return process(filename, params)

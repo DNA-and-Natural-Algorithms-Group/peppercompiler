@@ -6,8 +6,7 @@ from utils import error
 try:
   import config_choices as config
 except ImportError:
-  print error("DNA Circuit Compiler is not configured, please run config.py")
-  sys.exit(1)
+  error("DNA Circuit Compiler is not configured, please run config.py")
 
 def DNAfold(seq, temp=25):
   """Run the installed thermodynamic mfe package"""

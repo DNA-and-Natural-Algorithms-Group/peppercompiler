@@ -25,8 +25,7 @@ class Component(PrintObject):
     """Raise error if statement is false. Adds component information to message."""
     prefix = "In component %s: " % self.name
     if not statement:
-      print error(prefix + str(message))
-      sys.exit(1)
+      error(prefix + str(message))
   
   ## Add information from document statements to object
   def add_sequence(self, name, const, length):
@@ -188,7 +187,8 @@ class Component(PrintObject):
     # Define sequences
     for seq in self.base_seqs.values():
       if not seq.dummy:
-        if not seq.in_strand: print warning("Sequence %s is defined but never used in a strand. It probably will not be deisgned." % seq.full_name)
+        if not seq.in_strand:
+          warning("Sequence %s is defined but never used in a strand. It probably will not be deisgned." % seq.full_name)
         outfile.write("sequence %s = %s : %d\n" % (seq.full_name, seq.const, seq.length))
     
     # Define super-sequences
@@ -199,7 +199,8 @@ class Component(PrintObject):
     
     # Define strands
     for strand in self.strands.values():
-      if not strand.in_structure: print warning("Strand %s is defined but never used in a structure. It may not be deisgned." % strand.full_name)
+      if not strand.in_structure:
+        warning("Strand %s is defined but never used in a structure. It may not be deisgned." % strand.full_name)
       const = string.join([seq.full_name for seq in strand.seqs if not seq.dummy], " ")
       if strand.dummy:
         dummy = "[dummy] "
@@ -239,7 +240,7 @@ class Component(PrintObject):
     for seq in self.base_seqs.values():
       self.assert_(isinstance(seq, Sequence), "Expected Sequence object instead of %r" % seq)
       if seq not in used_seqs:
-        print warning("Sequence %s is defined, but never used in a structure. It may not be designed." % seq.full_name)
+        warning("Sequence %s is defined, but never used in a structure. It may not be designed." % seq.full_name)
       
       if not seq.dummy:
         outfile.write("sequence %s = %s\n" % (seq.full_name, seq.const))

@@ -19,7 +19,7 @@ sys.path.append(here+"/..")
 from DNAfold import DNAfold
 from utils import error
 
-DEBUG = True
+DEBUG = False
 
 # HACK
 group["_"] = ""
@@ -346,8 +346,7 @@ if __name__ == "__main__":
   from find_file import find_file, BadFilename
   
   if sys.version_info < (2, 5):
-    print error("Must use python 2.5 or greater.")
-    sys.exit(1)
+    error("Must use python 2.5 or greater.")
     
   # Parse command line options.
   usage = "usage: %prog [options] infilename [spuriousC_parameters ...]"

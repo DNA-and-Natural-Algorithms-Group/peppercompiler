@@ -3,8 +3,7 @@
 import sys
 from utils import error
 if sys.version_info < (2, 5):
-  print error("Must use python 2.5 or greater.")
-  sys.exit(1)
+  error("Must use python 2.5 or greater.")
 
 import re
 import os
@@ -85,7 +84,7 @@ if __name__ == "__main__":
   try:
     import config_choices
   except ImportError:
-    print warning("DNA Circuit Compiler is not configured, please run config.py")
+    warning("DNA Circuit Compiler is not configured, please run config.py")
   
   # Parse command line options.
   usage = "usage: %prog [options] BASENAME [parameters ...]"

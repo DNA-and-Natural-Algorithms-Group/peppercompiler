@@ -6,6 +6,7 @@ import os
 import random
 import re
 import string
+import sys
 import tempfile
 
 def print_linenums(text):
@@ -55,12 +56,13 @@ def green(text):
 
 ## Error and warning messages
 def error(text):
-  """Return a formatted error message."""
-  return red("ERROR: " + text)
+  """Print a formatted error message and exit."""
+  sys.stderr.write(red("ERROR: %s\n" % text))
+  sys.exit(1)
 
 def warning(text):
-  """Return a formatted warning message."""
-  return red("Warning: " + text)
+  """Print a formatted warning message."""
+  sys.stderr.write(red("Warning: %s\n" % text))
 
 
 def mktemp(mode, *args, **keys):

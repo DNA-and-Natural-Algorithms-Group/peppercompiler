@@ -4,8 +4,7 @@ from __future__ import division
 import sys
 from utils import error
 if sys.version_info < (2, 5):
-  print error("Must use python 2.5 or greater.")
-  sys.exit(1)
+  error("Must use python 2.5 or greater.")
 
 import string
 from copy import copy
@@ -96,7 +95,7 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
         try:
           process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, spurious_time, temp, conc))
         except CalledProcessError, e:
-          print error(str(e))
+          error(str(e))
 
 
 def apply_design(system, seqs):

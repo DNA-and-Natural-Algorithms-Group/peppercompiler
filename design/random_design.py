@@ -208,8 +208,7 @@ if __name__ == "__main__":
   from find_file import find_file
   
   if sys.version_info < (2, 5):
-    print error("Must use python 2.5 or greater.")
-    sys.exit(1)
+    error("Must use python 2.5 or greater.")
     
   infilename = find_file(sys.argv[1])
   
