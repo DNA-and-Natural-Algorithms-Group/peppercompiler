@@ -96,7 +96,8 @@ def parse_struct(line):
           "or:        structure [<parameters>] <name> = <strand names> : <secondary structure>\n"
           "Was:       %s" % line)
   params, name, strand_names, struct = m.group(2, 3, 4, 5)
-  strand_names = strand_names.split()
+  strand_names = strand_names.split("+")
+  strand_names = [sname.strip() for sname in strand_names]  # Clean off whitespace
   struct = struct.replace(" ", "").replace("\t", "") # Clear out whitespace
   if not set(struct).issubset( set(".()+") ):
     error('Secondary structure must only use allowd alphabet (".()+").\nLine: %s' % line)

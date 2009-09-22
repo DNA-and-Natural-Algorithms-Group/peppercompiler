@@ -84,7 +84,7 @@ class Design(object):
             #print "eq", j, i, part_seq + nt
             continue
         
-        comp_end = DNA_classes.wc(new_end)  # Complement
+        comp_end = DNA_classes.seq_comp(new_end)  # Complement
         # If the last 'k' nts are wc to a past seq ...
         if comp_end in bad_seqs:
           j = bad_seqs[comp_end]

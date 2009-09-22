@@ -10,8 +10,8 @@ rev_group = dict([(v, k) for (k, v) in group.items()])  # A reverse lookup for g
 complement = {"A": "T", "T": "A", "C": "G", "G": "C",
               "W": "W", "S": "S", "M": "K", "K": "M",
               "B": "V", "V": "B", "D": "H", "H": "D",
-              "N": "N"} # Should satisfy set(group[complement[X]]) == set(wc(group[X]))
-def wc(seq):
+              "N": "N"} # Should satisfy set(group[complement[X]]) == set(seq_comp(group[X]))
+def seq_comp(seq):
   """Returns the WC complement of a nucleotide sequence."""
   return string.join([complement[nt] for nt in reversed(seq)], "")
 
@@ -34,7 +34,7 @@ class ReverseSequence(Sequence):
   """Complements of defined sequences"""
   def __init__(self, wc):
     self.name = wc.name + "*"
-    self.seq = wc(wc.seq)
+    self.seq = seq_comp(wc.seq)
     self.nseq = None
     self.length = wc.length
     self.num = wc.num
