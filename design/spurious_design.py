@@ -9,7 +9,7 @@ import subprocess
 import os
 
 from new_loading import load_file
-from DNA_nupack_classes import group, rev_group, complement, seq_comp
+from DNA_nupack_classes import group, rev_group, complement, wc
 
 # Extend path to see compiler library
 import sys
@@ -252,7 +252,7 @@ def process_result(c, inname, outname):
     i = 0 # index of start of next domain
     for seq in struct.seqs:
       seq.nseq = full_seq[i:i+seq.length]
-      seq.wc.nseq = seq_comp(seq.nseq)
+      seq.wc.nseq = wc(seq.nseq)
       i += seq.length
     assert i == struct.length, "Sequences in struct %s have total length %d != %d, the length of the struct" % (struct.name, i, struct.length)
     
