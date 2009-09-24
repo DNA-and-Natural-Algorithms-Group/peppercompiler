@@ -29,7 +29,7 @@ class Sequence(object):
     self.seq = None # Stores the sequence once it has been defined.
     self.reversed = False
     
-    self.length, self.const = self._get_length_const(length, list(constraints))
+    self.length, self.const = self._get_length_const(length, list(constraints), name)
     
     # Sequences of length 0 must be treated specially, they are not passed on 
     #   to lower levels, but are allowed for the convinience of users.
@@ -42,7 +42,7 @@ class Sequence(object):
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
   
-  def _get_length_const(self, length, constraints):
+  def _get_length_const(self, length, constraints, name):
     """Work out all the complicated wildcard rules to get the precise length and constraints list."""
     # Check length and resolve wildcard
     lengths = [num for num, code in constraints]
@@ -190,7 +190,7 @@ class ReverseSuperSequence(SuperSequence):
     self.wc = wc
 
 class Strand(SuperSequence):
-  """Container for strands"""
+  """Container for strands. Inherits from SuperSequence for convinience."""
   def __init__(self, constraints, name, prefix, length=None, dummy=False):
     SuperSequence.__init__(self, constraints, name, prefix, length)
     self.dummy = dummy
@@ -215,6 +215,7 @@ class Structure(object):
     self.seq = None # Stores the sequence once it has been defined.
     self.base_seqs = []
     sub_structs = [strand_struct for strand_struct in self.struct.split("+")] # Check that lengths match up
+    assert len(strands) == len(sub_structs), "Mismatch: Structure %s is defined by %d strands, but secondary structure has %d strands" % (name, len(strands), len(sub_structs))
     for strand, sub_struct in zip(strands, sub_structs):
       assert isinstance(strand, Strand), "Structure %s must get strands" % name
       assert strand.length == len(sub_struct), "Mismatch: Strand %s in structure %s has length %d, but sub-structure %s implies %d" % (strand.name, name, strand.length, sub_struct, len(sub_struct))

@@ -55,10 +55,13 @@ class Spec(PrintObject):
   
   def add_struct(self, name, strand_names, struct, params):
     assert name not in self.structs, "Duplicate structure definition: %s - %r" % (name, (strand_names, struct, params))
-    strands = [self.strands[name] for name in strand_names] # TODO: will error if bad name
+    strands = get_strands(strand_names, self.strands)
     self.structs[name] = Structure(name, strands, struct, params)
   
   def add_equal(self, seq_names):
     seqs = get_seqs(seq_names, self.seqs)
+    l = seqs[0].length
+    for seq in seqs:
+      assert seq.length == l, "equal statement has different length sequences: %r & %r" % (seqs[0].name, seq.name)
     self.equals.append( seqs )
 

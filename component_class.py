@@ -88,19 +88,20 @@ class Component(PrintObject):
     self.assert_( name not in self.strands, "Duplicate strand definition for '%s'" % name )
     const = self.clean_const(const, name)
     try:
-      self.strands[name] = Strand(const, name, self.prefix, length, dummy)
+      self.strands[name] = strand = Strand(const, name, self.prefix, length, dummy)
     except AssertionError, e:
       self.assert_(False, str(e))
-    self.assert_(self.strands[name].length > 0, "Strand %s was defined with length 0" % name)
+    self.assert_(strand.length > 0, "Strand %s was defined with length 0" % name)
     # Add anonymous sequences we just created to the lists
-    for seq in self.strands[name].seqs:
+    for seq in strand.seqs:
       if seq.reversed: # Look for the standard form of the sequences
         seq = seq.wc
-      seq.in_strand = True
       if seq.name not in self.seqs:
         self.assert_(isinstance(seq, AnonymousSequence), "In strand %s, sequence %s has not been defined yet." % (name, seq.name))
         self.seqs[seq.name] = seq
         self.base_seqs[seq.name] = seq
+    for seq in strand.base_seqs:
+      seq.in_strand = True
   
   def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "%s: structure %s" % (self.name, name)
@@ -188,7 +189,7 @@ class Component(PrintObject):
     for seq in self.base_seqs.values():
       if not seq.dummy:
         if not seq.in_strand:
-          warning("Sequence %s is defined but never used in a strand. It probably will not be deisgned." % seq.full_name)
+          warning("Sequence %s is defined but never used in a strand. It probably will not be designed." % seq.full_name)
         outfile.write("sequence %s = %s : %d\n" % (seq.full_name, seq.const, seq.length))
     
     # Define super-sequences
@@ -200,7 +201,7 @@ class Component(PrintObject):
     # Define strands
     for strand in self.strands.values():
       if not strand.in_structure:
-        warning("Strand %s is defined but never used in a structure. It may not be deisgned." % strand.full_name)
+        warning("Strand %s is defined but never used in a structure. It may not be designed." % strand.full_name)
       const = string.join([seq.full_name for seq in strand.seqs if not seq.dummy], " ")
       if strand.dummy:
         dummy = "[dummy] "
