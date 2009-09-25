@@ -14,10 +14,10 @@ begin.
 === Basic usage ===
 
 Run
- $ python compile.py circuit
+ $ python compile.py --pil circuit
 
 to compile "circuit.sys" or "circuit.comp" and produce the design 
-specification, "circuit.des" (for Joe's designer).
+specification, "circuit.pil" (use --des for .des format used by Joe's designer).
 
 Process "circuit.des" with a designer. There is a wrapper for Erik's SpuriousC 
 in "design/". Run
