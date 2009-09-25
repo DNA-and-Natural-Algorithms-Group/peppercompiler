@@ -5,6 +5,13 @@ from constraints import propagate_constraints
 from PIL_parser import load_spec
 from PIL_DNA_classes import group, rev_group, complement
 
+# Extend path to see compiler library
+import sys
+here = sys.path[0] # System path to this module.
+sys.path.append(here+"/..")
+
+from DNAfold import DNAfold
+
 def min_(xs):
   """Returns min element (or None if there are no elements)"""
   if len(xs) == 0:
@@ -192,127 +199,171 @@ def index_func_strand(spec):
   
   return get_index, get_index_strand
 
-def get_constraints_from_file(filename, struct_orient=False):
-  """
-  Load a file (in PIL format) and distil out the equality, complementarity 
-  and templating constraints. 
-  
-  struct_orient == True if we are listing out all structures in constraint files
-  struct_orient == False if we are listing out strands (only once each)
-  """
-  ## Load the specification
-  spec = load_spec(filename)
-  
-  ## Create constraint object
-  constraints = Constraints()
-  
-  
-  ## Initialize all struct/strand constraints lists
-  if struct_orient:
-    get_index, get_index_strand = index_func_struct(spec)
+class Convert(object):
+  def __init__(self, filename, struct_orient=False):
+    """
+    Load a file (in PIL format) and prepare to get constraints.
     
-    for struct in spec.structs.values():
-      for x in range(struct.length):
-        x2 = get_index(struct, x)
-        constraints.init(x2)
+    struct_orient == True if we are listing out all structures in constraint files
+    struct_orient == False if we are listing out strands (only once each)
+    """
+    ## Load the specification
+    self.spec = load_spec(filename)
     
-    # Constrain all instances of the same strand to be equal
-    for struct in spec.structs.values():
-      offset = 0
-      for strand in struct.strands:
+    ## Create constraint object
+    self.constraints = Constraints()
+    
+    self.struct_orient = struct_orient
+  
+  def get_constraints(self):
+    """Distil out constraints information from the specification."""
+    ## Initialize all struct/strand constraints lists
+    if self.struct_orient:
+      self.get_index, self.get_index_strand = index_func_struct(self.spec)
+      
+      for struct in self.spec.structs.values():
+        for x in range(struct.length):
+          x2 = self.get_index(struct, x)
+          self.constraints.init(x2)
+      
+      # Constrain all instances of the same strand to be equal
+      for struct in self.spec.structs.values():
+        offset = 0
+        for strand in struct.strands:
+          for x in range(strand.length):
+            x2 = self.get_index_strand(strand, x)
+            y2 = self.get_index(struct, offset + x)
+            self.constraints.add_eq(x2, y2)
+          offset += strand.length
+    
+    else: # if strand oriented
+      self.get_index, self.get_index_strand = index_func_strand(self.spec)
+      
+      for strand in self.spec.strands.values():
         for x in range(strand.length):
-          x2 = get_index_strand(strand, x)
-          y2 = get_index(struct, offset + x)
-          constraints.add_eq(x2, y2)
-        offset += strand.length
-  
-  else: # if strand oriented
-    get_index, get_index_strand = index_func_strand(spec)
+          x2 = self.get_index_strand(strand, x)
+          self.constraints.init(x2)
     
-    for strand in spec.strands.values():
-      for x in range(strand.length):
-        x2 = get_index_strand(strand, x)
-        constraints.init(x2)
-  
-  
-  ## Add constraints
-  # Structural constraints
-  for struct in spec.structs.values():
-    for x, y in struct.bonds:
-      x2 = get_index(struct, x)
-      y2 = get_index(struct, y)
-      constraints.add_wc(x2, y2)
-  
-  
-  ## Initialize all sequence constraints lists
-  num = 0
-  for seq in spec.base_seqs.values():
-    seq.num = num
-    num += 1
-    for x, letter in enumerate(seq.template):
-      x2 = (seq.num, x)
-      constraints.init(x2, letter)
-    # We list both sequences and reverse_sequences making constraints code simpler
-    seq.wc.num = num
-    num += 1
-    for x in range(seq.wc.length):
-      x2 = (seq.wc.num, x)
-      constraints.init(x2)
-      constraints.add_wc(x2, (seq.num, seq.length - x - 1) ) # Add wc constraint
-  # and for super-sequences
-  for seq in spec.sup_seqs.values():
-    seq.num = num
-    num += 1
-    for x in range(seq.length):
-      x2 = (seq.num, x)
-      constraints.init(x2)
-    # and wc
-    seq.wc.num = num
-    num += 1
-    for x in range(seq.wc.length):
-      x2 = (seq.wc.num, x)
-      constraints.init(x2)
-      constraints.add_wc(x2, (seq.num, seq.length - x) ) # Add wc constraint
-  
-  
-  # Equality constraints
-  for eqlist in spec.equals:
-    first_seq = eqlist[0]
-    for seq in eqlist[1:]:
-      assert seq.length == first_seq.length
+    
+    ## Add constraints
+    # Structural constraints
+    for struct in self.spec.structs.values():
+      for x, y in struct.bonds:
+        x2 = self.get_index(struct, x)
+        y2 = self.get_index(struct, y)
+        self.constraints.add_wc(x2, y2)
+    
+    
+    ## Initialize all sequence constraints lists
+    num = 0
+    for seq in self.spec.base_seqs.values():
+      seq.num = num
+      num += 1
+      for x, letter in enumerate(seq.template):
+        x2 = (seq.num, x)
+        self.constraints.init(x2, letter)
+      # We list both sequences and reverse_sequences making constraints code simpler
+      seq.wc.num = num
+      num += 1
+      for x in range(seq.wc.length):
+        x2 = (seq.wc.num, x)
+        self.constraints.init(x2)
+        self.constraints.add_wc(x2, (seq.num, seq.length - x - 1) ) # Add wc constraint
+    # and for super-sequences
+    for seq in self.spec.sup_seqs.values():
+      seq.num = num
+      num += 1
       for x in range(seq.length):
-        constraints.add_eq( (first_seq.num, x), (seq.num, x) )
+        x2 = (seq.num, x)
+        self.constraints.init(x2)
+      # and wc
+      seq.wc.num = num
+      num += 1
+      for x in range(seq.wc.length):
+        x2 = (seq.wc.num, x)
+        self.constraints.init(x2)
+        self.constraints.add_wc(x2, (seq.num, seq.length - x - 1) ) # Add wc constraint
+    
+    
+    # Equality constraints
+    for eqlist in self.spec.equals:
+      first_seq = eqlist[0]
+      for seq in eqlist[1:]:
+        assert seq.length == first_seq.length
+        for x in range(seq.length):
+          self.constraints.add_eq( (first_seq.num, x), (seq.num, x) )
+    
+    # Super-sequence constraints
+    for seq in self.spec.sup_seqs.values():
+      offset = 0
+      for sub_seq in seq.seqs:
+        for x in range(sub_seq.length):
+          self.constraints.add_eq( (seq.num, offset + x), (sub_seq.num, x) )
+        offset += sub_seq.length
+    
+    # Strand constraints
+    for strand in self.spec.strands.values():
+      offset = 0
+      for seq in strand.seqs:
+        for x in range(seq.length):
+          x2 = self.get_index_strand(strand, offset + x)
+          self.constraints.add_eq(x2, (seq.num, x) )
+        offset += seq.length
+    
+    ## Propagate constraints
+    self.constraints.propagate()
+    
+    ## Propagate templating constraints
+    self.constraints.propagate_templates()
+    
+    ## Get constraints
+    self.constraints.get_reps()
+    eq, wc, st = self.constraints.dump()
+    
+    return eq, wc, st
+
+  def process_results(self, nts):
+    """Once a designer has designed a nucleotide sequence, reincorporate that info back into the specification."""
+    for strand in self.spec.strands.values():
+      seq = [nts[self.get_index_strand(strand, x)] for x in range(strand.length)]
+      strand.set_seq(string.join(seq, ""))
+    
+    for struct in self.spec.structs.values():
+      struct.get_seq()
   
-  # Super-sequence constraints
-  for seq in spec.sup_seqs.values():
-    offset = 0
-    for sub_seq in seq.seqs:
-      for x in range(sub_seq.length):
-        constraints.add_eq( (seq.num, offset + x), (sub_seq.num, x) )
-      offset += sub_seq.length
-  
-  # Strand constraints
-  for strand in spec.strands.values():
-    offset = 0
-    for seq in strand.seqs:
-      for x in range(seq.length):
-        x2 = get_index_strand(strand, offset + x)
-        constraints.add_eq(x2, (seq.num, x) )
-      offset += seq.length
-  
-  ## Propagate constraints
-  constraints.propagate()
-  
-  ## Propagate templating constraints
-  constraints.propagate_templates()
-  
-  ## Get constraints
-  constraints.get_reps()
-  eq, wc, st = constraints.dump()
-  
-  return eq, wc, st
+  def output(self, outname):
+    """Output designed sequences to outfilename in .mfe format."""
+    f = open(outname, "w")
+    for num, struct in enumerate(self.spec.structs.values()):
+      # TODO-maybe: change output format so we don't need to run DNAfold in designer.
+      struct.mfe_struct, dG = DNAfold(struct.seq)
+      
+      # Write structure (with dummy content)
+      f.write("%d:%s\n" % (num, struct.name))
+      gc_content = (struct.seq.count("C") + struct.seq.count("G")) / struct.length
+      f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
+      f.write("%s\n" % struct.struct)   # Target structure
+      f.write("%s\n" % struct.mfe_struct)  # MFE structure
+    
+    for seq_num, seq in enumerate(self.spec.seqs.values()):
+      num = seq_num + len(self.spec.structs)
+      # TODO: not returning some sequences may crash finish.py
+      if seq.seq:
+        # Write sequence (with dummy content)
+        f.write("%d:%s\n" % (num, seq.name))
+        gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
+        f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
+        f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+        # Write wc of sequence (with dummy content)
+        seq = seq.wc
+        f.write("%d:%s\n" % (0, seq.name))
+        f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
+        f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+    f.write("Total n(s*) = %f" % 0) # Dummy n(s*)
+    f.close()
 
 if __name__ == "__main__":
   import sys
   
-  print get_constraints_from_file(sys.argv[1], (len(sys.argv) > 2))
+  convert = Convert(sys.argv[1], (len(sys.argv) > 2))
+  print convert.get_constraints()

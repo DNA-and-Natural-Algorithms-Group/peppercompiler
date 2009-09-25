@@ -25,6 +25,15 @@ class Sequence(object):
     self.reversed = False
     # Build the dummy sequence for the W-C complement
     self.wc = ReverseSequence(self)
+  
+  def set_seq(self, seq):
+    """Set the sequence."""
+    if self.seq: # If this sequence is already defined
+      assert self.seq == seq, "Sequence %s was designed with 2 different sequences: %s and %s" % (self.name, self.seqs, seqs)
+    else: # If it's not defined yet
+      self.seq = seq
+      self.wc.seq = seq_comp(seq)
+  
   def __repr__(self):
     return "Sequence(%(name)r, %(template)r)" % self.__dict__
 
@@ -59,6 +68,19 @@ class SuperSequence(object):
     
     self.reversed = False
     self.wc = ReverseSuperSequence(self)
+  
+  def set_seq(self, seq):
+    """Set the sequence and apply it to all subsequences."""
+    assert len(seq) == self.length, "Designed sequence length mismatch. %d != %d" % (len(seq), self.length)
+    if self.seq: # If this sequence is already defined
+      assert self.seq == seq, "Sequence %s was designed with 2 different sequences: %s and %s" % (self.name, self.seqs, seqs)
+    else: # If it's not defined yet
+      self.seq = seq
+      self.wc.seq = seq_comp(seq)
+      i = 0
+      for sub_seq in self.seqs:
+        sub_seq.set_seq(seq[i:i+sub_seq.length])
+        i += sub_seq.length
   
   def __repr__(self):
     return "SuperSequence(%(name)r, %(seqs)r)" % self.__dict__
@@ -121,6 +143,10 @@ class Structure(object):
       assert strand.length == len(sub_struct), "Mismatch: Strand %s in structure %s has length %d, but sub-structure %s implies %d" % (strand.name, name, strand.length, sub_struct, len(sub_struct))
       self.base_seqs += strand.base_seqs
       self.length += strand.length
+  
+  def get_seq(self):
+    """Get sequence from strands which have been set."""
+    self.seq = string.join([strand.seq for strand in self.strands], "+")
   
   def __repr__(self):
     return "Structure(%(name)r, %(strands)r, %(struct)r, %(params)r)" % self.__dict__
