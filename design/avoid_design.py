@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 """
 Designs sequences using a k-sequence avoiding algorithm.
-Uses Joe Zadah's input and output formats for compatibility with compiler.
+Uses PIL input and Zadeh's .des output formats for compatibility with compiler.
 """
 
 import avoid
-from spurious_design import prepare
+from constraint_load import Convert
 
 def design(in_name, k):
-  st, eq, wc = prepare(in_name)
+  convert = Convert(in_name, struct_orient=False)
+  eq, wc, st = convert.get_constraints()
+  
+  def st_map(x):
+    return x  if x != None  else " "
+  st = map(st_map, st)
+  
   d = avoid.Design(st, eq, wc)
   print d.avoid(k)
   # TODO: something with these sequences.

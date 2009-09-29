@@ -13,7 +13,6 @@ Uses the input format from Winfree's SpuriousC algorithm.
 import sys
 import random
 
-from spurious_design import NOTHING
 import DNA_nupack_classes as DNA_classes
 
 def last(n, foo):
@@ -63,7 +62,7 @@ class Design(object):
     # If we've already assigned an equal or wc constraint we must respect it
     if self.eq[i] < i:
       order = [part_seq[self.eq[i]]] # There is only one choice
-    elif self.wc[i] != NOTHING and self.wc[i] < i:
+    elif self.wc[i] != None and self.wc[i] < i:
       order = [DNA_classes.complement[part_seq[self.wc[i]]]] # There is only one choice
     
     # Otherwise, randomly order the allowed nts
