@@ -1,13 +1,15 @@
 """Multistrand wrapper"""
 from __future__ import division
 
-import string
-import re
 import os
+import string
 import subprocess
+import random
+import re
 
-from utils import mktemp, urandom, error
+from utils import mktemp, error
 
+urandom = random.SystemRandom()
 def random_seed():
   """
   Return a random seed x uniform random [0 <= x < 2**31].

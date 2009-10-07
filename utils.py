@@ -73,33 +73,6 @@ def _dummy(*args, **kw):
   """A method not available function."""
   raise Exception, "methods not available"
 
-
-class URandom(random.Random):
-  """An actual random number generator (using urandom)"""
-  def random(self):
-    return self.getrandbits(64) / 2**64
-  
-  def getrandbits(self, nbits):
-    """Get n random bits from urandom."""
-    nbytes = int(math.ceil( nbits / 8. ))
-    
-    rand_bytes = os.urandom(nbytes)
-    
-    rand = 0
-    for byte in rand_bytes:
-      rand = rand*256 + ord(byte)
-    
-    return rand % 2**nbits
-  
-  def seed(self, *args, **keys):
-    """There is no seed, there is no state."""
-    pass
-  
-  setstate = getstate = _dummy
-
-urandom = URandom() # Singleton urandom object
-
-
 ## Generic Objects
 class ordered_dict(dict):
   """A standard dictionary that remembers the order you added items in.
