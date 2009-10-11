@@ -101,7 +101,10 @@ class Component(PrintObject):
         self.seqs[seq.name] = seq
         self.base_seqs[seq.name] = seq
     for seq in strand.base_seqs:
-      seq.in_strand = True
+      if seq.reversed:
+        seq.wc.in_strand = True
+      else:
+        seq.in_strand = True
   
   def add_structure(self, opt, name, strands, struct):
     if DEBUG: print "%s: structure %s" % (self.name, name)
