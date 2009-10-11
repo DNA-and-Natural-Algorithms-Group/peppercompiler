@@ -110,8 +110,8 @@ if __name__ == "__main__":
   parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="No output from spuriousC [Default]")
   parser.add_option("-o", "--output", help="Output file [defaults to BASENAME.mfe]", metavar="FILE")
   
-  parser.add_option("--strand", action="store_false", dest="struct_orient", help="List constraints in strand-oriented manor [Default]")
-  parser.add_option("--struct", action="store_true", dest="struct_orient", help="List constraints in structure-oriented manor")
+  parser.add_option("--strand", action="store_false", dest="struct_orient", help="List constraints in strand-oriented manner [Default]")
+  parser.add_option("--struct", action="store_true", dest="struct_orient", help="List constraints in structure-oriented manner")
   
   parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp)")
   parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use [Default]")
