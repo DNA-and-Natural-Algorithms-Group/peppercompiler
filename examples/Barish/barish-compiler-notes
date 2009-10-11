@@ -1,0 +1,10 @@
+
+
+First verify the compilation of a single tile
+
+python ../../compiler.py DAOEtile5up.comp
+python ../../design/spurious_design.py DAOEtile5up.des
+
+Now compile the Variable Width system
+
+python ../../compiler.py VariableWidth.sys

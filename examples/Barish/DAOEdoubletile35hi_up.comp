@@ -33,3 +33,7 @@ strand longMidRight = sLM sbLRarm sMarm* stLcore* stUcore stULarm* : 74
 strand longRight    = stLRarm stLcore* stUcore stURarm* : 48
 strand shortRight   = sUR stURarm stLRarm* sLR : 26
 
+## Structures
+structure [no-opt] tile = shortLeft + longLeft + longMidLeft + longMidRight + longRight + shortRight : 39. + 48. + 74. + 74. + 48. + 26.  
+# this is a bogus hack that tells the designer that these strands are in a complex, 
+# but provides no further base-pairing information because we don't yet handle psuedoknots
