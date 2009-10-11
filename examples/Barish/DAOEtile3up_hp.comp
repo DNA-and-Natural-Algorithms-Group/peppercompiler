@@ -20,7 +20,7 @@ sequence sRhair = "8N" : 8
 
 ## Strands
 strand longLeft   = sULarm sUcore sLcoreR* sLhair "TTTT" sLhair* "TT" sLcoreL* sLLarm* : 70
-strand longRight  = sURarm* sUcore* sLcoreL sRhair "TTTT" sRhair* "TT" sLcoreR* sLRarm : 70
+strand longRight  = sURarm* sUcore* sLcoreL sRhair "TTTT" sRhair* "TT" sLcoreR sLRarm : 70
 strand shortLeft  = sLL sLLarm sULarm* sUL : 26
 strand shortRight = sLR sLRarm* sURarm sUR : 26
 

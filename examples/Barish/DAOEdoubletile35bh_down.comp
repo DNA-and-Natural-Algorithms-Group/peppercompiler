@@ -29,8 +29,8 @@ sequence stLRhairpin_arm = "7N" : 7
 strand shortLeft    = sLL sbLLarm sbULarm* sUL : 26
 strand longLeft     = sbULarm sbUcore sbLcore* sbLLarm* : 48
 strand longMidLeft  = sUM stULarm sMarm sbUcore* sbLcore sbLRarm* : 79
-strand longMidRight = sbLRarm sMarm* stLcore* stUcore stULarm* : 74
-strand longRight    = stLRarm stLcore stUcore* stURarm* : 48
+strand longMidRight = sbLRarm sMarm* stLcore stUcore* stULarm* : 74
+strand longRight    = stLRarm stLcore* stUcore stURarm* : 48
 strand shortRight   = sUR stURarm stLRarm* stLRhairpin_arm "TTTT" stLRhairpin_arm* : 39
 
 ## Structures

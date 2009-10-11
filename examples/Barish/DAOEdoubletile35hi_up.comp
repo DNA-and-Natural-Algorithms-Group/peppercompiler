@@ -29,7 +29,7 @@ sequence stLcore = "S 14N S" : 16
 strand shortLeft    = sLL sbLLarm sbULarm* sbULhairpin_arm "TTTT" sbULhairpin_arm* : 39
 strand longLeft     = sbULarm sbUcore sbLcore* sbLLarm* : 48
 strand longMidLeft  = sinert stULarm sMarm sbUcore* sbLcore sbLRarm* : 74
-strand longMidRight = sLM sbLRarm sMarm* stLcore* stUcore stULarm* : 74
+strand longMidRight = sLM sbLRarm sMarm* stLcore stUcore* stULarm* : 74
 strand longRight    = stLRarm stLcore* stUcore stURarm* : 48
 strand shortRight   = sUR stURarm stLRarm* sLR : 26
 
