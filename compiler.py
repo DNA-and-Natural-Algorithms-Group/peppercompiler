@@ -90,13 +90,13 @@ if __name__ == "__main__":
   # Parse command line options.
   usage = "usage: %prog [options] BASENAME [parameters ...]"
   parser = OptionParser(usage=usage)
-  parser.set_defaults(pil=False) #verbose=True)
+  parser.set_defaults(pil=True) #verbose=True)
   #parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
   # TODO: implement quiet
   #parser.add_option("-q", "--quiet", action="store_false", dest="verbose")
   parser.add_option("--fixed", help="Fix specific sequences listed in FILE", metavar="FILE")
-  parser.add_option("--des", action="store_false", dest="pil", help="Output in .des format [Default]")
-  parser.add_option("--pil", action="store_true", help="Output in the new .pil format instead of .des format")
+  parser.add_option("--pil", action="store_true", help="Output in the new .pil format [Default]")
+  parser.add_option("--des", action="store_false", dest="pil", help="Output in Zadeh's .des format instead of .pil format")
   parser.add_option("--synthesis", action="store_true", dest="pil", help="Depricated, use --pil instead.")
   parser.add_option("--output", help="Output file [defaults to BASENAME.des]", metavar="FILE")
   parser.add_option("--save", help="Saved state file [defaults to BASENAME.save]", metavar="FILE")
