@@ -33,6 +33,11 @@ def Flag(expr):
 import string
 lowers = string.lowercase
 
+
+sequence_flag = "sequence"
+nucleotide_flag = "nucleotide"
+
+
 # Syntax names and sets
 # Codes for different subsets of nucleotides
 NAcodes = "ACGTUNSWRYMKVHBD"
@@ -84,23 +89,33 @@ secondary_struct = Group( Flag("domain") + (exDotParen | HUnotation) )
 # declare component <component name>(<params>): <inputs> -> <outputs>
 params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, "+") + S("->") + List(signal_var, "+")
+def parse_declare_statement(statement):
+  return decl_stat.parseString(statement, parseAll=True)
 
 # sequence <name> = <constraints> : <length>
 seq_stat = K(seq)  + seq_name + S("=") + List(sup_seq_const) + \
            Optional(S(":") + integer, default=None)
+def parse_sequence_statement(statement):
+  return seq_stat.parseString(statement, parseAll=True)
 
 # strand <name> = <constraints / sequences> : <length>
 strand_stat = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(sup_seq_const) + \
               Optional(S(":") + integer, default=None)
+def parse_strand_statement(statement):
+  return strand_stat.parseString(statement, parseAll=True)
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
                 ( Suppress("[") + float_ + Suppress("nt]") ),
                   default=1.0)
 struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, "+") + S(":") + secondary_struct
+def parse_structure_statement(statement):
+  return struct_stat.parseString(statement, parseAll=True)
 
 # kin <inputs> -> <outputs>
 kin_stat = K(kin) + List(struct_var, "+") + S("->") + List(struct_var, "+")
+def parse_kinetic_statement(statement):
+  return kin_stat.parseString(statement, parseAll=True)
 
 
 statement = seq_stat | strand_stat | struct_stat | kin_stat
