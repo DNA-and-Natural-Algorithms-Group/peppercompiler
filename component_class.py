@@ -32,7 +32,7 @@ class Component(PrintObject):
     if DEBUG: print "%s: sequence %s" % (self.name, name)
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     try:
-      seq = Sequence(const, name, self.prefix, length)
+      seq = Sequence(name, self.prefix, const, length)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.base_seqs[name] = self.seqs[name] = seq
@@ -70,7 +70,7 @@ class Component(PrintObject):
     self.assert_( name not in self.seqs, "Duplicate sequence definition for '%s'" % name )
     const = self.clean_const(const, name)
     try:
-      seq = SuperSequence(const, name, self.prefix, length)
+      seq = SuperSequence(name, self.prefix, const, length)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.sup_seqs[name] = self.seqs[name] = seq
@@ -88,7 +88,7 @@ class Component(PrintObject):
     self.assert_( name not in self.strands, "Duplicate strand definition for '%s'" % name )
     const = self.clean_const(const, name)
     try:
-      self.strands[name] = strand = Strand(const, name, self.prefix, length, dummy)
+      self.strands[name] = strand = Strand(name, self.prefix, const, length, dummy)
     except AssertionError, e:
       self.assert_(False, str(e))
     self.assert_(strand.length > 0, "Strand %s was defined with length 0" % name)
@@ -129,7 +129,7 @@ class Component(PrintObject):
         full_struct += "+"
       struct = full_struct[:-1] # Get rid of trailing +
     try:
-      self.structs[name] = Structure(strands, struct, name, self.prefix, opt)
+      self.structs[name] = Structure(name, self.prefix, strands, struct, opt)
     except AssertionError, e:
       self.assert_(False, str(e))
   
@@ -144,7 +144,7 @@ class Component(PrintObject):
     
     name = "Kin%d" % self.kin_num
     self.kin_num += 1
-    self.kinetics[name] = Kinetics(list(inputs), list(outputs), name, self.prefix)
+    self.kinetics[name] = Kinetics(name, self.prefix, list(inputs), list(outputs))
   
   def add_IO(self, inputs, outputs):
     """Add I/O information once we've read the component."""

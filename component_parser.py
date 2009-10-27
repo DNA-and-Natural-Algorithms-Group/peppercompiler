@@ -34,8 +34,15 @@ import string
 lowers = string.lowercase
 
 
-sequence_flag = "sequence"
-nucleotide_flag = "nucleotide"
+nucleotide_flag = "Anonymous"
+sequence_flag = "Sequence"
+domains_flag = "domains"
+def result2list(foo):
+  """Convert from ParseResults to normal list."""
+  if isinstance(foo, ParseResults):
+    return [result2list(bar) for bar in foo]
+  else:
+    return foo
 
 
 # Syntax names and sets
@@ -68,9 +75,9 @@ seq_var = Group(seq_name + Flag("*"))
 # Strand definition could be:
 #  1) Some basic sequence constraints like 5N or 2S or
 #  2) A sequence variable (possibly complemented with *) (Must start with lowercase letter)
-sup_seq_const = ( Group(H("Anonymous") + seq_const) |
-                  Group("domains" + S("(") + seq_var + S(")")) |
-                  Group(H("Sequence") + seq_var) )
+sup_seq_const = ( Group(H(nucleotide_flag) + seq_const) |
+                  Group(domains_flag + S("(") + seq_var + S(")")) |
+                  Group(H(sequence_flag) + seq_var) )
 
 strand_var = var
 struct_var = var
@@ -90,19 +97,19 @@ secondary_struct = Group( Flag("domain") + (exDotParen | HUnotation) )
 params = O(S("(") + List(var, ",") + S(")"), default=[])
 decl_stat = K(decl) + S(component) + var + params + S(":") + List(signal_var, "+") + S("->") + List(signal_var, "+")
 def parse_declare_statement(statement):
-  return decl_stat.parseString(statement, parseAll=True)
+  return result2list(decl_stat.parseString(statement, parseAll=True))[1:]
 
 # sequence <name> = <constraints> : <length>
 seq_stat = K(seq)  + seq_name + S("=") + List(sup_seq_const) + \
            Optional(S(":") + integer, default=None)
 def parse_sequence_statement(statement):
-  return seq_stat.parseString(statement, parseAll=True)
+  return result2list(seq_stat.parseString(statement, parseAll=True))[1:]
 
 # strand <name> = <constraints / sequences> : <length>
 strand_stat = K(strand) + Flag("[dummy]") + strand_var + S("=") + List(sup_seq_const) + \
               Optional(S(":") + integer, default=None)
 def parse_strand_statement(statement):
-  return strand_stat.parseString(statement, parseAll=True)
+  return result2list(strand_stat.parseString(statement, parseAll=True))[1:]
 
 # structure <optinoal opt param> <name> = <strands> : <secondary structure>
 opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
@@ -110,12 +117,12 @@ opt = Optional(   K("[no-opt]").setParseAction(lambda s, t, l: False) | \
                   default=1.0)
 struct_stat = K(struct) + opt + struct_var + S("=") + List(strand_var, "+") + S(":") + secondary_struct
 def parse_structure_statement(statement):
-  return struct_stat.parseString(statement, parseAll=True)
+  return result2list(struct_stat.parseString(statement, parseAll=True))[1:]
 
 # kin <inputs> -> <outputs>
 kin_stat = K(kin) + List(struct_var, "+") + S("->") + List(struct_var, "+")
 def parse_kinetic_statement(statement):
-  return kin_stat.parseString(statement, parseAll=True)
+  return result2list(kin_stat.parseString(statement, parseAll=True))[1:]
 
 
 statement = seq_stat | strand_stat | struct_stat | kin_stat
@@ -138,7 +145,7 @@ def load_component(filename, args, prefix):
     
   try:
     # Load data
-    declare, statements = document.parseString(doc, parseAll=True)
+    declare, statements = result2list(document.parseString(doc, parseAll=True))
   except ParseBaseException, e:
     print
     print_linenums(doc)
@@ -146,26 +153,26 @@ def load_component(filename, args, prefix):
     print e
     sys.exit(1)
   
-  stat, name, params, inputs, outputs = declare
+  command, name, params, inputs, outputs = declare
   # Build data
   component = Component(name, prefix, params)
-  for stat in statements:
+  for statement in statements:
     #print list(stat)
-    if stat[0] == seq:
-      stat, name, const, length = stat
+    if statement[0] == seq:
+      command, name, const, length = statement
       if len(const) == 1 and const[0][0] == "Anonymous":
         component.add_sequence(name, const[0][1], length)
       else:
         component.add_super_sequence(name, const, length)
     
-    elif stat[0] == strand:
-      component.add_strand(*stat[1:])
+    elif statement[0] == strand:
+      component.add_strand(*statement[1:])
     
-    elif stat[0] == struct:
-      component.add_structure(*stat[1:])
+    elif statement[0] == struct:
+      component.add_structure(*statement[1:])
     
-    elif stat[0] == kin:
-      component.add_kinetics(*stat[1:])
+    elif statement[0] == kin:
+      component.add_kinetics(*statement[1:])
     
     else:
       raise Exception, "Unexpected statement:\n%s" % stat
