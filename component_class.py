@@ -3,6 +3,7 @@ import string
 
 from utils import ordered_dict, PrintObject, error, warning
 from DNA_classes import *
+from component_parser import sequence_flag, domains_flag, nucleotide_flag
 
 DEBUG = False
 
@@ -41,7 +42,7 @@ class Component(PrintObject):
     """Replace all refferences to sequences with the actual sequences, expand domains, etc."""
     const = []
     for item in old_const:
-      if item[0] == "Sequence":
+      if item[0] == sequence_flag:
         seq_name, wc = item[1]
         self.assert_( seq_name in self.seqs, "Sequence '%s' referenced before definion (in sequence/strand '%s')" % (seq_name, name) )
         if not wc:
@@ -50,7 +51,7 @@ class Component(PrintObject):
           seq = self.seqs[seq_name].wc
         const.append(seq)
       
-      elif item[0] == "domains":
+      elif item[0] == domains_flag:
         seq_name, wc = item[1]
         self.assert_( seq_name in self.sup_seqs, "Sequence '%s' referenced before definion (in sequence/strand '%s')" % (seq_name, name) )
         if not wc:
@@ -60,7 +61,7 @@ class Component(PrintObject):
         const += seq.seqs
       
       else:
-        assert item[0] == "Anonymous", item
+        assert item[0] == nucleotide_flag, item
         const.append( item[1] )
     
     return const
@@ -133,8 +134,8 @@ class Component(PrintObject):
     except AssertionError, e:
       self.assert_(False, str(e))
   
-  def add_kinetics(self, inputs, outputs):
-    if DEBUG: print "%s: kinetics Kin%d" % (self.name, self.kin_num)
+  def add_kinetic(self, inputs, outputs):
+    if DEBUG: print "%s: kinetic Kin%d" % (self.name, self.kin_num)
     for n, struct in enumerate(inputs):
       self.assert_( struct in self.structs, "Kinetic statement uses structure '%s' before it is defined." % struct )
       inputs[n] = self.structs[struct]

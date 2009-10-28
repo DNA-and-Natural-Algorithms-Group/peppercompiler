@@ -9,6 +9,8 @@ import string
 import sys
 import tempfile
 
+UNITTEST = False  # Set to true by unittest, so that errors will be nicer.
+
 def print_linenums(text):
    """Print text with line numbers prepended. Start counting at line 1 to fit with pyparsings line numberings"""
    for n, line in enumerate(text.split("\n")):
@@ -53,12 +55,18 @@ def green(text):
 ## Error and warning messages
 def error(text):
   """Print a formatted error message and exit."""
-  sys.stderr.write(red("ERROR: %s\n" % text))
-  sys.exit(1)
+  if not UNITTEST:
+    sys.stderr.write(red("ERROR: %s\n" % text))
+    sys.exit(1)
+  else:
+    raise Exception, red("ERROR: %s\n" % text)
 
 def warning(text):
   """Print a formatted warning message."""
-  sys.stderr.write(red("Warning: %s\n" % text))
+  if not UNITTEST:
+    sys.stderr.write(red("Warning: %s\n" % text))
+  else:
+    raise Exception, red("Warning: %s\n" % text)
 
 
 def mktemp(mode, *args, **keys):

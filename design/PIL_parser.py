@@ -28,7 +28,7 @@ def load_spec(filename):
     
     #print line,
     # Read the command name off (if there is a command name)
-    command = line.split()[0] # TODO: Put in try/except for when this fails
+    command = line.split()[0]
     if command == "sequence":
       name, template = parse_seq(line)
       spec.add_seq(name, template)
@@ -91,7 +91,7 @@ def parse_struct(line):
   """Parse structure statements"""
   m = match(r"structure (\[(\w+)\])? ([\w-]+) = ([^:]*) : (.*)", line)
   if not m:
-    error("Invalid strand statement format:\n"
+    error("Invalid structure statement format:\n"
           "Should be: structure <name> = <strand names> : <secondary structure>\n"
           "or:        structure [<parameters>] <name> = <strand names> : <secondary structure>\n"
           "Was:       %s" % line)

@@ -38,6 +38,8 @@ class TestComponentParser(unittest.TestCase):
     ["NAME", [], [], []],
     ["cOmP_f__32", [], [], []],
     ["NAME", [], [[["x", False], "X"]], [[["y", False], "Y"]]],
+    ["NAME", [], [[["x", False], "X"]], []],
+    ["NAME", [], [], [[["y", False], "Y"]]],
     ["NAME", [], [[["x", True], "X"]], [[["y", False], "Y"]]],
     ["NAME", [], [[["x", False], None]], [[["y", False], None]]],
     ["NAME", [], [[["x", False], "X"], [["cow", True], None], [["BullDoGG_31", False], "bull__dogg32Strand"]], 
@@ -71,7 +73,7 @@ class TestComponentParser(unittest.TestCase):
       self.assertEqual([name, params, inputs, outputs], result)
   
   
-  ## Sequence statement tests
+  ## Sequence statement tests (includes super-sequences which can be specified this way)
   example_sequence = [ 
     ["NAME", [[nucleotide_flag, [[5, "N"]]]], None],
     ["cOmP_f__32", [[nucleotide_flag, [[5, "N"]]]], None],
@@ -86,19 +88,19 @@ class TestComponentParser(unittest.TestCase):
   def test10_sequence_noerror(self):
     """Test simple Component Sequence statement is accepted"""
     statement = 'sequence NAME = "5N"'
-    component_parser.parse_sequence_statement(statement)
+    component_parser.parse_general_sequence_statement(statement)
   
   def test11_sequence_simple(self):
     """Test simple Component Sequence statement is parsed correctly"""
     statement = 'sequence NAME = "5N"'
-    result = component_parser.parse_sequence_statement(statement)
+    result = component_parser.parse_general_sequence_statement(statement)
     # We don't test constraints, because it could be parsed as 5N or N + N + N + N + N
     self.assertEqual( ["NAME", [[nucleotide_flag, [[5, "N"]]]], None], result)
   
   def test12_sequence_super(self):
     """Test simple Component Super Sequence statement is parsed correctly"""
     statement = 'sequence NAME = seq1'
-    result = component_parser.parse_sequence_statement(statement)
+    result = component_parser.parse_general_sequence_statement(statement)
     # We don't test constraints, because it could be parsed as 5N or N + N + N + N + N
     self.assertEqual( ["NAME", [[sequence_flag, ["seq1", False]]], None], result)
   
@@ -111,7 +113,7 @@ class TestComponentParser(unittest.TestCase):
       length_str = (": %d" % length if length != None else "")
       statement = "sequence %s = %s %s" % (name, constr_str, length_str)
       # Test the statement
-      result = component_parser.parse_sequence_statement(statement)
+      result = component_parser.parse_general_sequence_statement(statement)
       self.assertEqual([name, constraints, length], result)
   
   

@@ -16,13 +16,17 @@ goes to
 import string
 import re
 
-def process(infilename, params):
+def process_filename(infilename, params):
+  return process_list(open(infilename, "r"), params)
+
+process = process_filename
+
+def process_list(lines, params):
   if "__builtins__" not in params:
     params["__builtins__"] = None
-  f_in = open(infilename, "r")
-  out = ""
   
-  for line in f_in:
+  out = ""
+  for line in lines:
     # Remove comments
     line = re.sub(r"#.*", "", line)
     
@@ -58,7 +62,6 @@ def process(infilename, params):
     if lines.strip():
       out += lines
   
-  f_in.close()
   return out
 
 
@@ -69,19 +72,25 @@ if __name__ == "__main__":
   import component_parser
   
   def substitute(filename, args):
-    # Parse for function declaration
+    # Find first statement
+    for line in open(filename, "r"):
+      line = re.sub(r"#.*\n", "", line)
+      line = line.strip()
+      if line:
+        break
+    # Parse as system/component declaration
     if re.match(r".*\.sys\Z", filename):
       param_names = system_parser.decl_stat.parseFile(filename)[2]
     elif re.match(r".*\.comp\Z", filename):
-      param_names = component_parser.decl_stat.parseFile(filename)[2]
+      param_names = component_parser.parse_declare_statement(line)[1]
     else:
       raise ValueError, "File %s is neither system nor component type." % filename
-        
+    # and do substitution.
     params = {}
     assert len(param_names) == len(args), (param_names, args)
     for name, val in zip(param_names, args):
       params[name] = val
-    return process(filename, params)
+    return process_filename(filename, params)
 
   filename = sys.argv[1]
   args = map(eval, sys.argv[2:])
