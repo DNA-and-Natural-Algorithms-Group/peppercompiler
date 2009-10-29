@@ -74,8 +74,8 @@ def load_component(filename, args, prefix):
       component.add_structure(name, opt, strands, struct)
     
     elif command == "kinetic":
-      inputs, outputs = parse_kinetic_statement(line)
-      component.add_kinetic(inputs, outputs)
+      low, high, inputs, outputs = parse_kinetic_statement(line)
+      component.add_kinetic(low, high, inputs, outputs)
     
     elif command == "equal":
       #TODO: implement

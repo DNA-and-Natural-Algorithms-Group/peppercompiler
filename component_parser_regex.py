@@ -170,17 +170,38 @@ def parse_structure_statement(line):
 
 def parse_kinetic_statement(line):
   """Parse kinetic statements"""
-  m = match(r"kinetic (.*) -> (.*)", line)
+  m = match(r"kinetic( \[([^\[\]]*)\])? ([^\[\]>]*) -> (.*)", line)
   if not m:
     error("Invalid strand statement format:\n"
           "Should be: kinetic <inputs> -> <outputs>\n"
+          "or:        kinetic [<params>] <inputs> -> <outputs>\n"
           "Was:       %s" % line)
-  inputs, outputs = m.group(1, 2)
+  params, inputs, outputs = m.group(2, 3, 4)
   inputs = inputs.split("+")
   inputs = [x.strip() for x in inputs if x.strip()]
   outputs = outputs.split("+")
   outputs = [x.strip() for x in outputs if x.strip()]
-  return [inputs, outputs]
+  low = high = None
+  if params:
+    m = match(r"(([\deE.]+) /M/s < )?k < ([\deE.]+) /M/s", params)
+    if m:
+      low, high = m.group(2, 3)
+      if low:
+        low = float(low)
+      high = float(high)
+    else:
+      m = match(r"k > ([\deE.]+) /M/s", params)
+      if m:
+        low = float(m.group(1))
+        high = None
+      else:
+        error("Invalid kinetics parameter format:\n"
+              "Should be: <low> /M/s < k < <high> /M/s\n"
+              "or:        k < <high> /M/s\n"
+              "or:        k > <low> /M/s\n"
+              "Was:       %s\n"
+              "In line: %s" % (params, line))
+  return [low, high, inputs, outputs]
 
 def parse_equal_statement(line):
   """Parse super-sequence statements"""

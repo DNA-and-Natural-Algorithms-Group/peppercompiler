@@ -233,11 +233,13 @@ class Structure(object):
     return "Structure(%(name)r, %(prefix)r, %(strands)r, %(struct)r, %(opt)r)" % self.__dict__
 
 class Kinetics(object):
-  def __init__(self, name, prefix, inputs, outputs):
+  def __init__(self, name, prefix, inputs, outputs, low, high):
     self.name = name
     self.prefix = prefix
     self.full_name = prefix + name
     self.inputs = inputs
-    self.outputs = outputs      
+    self.outputs = outputs
+    self.low = low
+    self.high = high
   def __repr__(self):
-    return "Kinetics(%(name)r, %(prefix)r, %(inputs)r, %(outputs)r)" % self.__dict__
+    return "Kinetics(%(name)r, %(prefix)r, %(inputs)r, %(outputs)r, %(low)r, %(high)r)" % self.__dict__

@@ -192,10 +192,13 @@ class TestComponentParser(unittest.TestCase):
   ## Kinetic statement tests
   # TODO: kinetic constraints
   example_kinetic = [
-    [["A"], ["B"]],
-    [[], ["B"]],
-    [["A"], []],
-    [["A"], ["B", "A", "foo3Stru__ct99"]],
+    [None, None, ["A"], ["B"]],
+    [None, None, [], ["B"]],
+    [None, None, ["A"], []],
+    [None, None, ["A"], ["B", "A", "foo3Stru__ct99"]],
+    [1.0e5, None, ["A"], ["B"]],
+    [None, 1.0e10, ["A"], ["B"]],
+    [1.0e5, 1.0e10, ["A"], ["B"]],
   ]
   
   def test40_kinetic_noerror(self):
@@ -207,18 +210,27 @@ class TestComponentParser(unittest.TestCase):
     """Test simple Component Kinetic statement is accepted"""
     statement = 'kinetic A -> B'
     result = component_parser.parse_kinetic_statement(statement)
-    self.assertEqual( [["A"], ["B"]], result )
+    self.assertEqual( [None, None, ["A"], ["B"]], result )
   
   def test42_structure_examples(self):
     """Test example Component Kinetic statements are parsed correctly"""
-    for inputs, outputs in self.example_kinetic:
+    for low, high, inputs, outputs in self.example_kinetic:
       # Build the statement
+      if low and high:
+        params = "[%f /M/s < k < %f /M/s]" % (low, high)
+      elif low and not high:
+        params = "[k > %f /M/s]" % low
+      elif high and not low:
+        params = "[k < %f /M/s]" % high
+      else:
+        params = ""
+        
       inputs_str  = string.join(inputs, " + ")
       outputs_str = string.join(outputs, " + ")
-      statement = "kinetic %s -> %s" % (inputs_str, outputs_str)
+      statement = "kinetic %s %s -> %s" % (params, inputs_str, outputs_str)
       # Test the statement
       result = component_parser.parse_kinetic_statement(statement)
-      self.assertEqual([inputs, outputs], result)
+      self.assertEqual([low, high, inputs, outputs], result)
 
 if __name__ == '__main__':
   unittest.main()

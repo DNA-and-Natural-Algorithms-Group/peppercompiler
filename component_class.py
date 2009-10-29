@@ -134,7 +134,7 @@ class Component(PrintObject):
     except AssertionError, e:
       self.assert_(False, str(e))
   
-  def add_kinetic(self, inputs, outputs):
+  def add_kinetic(self, low, high, inputs, outputs):
     if DEBUG: print "%s: kinetic Kin%d" % (self.name, self.kin_num)
     for n, struct in enumerate(inputs):
       self.assert_( struct in self.structs, "Kinetic statement uses structure '%s' before it is defined." % struct )
@@ -142,10 +142,14 @@ class Component(PrintObject):
     for n, struct in enumerate(outputs):
       self.assert_( struct in self.structs, "Kinetic statement uses structure '%s' before it is defined." % struct )
       outputs[n] = self.structs[struct]
+    if not low:
+      low = 0
+    if not high:
+      high = float("inf")
     
     name = "Kin%d" % self.kin_num
     self.kin_num += 1
-    self.kinetics[name] = Kinetics(name, self.prefix, list(inputs), list(outputs))
+    self.kinetics[name] = Kinetics(name, self.prefix, list(inputs), list(outputs), low, high)
   
   def add_IO(self, inputs, outputs):
     """Add I/O information once we've read the component."""
@@ -222,7 +226,7 @@ class Component(PrintObject):
     for kin in self.kinetics.values():
       inputs = string.join([struct.full_name for struct in kin.inputs], " + ")
       outputs = string.join([struct.full_name for struct in kin.outputs], " + ")
-      outfile.write("kinetic %s -> %s\n" % (inputs, outputs))
+      outfile.write("kinetic [%f /M/s < k < %f /M/s] %s -> %s\n" % (kin.low, kin.high, inputs, outputs))
   
   
   def output_nupack(self, prefix, outfile):
