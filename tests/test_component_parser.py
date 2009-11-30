@@ -5,7 +5,7 @@ import string
 import unittest
 
 import component_parser
-from component_parser import sequence_flag, nucleotide_flag
+from component_parser import sequence_flag, nucleotide_flag, domains_flag
 
 ## Helper functions
 def format_signal(signal):
@@ -24,6 +24,11 @@ def format_constraint(constraint):
     if reverse:
       name += "*"
     return name
+  elif constraint_type == domains_flag:
+    name, reverse = value
+    if reverse:
+      name += "*"
+    return "domains(%s)" % name
   else:
     assert constraint_type == nucleotide_flag, constraint_type
     nucleotides = [str(num) + letter for num, letter in value]
@@ -83,7 +88,8 @@ class TestComponentParser(unittest.TestCase):
     ["NAME", [[sequence_flag, ["seq1", True]]], None],
     ["NAME", [[sequence_flag, ["seq1", False]], [nucleotide_flag, [[5, "N"]]], 
               [sequence_flag, ["seq2", True]]], None],
-  ] # TODO: domains tag
+    ["NAME", [[domains_flag, ["seq1", False]]], None],
+  ]
   
   def test10_sequence_noerror(self):
     """Test simple Component Sequence statement is accepted"""

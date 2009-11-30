@@ -3,7 +3,6 @@
 import sys
 
 from HU2dotParen import extended2dotParen, HU2dotParen
-from component_class import Component
 from var_substitute import process
 from utils import print_linenums, error
 
@@ -141,6 +140,7 @@ document.ignore(pythonStyleComment)
 
 def load_component(filename, args, prefix):
   """Load component file"""
+  from component_class import Component
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)

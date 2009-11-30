@@ -14,17 +14,17 @@ nucleotide_flag = "nucleotide"
 
 def parse_constraints(constraints):
   """Parse a list of constraints"""
-  if not match(r'\A(("[\w?\s]+"|[\w-]+[*]?)(\Z|\s+))*\Z', constraints):
+  if not match(r'\A(("[?\w\s]+"|domains\([-\w]+\*?\)|[-\w]+\*?)(\Z|\s+))*\Z', constraints):
     error("Invalid sequence constraints format:\n"
           'Valid example: "5N" seq1 "SNNCTB" Toe_SEQ\n'
           "Was:           %s" % constraints)
-  constraints = re.findall(r'("[\w?\s]+"|[\w-]+[*]?)', constraints)
+  constraints = re.findall(r'("[?\w\s]+"|domains\([-\w]+\*?\)|[-\w]+\*?)', constraints)
   constraints = map(parse_constraint, constraints)
   return constraints
 
 def parse_constraint(word):
   """Helper function for parsing sequence constraints"""
-  m = match(r'"([\w\s?-]+)"', word)
+  m = match(r'"([-?\w\s]+)"', word)
   if m:
     constraint = m.group(1)
     constraint = re.sub(r"\s*", "", constraint)
@@ -45,11 +45,17 @@ def parse_constraint(word):
         nts += [ [1, x] for x in part[1:] ] # And one of the rest until we get to the next break
     return [nucleotide_flag, nts]
   
-  m = match(r"([\w-]+)([*])?", word)
+  m = match(r"([-\w]+)(\*?)", word)
   if m:
     sequence_name, reverse = m.group(1, 2)
     reverse = bool(reverse)
     return [sequence_flag, [sequence_name, reverse]]
+  
+  m = match(r"domains\(([-\w]+)(\*?)\)", word)
+  if m:
+    sequence_name, reverse = m.group(1, 2)
+    reverse = bool(reverse)
+    return [domains_flag, [sequence_name, reverse]]
 
 def parse_signal(signal):
   """Helper function for parsing input and output signals"""
@@ -83,21 +89,6 @@ def parse_declare_statement(line):
   outputs = [x.strip() for x in outputs if x.strip()]
   outputs = map(parse_signal, outputs)
   return [name, params, inputs, outputs]
-
-def parse_sequence_statement(line):
-  """Parse sequence statements"""
-  m = match(r"sequence ([\w-]+) = ([^:\s]+)( : (\d+))?", line)
-  if not m:
-    error("Invalid sequence statement format:\n"
-          "Should be: sequence <name> = <constraints>\n"
-          "or:        sequence <name> = <constraints> : <length>\n"
-          "Was:       %s" % line)
-  name, template, length = m.group(1, 2, 4)
-  if not set(template).issubset( set(group.keys()) ):
-    error("Sequence's constraint template must be in allowed alphabet (%r).\nLine: %s" % (group.keys(), line))
-  if length:
-    length = int(length)
-  return [name, template, length]
 
 # TODO: make parse_general_sequence_statement()
 def parse_general_sequence_statement(line):

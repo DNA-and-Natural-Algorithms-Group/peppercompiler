@@ -38,7 +38,7 @@ def load_component(filename, args, prefix):
     params[name] = val
   doc = process_list(f, params)
   
-  # Add all the sequences, strands, etc.
+  # Add all the sequences, strands, etc. to the Component
   for line in doc.split("\n"):
     # Strip comments and whitespace
     line = re.sub(r"#.*\n", "", line)

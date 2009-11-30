@@ -1,110 +1,67 @@
-import sys
+"""DNA component design grammar"""
+
+import re
+
+from system_parser_pyparsing import (parse_declare_statement, 
+  parse_import_statement, parse_component_statement)
 
 from system_class import System
-from var_substitute import process
-from utils import print_linenums, error
-
-from pyparsing import *
-
-## Some globals
-K = CaselessKeyword
-S = Suppress
-O = Optional
-Map = lambda func: (lambda s, l, t: map(func, t) )  # A useful mapping function
-
-def List(expr, delim=""):
-  """My delimited list. Allows for length zero list and uses no delimiter by default."""
-  if not delim:
-    return Group(ZeroOrMore(expr))
-  else:
-    return Group(Optional(expr + ZeroOrMore( Suppress(delim) + expr)))
-
-def Flag(expr):
-  """A flag identifier. It is either present or not and returns True or False."""
-  p = Optional(expr)
-  p.setParseAction(lambda s, l, t: bool(t))
-  return p
-
-decl = "declare"
-system = "system"
-import_ = "import"
-component = "component"
-
-# Don't ignore newlines!
-ParserElement.setDefaultWhitespaceChars(" \t")
-
-
-## Define Grammar
-var = Word(alphas, alphanums+"_") # Variable name
-signal = Group(var + Flag("*"))
-signal_list = List(signal, "+")
-
-path = Word(alphanums+".-_/~") # Path name in a directory structure
-py_chars = printables.replace(",", "").replace(")", "")
-python_object = Word(py_chars, py_chars+" ").setParseAction(Map(eval))
-
-
-# declare system <cicuit name>(<params>): <inputs> -> <outputs>
-decl_params = O(S("(") + List(var, ",") + S(")"), default=[])
-decl_stat = K(decl) + S(system) + var + decl_params + S(":") + signal_list + S("->") + signal_list
-
-# import Adder, HalfAdder5 as HalfAdder, templates/Crossing_Gates/LastAdder
-import_stat = K(import_) + delimitedList(Group(path + O(S("as") + var, default=None)))
-
-# component <name> = <template name>(<params>): <inputs> -> <outputs>
-component_params = O( S("(") + List(python_object, ",") + S(")") , default=[])
-component_stat = K(component) + var + S("=") + var + component_params + S(":") + signal_list + S("->") + signal_list
-
-
-statement = import_stat | component_stat
-
-document = StringStart() + Group(decl_stat) + S("\n") + \
-           List(O(Group(statement)), delim="\n") + StringEnd()
-document.ignore(pythonStyleComment)
-
+from var_substitute import process_list
+from utils import error
 
 
 def load_system(filename, args, prefix, path):
-  """Load system connectivity file"""
+  """Load system file"""
+  # Find first statement
+  f = open(filename, "r")
+  for line in f:
+    line = re.sub(r"#.*\n", "", line)
+    line = line.strip()
+    if line:
+      break
+  # Parse it as a declare statement
   try:
-    # Open file and do parameter substitution
-    doc = substitute(filename, args)
+    name, param_names, system_inputs, system_outputs = parse_declare_statement(line)
   except ParseBaseException, e:
-    print
-    print "Parsing error in system:", filename
-    print e
-    sys.exit(1)
-    
-  try:
-    # Load data
-    declare, statements = document.parseString(doc, parseAll=True)
-  except ParseBaseException, e:
-    print
-    print_linenums(doc)
-    print "Parsing error in system:", filename
-    print e
-    sys.exit(1)
+    error("Improper declare statement in file %s\n%s" % (filename, line))
   
-  x, name, params, inputs, outputs = declare
-  # Build data
-  system = System(path, name, prefix, params)
-  for stat in statements:
-    #print list(stat)
-    if stat[0] == import_:
-      system.add_import(*stat[1:])
-    elif stat[0] == component:
-      system.add_component(*stat[1:])
-    else:
-      raise Exception, "Unexpected statement:\n%s" % stat
-  system.add_IO(inputs, outputs)
-  return system
-
-def substitute(filename, args):
-  # Parse for function declaration
-  param_names = decl_stat.parseFile(filename)[2]
+  # Create system object
+  system = System(path, name, prefix, param_names)
+  
+  # Open file and do parameter substitution
   params = {}
   if len(param_names) != len(args):
     error("System %s takes %d parameters %r, %d given %r." % (filename, len(param_names), tuple(param_names), len(args), tuple(args)))
   for name, val in zip(param_names, args):
     params[name] = val
-  return process(filename, params)
+  doc = process_list(f, params)
+  
+  # Add all the sequences, strands, etc. to the System
+  for line in doc.split("\n"):
+    # Strip comments and whitespace
+    line = re.sub(r"#.*\n", "", line)
+    line = line.strip()
+    # Skip empty lines
+    if not line:
+      continue
+    
+    # Read the command name off (if there is a command name)
+    command = line.split()[0]
+    if command == "declare":
+      error("Multiple declare statements in file %s\n%s" % (filename, line))
+    
+    elif command == "import":
+      imports = parse_import_statement(line)
+      system.add_import(imports)
+    
+    elif command == "component":
+      template, name, params, ins, outs = parse_component_statement(line)
+      system.add_component(template, name, params, ins, outs)
+    
+    else:
+      error("Parse Error in file '%s': Command '%s' not valid.\n%s" % (filename, command, line)) # TODO: more info
+  
+  # Add IO to connect everything up.
+  system.add_IO(system_inputs, system_outputs)
+  return system
+

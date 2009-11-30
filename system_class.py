@@ -58,7 +58,7 @@ class System(PrintObject):
     self.kinetics = ordered_dict()
   
   ## Add information from document statements to object
-  def add_import(self, *imports):
+  def add_import(self, imports):
     if DEBUG: print "import", imports
     for path, name in imports:
       if name == None:
