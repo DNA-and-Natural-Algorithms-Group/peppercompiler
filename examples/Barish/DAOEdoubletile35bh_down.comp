@@ -35,5 +35,6 @@ strand shortRight   = sUR stURarm stLRarm* stLRhairpin_arm "TTTT" stLRhairpin_ar
 
 ## Structures
 structure [no-opt] tile = shortLeft + longLeft + longMidLeft + longMidRight + longRight + shortRight : 26. + 48. + 79. + 74. + 48. + 39.  
-# this is a bogus hack that tells the designer that these strands are in a complex, 
-# but provides no further base-pairing information because we don't yet handle psuedoknots
+# This is a dummy structure that tells the designer that these strands are in a 
+#   complex, but provides no further base-pairing information because we don't 
+#   "yet" handle psuedoknots

@@ -1,25 +1,25 @@
 declare component Detector(t i): s -> 
 
 ## Sequences
-sequence s =  ?N : <t+i>#Foobar
+sequence s =  "?N" : <t+i>
 
 ## Strands
 # Inputs
 strand inS = s* : <t+i>
 # Gate sections
-strand Fluor = ?N : <i>
-strand Bind = ?N : <t+i>
+strand Fluor = "?N" : <i>
+strand Bind = "?N" : <t+i>
 
 ## Structures/Complexes
 # Input
-structure InS = inS : U<t+i>
+structure InS = inS : <t+i>.
 # Gate
-structure Det = Fluor  Bind: H<i>(+ U<t>)
+structure Det = Fluor  Bind: <i>( + <t>. <i>)
 # Paired inputs (waste)
-structure wasteDet = inS  Bind: H<t+i>(+)
+structure wasteDet = inS  Bind: <t+i>( + <t+i>)
 # Outputs
-structure OutFluor = Fluor: U<i>
+structure OutFluor = Fluor: <i>.
 
 ## Kinetics
-kin    InS  Det -> wasteDet  OutFluor
+kinetic InS  Det -> wasteDet  OutFluor
 

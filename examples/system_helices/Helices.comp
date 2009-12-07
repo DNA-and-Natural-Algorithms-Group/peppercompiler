@@ -1,8 +1,8 @@
 declare component Helices:  -> 
 
 ## Sequences
-sequence x = 26N : 26
-sequence y = 26N : 26
+sequence x = "26N" : 26
+sequence y = "26N" : 26
 
 
 ## Strands

@@ -6,5 +6,5 @@ import SplitPSwitch
 
 component s1 = SplitPSwitch: in -> topout + botout
 component s2 = DSwitch: topout -> topout2
-component s3 = PSwitch: topout2 -> out   # Does duplicate 'out' work?  
-component s4 = DSwitch: botout -> out    # " " "?
+component s3 = PSwitch: topout2 -> out
+component s4 = DSwitch: botout -> out
