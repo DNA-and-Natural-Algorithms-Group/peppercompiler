@@ -138,15 +138,17 @@ def parse_strand_statement(line):
 
 def parse_structure_statement(line):
   """Parse structure statements"""
-  m = match(r"structure( \[([\wd\.]+)nt\])? ([\w-]+) = ([^:]+) :( domain)? (.+)", line)
+  m = match(r"structure( \[(([\wd\.]+)nt|(no-opt))\])? ([\w-]+) = ([^:]+) :( domain)? (.+)", line)
   if not m:
     error("Invalid structure statement format:\n"
           "Should be: structure <name> = <strand names> : <secondary structure>\n"
           "or:        structure [<parameters>] <name> = <strand names> : <secondary structure>\n"
           "or:        structure [<parameters>] <name> = <strand names> : domain <secondary structure>\n"
           "Was:       %s" % line)
-  opt, name, strand_names, domain, struct = m.group(2, 3, 4, 5, 6)
-  if opt:
+  opt, no_opt, name, strand_names, domain, struct = m.group(3, 4, 5, 6, 7, 8)
+  if no_opt:
+    opt = 0.0
+  elif opt:
     opt = float(opt)
   else:
     opt = 1.0

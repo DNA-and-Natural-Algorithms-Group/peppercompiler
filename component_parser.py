@@ -23,10 +23,7 @@ def load_component(filename, args, prefix):
     if line:
       break
   # Parse it as a declare statement
-  try:
-    name, param_names, component_inputs, component_outputs = parse_declare_statement(line)
-  except ParseBaseException, e:
-    error("Improper declare statement in file %s\n%s" % (filename, line))
+  name, param_names, component_inputs, component_outputs = parse_declare_statement(line)
   
   # Create component object
   component = Component(name, prefix, param_names)

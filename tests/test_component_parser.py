@@ -178,12 +178,18 @@ class TestComponentParser(unittest.TestCase):
     component_parser.parse_structure_statement(statement)
   
   def test31_structure_simple(self):
-    """Test simple Component Structure statement is accepted"""
+    """Test simple Component Structure statement is parsed correctly"""
     statement = 'structure NAME = strand : ..'
     result = component_parser.parse_structure_statement(statement)
     self.assertEqual( [1.0, "NAME", ["strand"], [False, ".."]], result )
   
-  def test32_structure_examples(self):
+  def test32_structure_simple(self):
+    """Test a no-opt Component Structure statement is parsed correctly"""
+    statement = 'structure [no-opt] NAME = strand : ..'
+    result = component_parser.parse_structure_statement(statement)
+    self.assertEqual( [0.0, "NAME", ["strand"], [False, ".."]], result )
+  
+  def test33_structure_examples(self):
     """Test example Component Structure statements are parsed correctly"""
     for name, opt, strands, (domain, struct) in self.example_structure:
       # Build the statement

@@ -20,10 +20,7 @@ def load_system(filename, args, prefix, path):
     if line:
       break
   # Parse it as a declare statement
-  try:
-    name, param_names, system_inputs, system_outputs = parse_declare_statement(line)
-  except ParseBaseException, e:
-    error("Improper declare statement in file %s\n%s" % (filename, line))
+  name, param_names, system_inputs, system_outputs = parse_declare_statement(line)
   
   # Create system object
   system = System(path, name, prefix, param_names)
