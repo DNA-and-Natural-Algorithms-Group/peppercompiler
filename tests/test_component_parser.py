@@ -63,7 +63,13 @@ class TestComponentParser(unittest.TestCase):
     result = component_parser.parse_declare_statement(statement)
     self.assertEqual(["NAME", [], [[["x", False], "X"]], [[["y", False], "Y"]]], result)
   
-  def test02_declare_examples(self):
+  def test02_declare_no_sig(self):
+    """Test a Component Declare statement with no signals is parsed correctly"""
+    statement = "declare component NAME: ->"
+    result = component_parser.parse_declare_statement(statement)
+    self.assertEqual(["NAME", [], [], []], result)
+  
+  def test03_declare_examples(self):
     """Test example Component Declare statements are parsed correctly"""
     for name, params, inputs, outputs in self.example_declare:
       # Build the statement
@@ -183,7 +189,7 @@ class TestComponentParser(unittest.TestCase):
     result = component_parser.parse_structure_statement(statement)
     self.assertEqual( [1.0, "NAME", ["strand"], [False, ".."]], result )
   
-  def test32_structure_simple(self):
+  def test32_structure_no_opt(self):
     """Test a no-opt Component Structure statement is parsed correctly"""
     statement = 'structure [no-opt] NAME = strand : ..'
     result = component_parser.parse_structure_statement(statement)

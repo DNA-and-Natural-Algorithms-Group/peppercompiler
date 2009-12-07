@@ -70,7 +70,7 @@ def parse_signal(signal):
 
 def parse_declare_statement(line):
   """Parse declare statement"""
-  m = match(r"declare component ([\w-]+)(\((.*)\))?:(.*) -> (.*)", line)
+  m = match(r"declare component ([\w-]+)(\((.*)\))?:(.*) ->(.*)", line)
   if not m:
     error("Invalid component declare statement format:\n"
           "Should be: declare component <name>: <inputs> -> <outputs>\n"
