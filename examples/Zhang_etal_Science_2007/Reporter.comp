@@ -1,4 +1,4 @@
-declare component Reporter(bm, toe, extra): input -> 
+declare component Reporter(bm, toe, extra): sinput -> r3
 
 # strand "input" is divided into three sections for the reporter: branch migration (bm), toehold (toe), and extraneous (extra).
 
@@ -6,6 +6,9 @@ declare component Reporter(bm, toe, extra): input ->
 sequence r1  = "<bm>N" : <bm>
 sequence r2  = "<toe>N" : <toe>
 sequence r3  = "<extra>N" : <extra>
+
+## Sequences for system constraints
+sequence sinput = r1 r2 r3
 
 ## Strands
 # Inputs

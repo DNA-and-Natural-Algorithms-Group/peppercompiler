@@ -1,4 +1,4 @@
-declare component Catalyst: cat -> sb + ob + cat
+declare component Catalyst: scat -> ssb + sob + scat
 
 # ob and cat are sequence-independent, but ob's 3'-end 16nt must be identical to cat's 5'-end 16nt.
 # sequences are defined with mostly-three-letter alphabets to be compatible with Dave's actual sequences.
@@ -10,6 +10,11 @@ sequence r3  = "4H" : 4
 sequence r4  = "16N" : 16
 sequence r5  = "6H" : 6
 sequence r6  = "16H" : 16
+
+## Sequences for system constraints
+sequence scat = r4 r5
+sequence ssb = r6 r3 r4
+sequence sob = r1 r2
 
 ## Strands
 # Inputs
