@@ -1,0 +1,9 @@
+
+Zhang, Turberfield, Yurke, Winfree (Science, 2007)
+
+=== First verify the compilation the catalyst experiment (Figure 1)
+
+python ../../compiler.py CatalystExp
+python ../../design/spurious_design.py --keep-temp --struct CatalystExp
+python ../../finish.py CatalystExp
+

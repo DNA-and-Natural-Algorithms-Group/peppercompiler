@@ -1,13 +1,15 @@
 declare component Catalyst: cat -> sb + ob + cat
 
+# ob and cat are sequence-independent, but ob's 3'-end 16nt must be identical to cat's 5'-end 16nt.
+# sequences are defined with mostly-three-letter alphabets to be compatible with Dave's actual sequences.
+
 ## Sequences
-sequence r1  = "4N" : 4
-sequence r2  = "4N" : 4
-sequence r3  = "4N" : 4
-sequence r4  = "4N" : 4
-sequence r5  = "4N" : 4
-sequence r6  = "4N" : 4
-sequence r10 = "4N" : 4
+sequence r1  = "10H" : 10
+sequence r2  = "24N" : 24
+sequence r3  = "4H" : 4
+sequence r4  = "16N" : 16
+sequence r5  = "6H" : 6
+sequence r6  = "16H" : 16
 
 ## Strands
 # Inputs
