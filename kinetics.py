@@ -1,11 +1,15 @@
 from __future__ import division
 
-from utils import ordered_dict, PrintObject
+import os
+
+from utils import ordered_dict, PrintObject, error
 import nupack_out_grammar as ngram
 from multistrand import DNAkinfold
 
 def read_design(filename):
   """Extracts the designed sequences and the mfe structures"""
+  if not os.path.isfile(filename):
+    error("Cannot load design. No such file '%s'." % filename)
   stats, total_n_star = ngram.document.parseFile(filename)
   seqs = {}
   structs = {}

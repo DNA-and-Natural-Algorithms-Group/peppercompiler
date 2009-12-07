@@ -21,12 +21,12 @@ def parse_fixed(line):
 
 def load_fixed(filename):
   """Load a file of sequences to fix."""
-  if os.path.isfile(filename):
-    f = open(filename, "r")
-    return [parse_fixed(line) for line in f if not re.match(r"\s*(#.*)?\s*\Z", line)]
-  else:
-    return []
-
+  if not os.path.isfile(filename):
+    error("Cannot fix sequences. No such file '%s'." % filename)
+  
+  f = open(filename, "r")
+  return [parse_fixed(line) for line in f if not re.match(r"\s*(#.*)?\s*\Z", line)]
+  
 def compiler(basename, args, outputname, savename, fixed_file=None, synth=False):
   """
   Start compiling a specification.
@@ -73,6 +73,8 @@ def save(obj, filename):
 
 def load(filename):
   """Load it back."""
+  if not os.path.isfile(filename):
+    error("Cannot load save state. No such file '%s'." % filename)
   f = open(filename, "r")
   obj = pickle.load(f)
   f.close()

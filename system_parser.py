@@ -14,6 +14,8 @@ def load_system(filename, args, prefix, path):
   """Load system file"""
   # Find first statement
   f = open(filename, "r")
+  
+  line = "" # Default initialization for line, so that empty files don't crash.
   for line in f:
     line = re.sub(r"#.*\n", "", line)
     line = line.strip()

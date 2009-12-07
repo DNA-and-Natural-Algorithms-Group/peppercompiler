@@ -5,7 +5,7 @@ The System class stores all of the information in a system file.
 import string
 
 import DNA_classes
-from utils import ordered_dict, default_ordered_dict, PrintObject
+from utils import ordered_dict, default_ordered_dict, PrintObject, error
 
 DEBUG = False
 
@@ -25,9 +25,14 @@ def load_file(basename, args, prefix, path="."):
   issys = os.path.isfile(sys_name)   # Is it a system file?
   iscomp = os.path.isfile(comp_name) # Is it a component file?
   
-  assert issys or iscomp, "Neither '%s' nor '%s' exist" % (sys_name, comp_name)
-  assert not (issys and iscomp), "Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name)
+  # Check that exactly one of the two types exists
+  if not (issys or iscomp):
+    error("Neither '%s' nor '%s' exist" % (sys_name, comp_name))
   
+  if issys and iscomp:
+    error("Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name))
+  
+  # And load it
   if issys:
     return load_system(sys_name, args, prefix, new_path)
   
