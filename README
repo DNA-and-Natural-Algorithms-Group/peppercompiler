@@ -7,7 +7,7 @@ art designers and kinetic simulators to create and test sequences.
 
 Run
  $ python config.py
-to set up the DNA Circuit Compiler to worok with your system. It helps 
+to set up the DNA Circuit Compiler to work with your system. It helps 
 to have NUPACKHOME or VIENNAHOME environment variables set before you 
 begin.
 
@@ -63,7 +63,7 @@ The "examples/" directory has some instructive examples.
 * examples/system1/ - Really simple dummy system without parametrization
 * examples/system2/ - Same example, with parametrization
 * examples/Georg_System/ - Georg's original logic circuit (Nature 2006)
-* examples/Lulu/ - Some mock-ups of Lulu's sea-saw systems
+* examples/Lulu/ - Some mock-ups of Lulu's seesaw systems
 * examples/Elisa/ - Self-activating and self-inhibiting transcriptional systems
 
 === System/Component specification ===

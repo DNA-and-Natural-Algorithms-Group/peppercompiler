@@ -1,10 +1,10 @@
 declare component And22: x + y -> s + c
 
 ## Sequences
-sequence x = 26N : 26
-sequence s = 26N : 26
-sequence c = 26N : 26
-sequence y = 26N : 26
+sequence x = "26N" : 26
+sequence s = "26N" : 26
+sequence c = "26N" : 26
+sequence y = "26N" : 26
 
 
 ## Strands
@@ -14,8 +14,8 @@ strand inY = y : 26
 
 # Gate sections
 strand X  = x*  : 26
-strand SC = 4N s c 4N : 60
-strand Y  = y* 14N : 40
+strand SC = "4N" s c "4N" : 60
+strand Y  = y* "14N" : 40
 
 
 ## Structures/Complexes

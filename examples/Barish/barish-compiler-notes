@@ -2,19 +2,15 @@
 
 === First verify the compilation of a single tile
 
-python ../../compiler.py DAOEtile5up.comp
-python ../../design/spurious_design.py DAOEtile5up.des
+python ../../compiler.py DAOEtile5up
+python ../../design/spurious_design.py DAOEtile5up
+python ../../finish.py DAOEtile5up
 
-  the above doesn't work, as of 10/10/09, but the below works well. 
-
-python ../../compiler.py --pil DAOEtile5up.comp
-python ../../design/spurious_design.py --keep-temp DAOEtile5up.pil
-python ../../design/spurious_design.py --keep-temp --struct DAOEtile5up.pil
-
+  alternative: python ../../design/spurious_design.py --keep-temp --struct DAOEtile5up
   the --struct option keeps the strands in each tile "together" for SpuriousC
 
 === Now compile the Variable Width system
 
-python ../../compiler.py --pil VariableWidth.sys
-python ../../design/spurious_design.py --keep-temp VariableWidth.pil
+python ../../compiler.py --pil VariableWidth
+python ../../design/spurious_design.py --keep-temp VariableWidth
 
