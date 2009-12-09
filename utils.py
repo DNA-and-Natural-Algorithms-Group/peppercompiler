@@ -9,7 +9,7 @@ import string
 import sys
 import tempfile
 
-UNITTEST = False  # Set to true by unittest, so that errors will be nicer.
+DEBUG = False  # For debugging and unittests, set to true to raise exception on error and warning instead of sys.exit(1) and nothing.
 
 def print_linenums(text):
    """Print text with line numbers prepended. Start counting at line 1 to fit with pyparsings line numberings"""
@@ -55,7 +55,7 @@ def green(text):
 ## Error and warning messages
 def error(text):
   """Print a formatted error message and exit."""
-  if not UNITTEST:
+  if not DEBUG:
     sys.stderr.write(red("ERROR: %s\n" % text))
     sys.exit(1)
   else:
@@ -63,7 +63,7 @@ def error(text):
 
 def warning(text):
   """Print a formatted warning message."""
-  if not UNITTEST:
+  if not DEBUG:
     sys.stderr.write(red("Warning: %s\n" % text))
   else:
     raise Exception, red("Warning: %s\n" % text)

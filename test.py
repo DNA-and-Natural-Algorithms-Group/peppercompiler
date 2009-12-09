@@ -1,7 +1,7 @@
 import unittest
 
 import utils
-utils.UNITTEST = True
+utils.DEBUG = True
 
 from tests import *
 
