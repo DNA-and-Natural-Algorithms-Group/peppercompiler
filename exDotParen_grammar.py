@@ -2,8 +2,8 @@
 
 import sys
 
-sys.path += ("..",) # Extend path to find pyparsing.py
 from pyparsing import *
+from utils import error
 
 Map = lambda func: (lambda s, t, l: map(func, l))
 
@@ -17,4 +17,8 @@ expr = ZeroOrMore(Group(term))
 
 def parse(s):
   """Parse a string in extended dot-paren notation."""
-  return expr.parseString(s, parseAll=True)
+  try:
+    return expr.parseString(s, parseAll=True)
+  except ParseException, e:
+    error("%s\n%s" % (e, s))
+

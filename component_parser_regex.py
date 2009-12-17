@@ -138,7 +138,7 @@ def parse_strand_statement(line):
 
 def parse_structure_statement(line):
   """Parse structure statements"""
-  m = match(r"structure( \[(([\wd\.]+)nt|(no-opt))\])? ([\w-]+) = ([^:]+) :( domain)? (.+)", line)
+  m = match(r"structure( \[(([\wd\.]+)nt|(no-opt))\])? ([\w-]+) = ([^:]+) :( domain)? ([HU.()+\d\s]+)", line)
   if not m:
     error("Invalid structure statement format:\n"
           "Should be: structure <name> = <strand names> : <secondary structure>\n"
@@ -156,8 +156,12 @@ def parse_structure_statement(line):
   strand_names = [sname.strip() for sname in strand_names]  # Clean off whitespace
   domain = bool(domain)
   if "U" in struct or "H" in struct:
+    if not match(r"[HU()+\d\s]+", struct):
+      error("Invalid HU-notation for secondary structure (may only use chars HU()+ digits and whitespace)\nWas: %s" % struct)
     struct = HU2dotParen(struct)
   else:
+    if not match(r"[.()+\d\s]+", struct):
+      error("Invalid dot paren notation for secondary structure (may only use chars .()+ digits and whitespace)\nWas: %s" % struct)
     struct = extended2dotParen(struct)
   return [opt, name, strand_names, [domain, struct]]
 
