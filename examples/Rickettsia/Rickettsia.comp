@@ -1,4 +1,4 @@
-###  DNA-based Rickettsia mimic from:
+###  DNA-based Rickettsia mimic from Figure 1 of:
 ###     Venkataraman, et. al. (2007) "An autonomous polymerization motor powered by DNA hybridization", Nature Nanotechnology, Vol 2: pp. 490-494. doi:10.1038/nnano.2007.225
 
 declare component Rickettsia: -> #TODO: How would this be connected with a larger system?
