@@ -1,0 +1,44 @@
+
+=== First verify the compilation of each single switch type
+
+python ../../compiler.py switchI2I 7 0 5 0   
+python ../../design/spurious_design.py --keep-temp switchI2I
+python ../../finish.py switchI2I
+
+** problem **
+python ../../compiler.py switchI2A 5 0 6 5
+python ../../design/spurious_design.py --keep-temp switchI2A
+python ../../finish.py switchI2A
+
+python ../../compiler.py switchA2I 6 5 5 0
+python ../../design/spurious_design.py --keep-temp switchA2I
+python ../../finish.py switchA2I
+
+python ../../compiler.py switchA2A 6 5 6 5
+python ../../design/spurious_design.py --keep-temp switchA2A
+python ../../finish.py switchA2A
+
+=== First verify the compilation of each single switch type
+
+python ../../compiler.py signalA 6 5
+python ../../design/spurious_design.py --keep-temp signalA
+python ../../finish.py signalA
+
+python ../../compiler.py signalI 5 0
+python ../../design/spurious_design.py --keep-temp signalI
+python ../../finish.py signalI
+
+=== Now try a few designs
+
+python ../../compiler.py three_node_osc
+python ../../design/spurious_design.py --keep-temp --struct three_node_osc
+python ../../finish.py three_node_osc
+
+python ../../compiler.py two_node_osc
+python ../../design/spurious_design.py --keep-temp --struct two_node_osc
+python ../../finish.py two_node_osc
+
+python ../../compiler.py two_node_SA_osc
+python ../../design/spurious_design.py --keep-temp --struct two_node_SA_osc
+python ../../finish.py two_node_SA_osc
+
