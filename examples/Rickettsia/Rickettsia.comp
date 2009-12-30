@@ -24,8 +24,8 @@ strand R  = x b y  # Rickettsia strand
 strand H1 = a  b  c  b* x*  # Fuel hairpin 1 strand
 strand H2 = y* b* a* b  c*  # Fuel hairpin 2 strand
 
-strand H1b = a  b  c  b* x*  # Copy of H1 (needs to be labeled seperately for technical reasons
-strand H2b = y* b* a* b  c*  # Copy of H2
+strand H1b = a  b  c  b* x*  # Copy of H1 (needs to be labeled seperately for technical reasons)
+strand H2b = y* b* a* b  c*  # Copy of H2 (specifically, for kinetics that must distinguish two hairpin molecules)
 
 ## Structures
 structure Meta_H1 = H1 : domain .(.).  # H1 as a meta-stable hairpin
@@ -36,7 +36,7 @@ structure Meta_H2b = H2b : domain .(.).
 
 structure AR_Seed = A + R : domain (.+.).  # A-R bound complex - the seed for polymerization
 
-# First few polymorized structures
+# First few polymerized structures
 structure State2 = H1 + R + A : domain ((.((+)).+))  # After branch migration from first H1
 structure State5 = H1 + R + H2 + A : domain ((((.+.((+)).))+))  # After b.m. from first H2
 structure State8 = H1 + H1b + R + H2 + A : domain ((((.+((.((+)).+.))))+))  # After second H1
