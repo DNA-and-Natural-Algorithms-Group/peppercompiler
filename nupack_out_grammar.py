@@ -12,7 +12,7 @@ var = Word(alphanums+"_-*")
 int_ = Word(nums).setParseAction(Map(int))
 float_ = Word(nums+"-.").setParseAction(Map(float))
 
-seq = Word("ATUCG+")
+seq = Word("ATUCG+N") # NOTE: N is used for undesigned segments.
 struct = Word(".()+")
 
 # (Variable_name, sequence, n(s*), gc content, mfe distance, ideal struct, actual mfe struct)

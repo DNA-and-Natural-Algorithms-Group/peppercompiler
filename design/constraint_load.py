@@ -11,6 +11,7 @@ here = sys.path[0] # System path to this module.
 sys.path.append(here+"/..")
 
 from DNAfold import DNAfold
+from utils import warning
 
 def min_(xs):
   """Returns min element (or None if there are no elements)"""
@@ -119,6 +120,7 @@ class Constraints(object):
       using -1 and base 1 indexing
     """
     assert set(self.st.keys()) == set(self.eq.keys()) == set(self.wc.keys())
+    ## NOTE: drops the sequences and super-sequences from constraints lists.
     N = max([key for key in self.eq_rep.keys() if isinstance(key, int)]) + 1 # Number of indexes to be used
     eq = [self.eq_rep.get(i) for i in range(N)]
     wc = [self.wc_rep.get(i) for i in range(N)]
@@ -347,18 +349,26 @@ class Convert(object):
     
     for seq_num, seq in enumerate(self.spec.seqs.values()):
       num = seq_num + len(self.spec.structs)
-      # TODO: not returning some sequences may crash finish.py
-      if seq.seq:
-        # Write sequence (with dummy content)
-        f.write("%d:%s\n" % (num, seq.name))
-        gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
-        f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
-        f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
-        # Write wc of sequence (with dummy content)
-        seq = seq.wc
-        f.write("%d:%s\n" % (0, seq.name))
-        f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
-        f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+      
+      # Deal with sequences that haven't been designed (because they were not used in strands).
+      if not seq.seq:
+        # TODO: Find some way to deal with this appropriately.
+        # Right now we just return NNNN...
+        warning("Sequence %s was not designed because it was never used in a strand." % seq.name)
+        seq.seq = "N"*seq.length
+        seq.wc.seq = seq.seq
+      
+      # Write sequence (with dummy content)
+      f.write("%d:%s\n" % (num, seq.name))
+      gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
+      f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
+      f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+      # Write wc of sequence (with dummy content)
+      seq = seq.wc
+      f.write("%d:%s\n" % (0, seq.name))
+      f.write("%s %f %f %d\n" % (seq.seq, 0, gc_content, 0))
+      f.write(("."*seq.length+"\n")*2) # Write out dummy structures.
+    
     f.write("Total n(s*) = %f" % 0) # Dummy n(s*)
     f.close()
 
