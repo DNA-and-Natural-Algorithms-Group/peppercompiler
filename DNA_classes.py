@@ -94,8 +94,14 @@ class ReverseSequence(Sequence):
     self.reversed = True
     self.dummy = wc.dummy
     self.wc = wc
+  
   def __repr__(self):
     return "~" + repr(self.wc)
+  
+  def fix_seq(self, fixed_seq):
+    """Constrian ourselves to a specific sequence."""
+    self.wc.fix_seq(wc(fixed_seq))
+  
 
 class AnonymousSequence(Sequence):
   """Sequences we didn't lable and are thus anonymous."""
