@@ -1,10 +1,10 @@
 Jongmin
   verify it
-     compiler error on sequence splicing for I/O
   add paper's sequences
 
 Elisa
   use Jongmin's code
+  move tweezer.comp from Jongmin/ to Elisa/
   add paper's sequences
 
 Barish
