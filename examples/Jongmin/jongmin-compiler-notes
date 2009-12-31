@@ -1,11 +1,13 @@
 
 === First verify the compilation of each single switch type
 
+   *** note that switchI2A, switchA2A, and files that use them, will produce a warning -- but it's OK.
+   *** this is because a virtual sequence is constructed for module I/O.
+
 python ../../compiler.py switchI2I 7 0 5 0   
 python ../../design/spurious_design.py --keep-temp switchI2I
 python ../../finish.py switchI2I
 
-** problem with switchI2A (compiler warns, finish hiccups on sequence splicing for I/O) **
 python ../../compiler.py switchI2A 5 0 6 5
 python ../../design/spurious_design.py --keep-temp switchI2A
 python ../../finish.py switchI2A
@@ -14,7 +16,6 @@ python ../../compiler.py switchA2I 6 5 5 0
 python ../../design/spurious_design.py --keep-temp switchA2I
 python ../../finish.py switchA2I --trials=50
 
-** problem with switchA2A **
 python ../../compiler.py switchA2A 6 5 6 5
 python ../../design/spurious_design.py --keep-temp switchA2A
 python ../../finish.py switchA2A
@@ -35,7 +36,6 @@ python ../../compiler.py three_node_osc
 python ../../design/spurious_design.py --keep-temp --struct three_node_osc
 python ../../finish.py three_node_osc
 
-** problem with two_node_osc and two_node_SA_osc **
 python ../../compiler.py two_node_osc
 python ../../design/spurious_design.py --keep-temp --struct two_node_osc
 python ../../finish.py two_node_osc
@@ -43,4 +43,12 @@ python ../../finish.py two_node_osc
 python ../../compiler.py two_node_SA_osc
 python ../../design/spurious_design.py --keep-temp --struct two_node_SA_osc
 python ../../finish.py two_node_SA_osc
+
+
+=== Do the designs using some pre-existing sequences (by editing *.seqs -- *.fixed)
+
+*not working yet*
+python ../../compiler.py --fixed=two_node_osc.fixed two_node_osc
+python ../../design/spurious_design.py --keep-temp --struct two_node_osc
+python ../../finish.py two_node_osc
 
