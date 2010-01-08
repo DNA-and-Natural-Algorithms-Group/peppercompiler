@@ -1,0 +1,41 @@
+declare system COUNT:  ->
+# Uses bond numbers, etc from actual system. Don't use this itself, use the
+# pil file with the correct sequences inserted.
+
+import DAOEtile5up, DAOEtile3up, DAOEdoubletile35bh_down, DAOEdoubletile35hi_up
+
+# Low-bit nucleation barrier
+component Z7_8     = DAOEdoubletile35hi_up: e1* + e2 -> e3 + e1 + inert
+component Z13      = DAOEtile5up: e29 + e32 -> e2* + e30
+component Z14	   = DAOEtile3up: e20* + e31 -> e3* + e29*
+component Z15	   = DAOEtile3up: e34* + e10 -> e32* + e33*
+component Z16      = DAOEtile5up: e33 + e27* -> e31* + e34
+
+# High-bit nucleation barrier
+component Z5_6     = DAOEdoubletile35bh_down: e20* + e19* -> e18* + e20
+component Z1       = DAOEtile3up: e13* + e14 -> e11* + e12*
+component Z2       = DAOEtile3up: e17* + e18 -> e15* + e16*
+component Z3	   = DAOEtile5up: e12 + e15 -> e10* + e13
+component Z4       = DAOEtile5up: e16 + e19 -> e14* + e17
+
+# Zero
+component Z9       = DAOEtile3up: e5* + e6 -> e11* + e4*
+component Z10	   = DAOEtile3up: e9* + e10 -> e7* + e8*
+component Z11	   = DAOEtile5up: e4 + e7 -> e10* + e5
+component Z12      = DAOEtile5up: e8 + e11 -> e6* + e9
+
+# One
+component ZA       = DAOEtile5up: e21 + e24 -> e10* + e22
+component ZB       = DAOEtile3up: e22* + e23 -> e11* + e21*
+component ZC	   = DAOEtile3up: e26* + e10 -> e24* + e25*
+component ZD       = DAOEtile5up: e25 + e11 -> e23* + e26
+
+# Zero-Count
+component ZG	   = DAOEtile3up: e22* + e28* -> e27 + e4*
+component ZE       = DAOEtile5up: e25 + e27* -> e28 + e9
+
+# One-Count
+component ZF	   = DAOEtile3up: e5* + e35* -> e27 + e21*
+component ZH       = DAOEtile5up: e8 + e11 -> e35 + e26
+
+# Cap
