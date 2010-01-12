@@ -34,6 +34,13 @@ class Sequence(object):
       self.seq = seq
       self.wc.seq = seq_comp(seq)
   
+  def get_seq(self):
+    """Return designed sequence or template as default."""
+    if self.seq:
+      return self.seq
+    else:
+      return self.template
+  
   def __repr__(self):
     return "Sequence(%(name)r, %(template)r)" % self.__dict__
 
@@ -81,6 +88,13 @@ class SuperSequence(object):
       for sub_seq in self.seqs:
         sub_seq.set_seq(seq[i:i+sub_seq.length])
         i += sub_seq.length
+  
+  def get_seq(self):
+    """Return the sequence (or reconstruct it from subsequences)"""
+    if self.seq:
+      return self.seq
+    else:
+      return string.join([sub_seq.get_seq() for sub_seq in self.seqs], "")
   
   def __repr__(self):
     return "SuperSequence(%(name)r, %(seqs)r)" % self.__dict__

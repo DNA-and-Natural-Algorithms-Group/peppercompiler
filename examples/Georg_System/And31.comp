@@ -28,7 +28,7 @@ structure InX = inX : domain .
 structure InY = inY : domain .
 structure InZ = inZ : domain .
 
-structure Gate = Y + Out + Z + X : H<di1>(H<di2>(+ H<di3-end>(U<do-c> H<end>(+))) +) U<t>
+structure Gate = Y + Out + Z + X :    H<di1>(H<di2>(+ H<di3-end>(U<do-c> H<end>(+))) +) U<t>
 structure Gate_inter1 = Y + Out + Z : U<di1> H<di2>(+ H<di3-end>(U<do-c> H<end>(+)))
 structure Gate_inter2 =     Out + Z :                 H<di3-end>(U<do-c> H<end>(+)) U<di2>
 

@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from constraints import propagate_constraints
 from PIL_parser import load_spec
-from PIL_DNA_classes import group, rev_group, complement
+from PIL_DNA_classes import group, rev_group, complement, seq_comp
 
 # Extend path to see compiler library
 import sys
@@ -352,11 +352,12 @@ class Convert(object):
       
       # Deal with sequences that haven't been designed (because they were not used in strands).
       if not seq.seq:
+        seq.seq = seq.get_seq()
+        seq.wc.seq = seq_comp(seq.seq)
         # TODO: Find some way to deal with this appropriately.
         # Right now we just return NNNN...
-        warning("Sequence %s was not designed because it was never used in a strand." % seq.name)
-        seq.seq = "N"*seq.length
-        seq.wc.seq = seq.seq
+        if "N" in seq.seq:
+          pass #warning("Sequence %s was not designed because it was never used in a strand." % seq.name)
       
       # Write sequence (with dummy content)
       f.write("%d:%s\n" % (num, seq.name))
