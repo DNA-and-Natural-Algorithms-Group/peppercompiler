@@ -3,5 +3,5 @@ declare system CatalystExp:  ->
 import Catalyst
 import Reporter
 
-component Cat1 = Catalyst: cat -> sb + ob + cat
-component RepOR = Reporter(16,6,12): ob ->
+component catalyst = Catalyst(10, 24, 4, 16, 6, 16): -> ob
+component reporter = Reporter(16, 6, 12): ob ->
