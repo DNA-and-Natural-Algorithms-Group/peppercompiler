@@ -1,9 +1,10 @@
-
 Zhang, Turberfield, Yurke, Winfree (Science, 2007)
 
-=== First verify the compilation the catalyst experiment (Figure 1)
+Compilation examples:
 
-python ../../compiler.py CatalystExp
-python ../../design/spurious_design.py --keep-temp --struct CatalystExp
-python ../../finish.py CatalystExp
+../../compiler.py Original.sys
+../../compiler.py --fixed=original.fixed --output=CatalystExp.pil Original.sys
+../../compiler.py --des Original.sys
+../../compiler.py Inverted53.sys
+../../compiler.py OverhangA.sys
 
