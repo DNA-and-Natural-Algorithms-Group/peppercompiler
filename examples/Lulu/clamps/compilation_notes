@@ -1,7 +1,7 @@
 To compile a seesaw circuit into a PIL file, use the following command (from 
 this directory):
 
-../../compiler.py XXXX.sys 3 11 2 5
+../../../compiler.py XXXX.sys 3 11 2 5
 
 where 'XXXX' can be 'And21', 'Simple41', or 'Sqrt42'.
 
@@ -9,7 +9,7 @@ where 'XXXX' can be 'And21', 'Simple41', or 'Sqrt42'.
 
 To compile into a .des file for NUPACK's multiobjective designer, use
 
-../../compiler.py --des XXXX.sys 3 11 2 5
+../../../compiler.py --des XXXX.sys 3 11 2 5
 
 
 
