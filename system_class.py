@@ -147,7 +147,7 @@ class System(PrintObject):
     self.output_seqs = []
     self.output_structs = []
     for seq_name, wc in outputs:
-      assert seq_name in self.signals
+      assert seq_name in self.signals, seq_name + str(self.signals)
       self.output_seqs.append( (seq_name, wc) )
       self.output_structs.append( self.signal_structs[seq_name] )
   
