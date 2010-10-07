@@ -48,7 +48,7 @@ python ../../finish.py two_node_SA_osc
 === Do the designs using some pre-existing sequences (by editing *.seqs -- *.fixed)
 
 *not working yet*
-python ../../compiler.py --fixed=two_node_osc.fixed two_node_osc
-python ../../design/spurious_design.py --keep-temp --struct two_node_osc
+python ../../compiler.py --fixed=two_node_osc.fixed two_node_osc 
+python ../../design/spurious_design.py --keep-temp --struct two_node_osc tmax=100
 python ../../finish.py two_node_osc
 

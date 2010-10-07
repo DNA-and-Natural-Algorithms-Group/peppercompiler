@@ -1,4 +1,4 @@
-declare component Detector(t i): s -> 
+declare component Detector(t,i): s -> 
 
 ## Sequences
 sequence s =  "?N" : <t+i>
@@ -14,12 +14,12 @@ strand Bind = "?N" : <t+i>
 # Input
 structure InS = inS : <t+i>.
 # Gate
-structure Det = Fluor  Bind: <i>( + <t>. <i>)
+structure Det = Fluor + Bind : <i>( + <t>. <i>)
 # Paired inputs (waste)
-structure wasteDet = inS  Bind: <t+i>( + <t+i>)
+structure wasteDet = inS + Bind : <t+i>( + <t+i>)
 # Outputs
-structure OutFluor = Fluor: <i>.
+structure OutFluor = Fluor : <i>.
 
 ## Kinetics
-kinetic InS  Det -> wasteDet  OutFluor
+kinetic InS + Det -> wasteDet + OutFluor
 
