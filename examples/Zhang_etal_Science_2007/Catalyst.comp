@@ -1,4 +1,4 @@
-declare component Catalyst(d1, d2, d3, d4, d5, d6): -> output
+declare component Catalyst(d1, d2, d3, d4, d5, d6): catalyst + fuelstrand -> signal + output
 
 ## Sequences
 sequence d1 = "?N" : <d1>
@@ -9,7 +9,10 @@ sequence d5 = "?N" : <d5>
 sequence d6 = "?N" : <d6>
 
 ## Sequences for system constraints
+sequence fuelstrand = d2 d3 d4
+sequence catalyst = d4 d5
 sequence output = d1 d2
+sequence signal = d6 d3 d4
 
 ## Strands
 # Inputs
