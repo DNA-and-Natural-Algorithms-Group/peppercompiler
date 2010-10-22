@@ -15,7 +15,7 @@ from utils import match, warning, error
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  m = match(r"(\w+) ([\w_-]+) ?=? ?([ATCG]+)(?: #.*)?", line)
+  m = match(r"(\w+) ([\w_-]+)[ \t]*=[ \t]*([ATCG]+)(?: #.*)?", line)
   type_, name, seq = m.groups()
   return type_, name, seq
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
   parser.add_option("--pil", action="store_true", help="Output in the new .pil format [Default]")
   parser.add_option("--des", action="store_false", dest="pil", help="Output in Zadeh's .des format instead of .pil format")
   parser.add_option("--synthesis", action="store_true", dest="pil", help="Depricated, use --pil instead.")
-  parser.add_option("--output", help="Output file [defaults to BASENAME.des]", metavar="FILE")
+  parser.add_option("--output", help="Output file [defaults to BASENAME.pil]", metavar="FILE")
   parser.add_option("--save", help="Saved state file [defaults to BASENAME.save]", metavar="FILE")
   (options, args) = parser.parse_args()
   
