@@ -114,7 +114,6 @@ class System(PrintObject):
           self.lengths[glob_name] = loc_seq.length
         else:
           self.signals[glob_name].append( (loc_seq, comp_name, wc) )
-          print self.signals[glob_name]
           assert self.lengths[glob_name] == loc_seq.length, "In system %s: Lengths of signal %s is inconsistent between %s and %s (%d != %d)" % (self.name, glob_name, self.signals[glob_name][0][0].full_name, loc_seq.full_name, self.lengths[glob_name], loc_seq.length)
       # Collect structures that could represent signals
       for (glob_name, glob_wc), loc_struct in zip(list(outputs), this_comp.output_structs):
