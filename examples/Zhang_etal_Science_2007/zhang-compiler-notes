@@ -9,7 +9,14 @@ Compilation examples:
 ../../compiler.py OverhangA.sys
 
 
---- example (for the time being... 9/24/2010)
+
+--- Default spuriousC designer
+../../design/spurious_design.py Original
+../../finish.py Original --no-kin
+../../../KinD/kind --eval-only --numsims=10 --seq-in Original.seqs Original.pil
+
+
+--- NUPACK example (for the time being... 9/24/2010)
 
 ../../compiler.py --des Original.sys
 
