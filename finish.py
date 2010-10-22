@@ -56,13 +56,13 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
   
   f.write("# Sequences\n")
   for name, seq in system.seqs.items():
-    f.write("sequence %s\t%s\n" % (name, seq.seq))
+    f.write("sequence %s = %s\n" % (name, seq.seq))
   f.write("# Strands\n")
   for name, strand in system.strands.items():
-    f.write("strand %s\t%s\n" % (name, strand.seq))
+    f.write("strand %s = %s\n" % (name, strand.seq))
   f.write("# Structures\n")
   for name, struct in system.structs.items():
-    f.write("structure %s\t%s\n" % (name, struct.seq))
+    f.write("structure %s = %s\n" % (name, struct.seq))
   f.close()
   
   # Document all strands that will be used in the final experiment
