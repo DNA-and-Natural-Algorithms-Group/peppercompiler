@@ -67,7 +67,16 @@ structure Gate_waste_22 = gate_base + b_2 + a_2 : domain .((((((((+..))))+..))))
 structure Trans_waste = trans_base + out_b + helper_b : domain .(((((((+..)))+))))
 
 ### Reactions
-
+kinetic B_1 + Gate_b -> Gate_b_int_1 + Backward_b
+kinetic B_2 + Gate_b -> Gate_b_int_2 + Backward_b
+kinetic Gate_b_int_1 + Backward_b -> B_1 + Gate_b
+kinetic Gate_b_int_2 + Backward_b -> B_2 + Gate_b
+kinetic A_1 + Gate_b_int_1 -> Gate_waste_11 + Out_b
+kinetic A_2 + Gate_b_int_1 -> Gate_waste_12 + Out_b
+kinetic A_1 + Gate_b_int_2 -> Gate_waste_21 + Out_b
+kinetic A_2 + Gate_b_int_2 -> Gate_waste_22 + Out_b
+kinetic Out_b + Trans_b -> Trans_b_int + B_1
+kinetic Helper_b + Trans_b_int -> Trans_waste + B_2
 
 
 
