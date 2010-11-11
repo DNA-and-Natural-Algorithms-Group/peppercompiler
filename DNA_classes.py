@@ -74,7 +74,7 @@ class Sequence(object):
     for const_nt, fixed_nt in zip(self.const, fixed_seq):
       const_set = set(group[const_nt])
       fixed_set = set(group[fixed_nt])
-      assert fixed_set.issubset( const_set ), "fix_seq: sequence %s is not a subset of constraint %s for sequence %s" % (fixed_seq, self.const, self.name)
+      assert fixed_set.issubset( const_set ), "fix_seq: sequence %s is not a subset of constraint %s for sequence %s" % (fixed_seq, self.const, self.full_name)
     self.const = fixed_seq
   
   def __invert__(self):
@@ -171,7 +171,9 @@ class SuperSequence(object):
   
   def fix_seq(self, fixed_seq):
     """Constrian ourselves to a specific sequence."""
-    assert len(fixed_seq) == self.length
+    assert len(fixed_seq) == self.length, \
+            "Length of fixed sequence (%d) does not match length of %s (%d)" \
+            % (len(fixed_seq), self.full_name, self.length)
     i = 0
     for seq in self.seqs:
       seq.fix_seq( fixed_seq[i:i+seq.length] )

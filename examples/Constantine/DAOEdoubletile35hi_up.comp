@@ -13,17 +13,17 @@ sequence sinert = "5N" : 5
 
 # core 
 sequence sbULhairpin_arm = "7N" : 7
-sequence sbULarm = "S 7N" : 8
-sequence sbLLarm = "S 7N" : 8 
-sequence sbLRarm = "S 7N" : 8
-sequence sbUcore = "S 14N S" : 16
-sequence sbLcore = "S 14N S" : 16
+sequence sbULarm = "N 7N" : 8
+sequence sbLLarm = "N 7N" : 8 
+sequence sbLRarm = "N 7N" : 8
+sequence sbUcore = "N 14N N" : 16
+sequence sbLcore = "N 14N N" : 16
 sequence sMarm   = "21N" : 21 
-sequence stULarm = "S 7N" : 8
-sequence stLRarm = "S 7N" : 8 
-sequence stURarm = "S 7N" : 8
-sequence stUcore = "S 14N S" : 16
-sequence stLcore = "S 14N S" : 16
+sequence stULarm = "N 7N" : 8
+sequence stLRarm = "N 7N" : 8 
+sequence stURarm = "N 7N" : 8
+sequence stUcore = "N 14N N" : 16
+sequence stLcore = "N 14N N" : 16
 
 ## Strands
 strand shortLeft    = sLL sbLLarm sbULarm* sbULhairpin_arm "TTTT" sbULhairpin_arm* : 39

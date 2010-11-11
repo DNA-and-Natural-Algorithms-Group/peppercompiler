@@ -8,12 +8,12 @@ sequence sLR = "5N" : 5
 sequence sUR = "5N" : 5
 
 # core 
-sequence sULarm = "S 7N" : 8
-sequence sUcore = "S 14N S" : 16
-sequence sURarm = "7N S" : 8 
-sequence sLLarm = "S 7N" : 8 
-sequence sLcore = "S 14N S" : 16
-sequence sLRarm = "7N S" : 8
+sequence sULarm = "N 7N" : 8
+sequence sUcore = "N 14N N" : 16
+sequence sURarm = "7N N" : 8 
+sequence sLLarm = "N 7N" : 8 
+sequence sLcore = "N 14N N" : 16
+sequence sLRarm = "7N N" : 8
 
 ## Strands
 strand longLeft   = sLLarm sLcore sUcore* sULarm* : 48
