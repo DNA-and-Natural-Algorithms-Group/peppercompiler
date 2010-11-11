@@ -29,12 +29,12 @@ sequence stLcore = "N 14N N" : 16
 strand shortLeft    = sLL sbLLarm sbULarm* sbULhairpin_arm "TTTT" sbULhairpin_arm* : 39
 strand longLeft     = sbULarm sbUcore sbLcore* sbLLarm* : 48
 strand longMidLeft  = sinert stULarm sMarm sbUcore* sbLcore sbLRarm* : 74
-strand longMidRight = sLM sbLRarm sMarm* stLcore stUcore* stULarm* : 74
+strand longMidRight = sLM sbLRarm sMarm* stLcore stUcore* stULarm* sinert* : 79
 strand longRight    = stLRarm stLcore* stUcore stURarm* : 48
 strand shortRight   = sUR stURarm stLRarm* sLR : 26
 
 ## Structures
-structure [no-opt] tile = shortLeft + longLeft + longMidLeft + longMidRight + longRight + shortRight : 39. + 48. + 74. + 74. + 48. + 26.  
+structure [no-opt] tile = shortLeft + longLeft + longMidLeft + longMidRight + longRight + shortRight : 39. + 48. + 74. + 79. + 48. + 26.  
 # This is a dummy structure that tells the designer that these strands are in a 
 #   complex, but provides no further base-pairing information because we don't 
 #   "yet" handle psuedoknots

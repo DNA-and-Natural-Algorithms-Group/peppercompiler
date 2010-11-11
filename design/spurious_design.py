@@ -68,13 +68,24 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   # Run SpuriousC
   # TODO: take care of prevents.
   if verbose:
-    quiet = "quiet=ALL | tee %s" % sp_outname
+    quiet = "quiet=ALL"
   else:
-    quiet = "quiet=TRUE > %s" % sp_outname
+    quiet = "quiet=TRUE"
+  
+  spo = open(sp_outname,'w') 
   
   command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
   print command
-  subprocess.check_call(command, shell=True)
+  spurious_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+
+  data = spurious_proc.stdout.readline()
+  while data:
+    if verbose:
+      sys.stdout.write(data)
+    spo.write(data)
+    data = spurious_proc.stdout.readline()
+
+  spo.close()
   
   # Load results
   nts = open(sp_outname, "r").read()

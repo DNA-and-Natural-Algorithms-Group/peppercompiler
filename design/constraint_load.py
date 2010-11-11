@@ -198,8 +198,17 @@ def index_func_strand(spec):
         return get_index_strand(strand, index)
     # We should never finish this loop (only happen if struct.length > sum(strands lengths)
     assert False, "Structure %s has length %d, but strands total length %d" % (struct.name, struct.length, sum([strand.length for strand in struct.strands]))
-  
-  return get_index, get_index_strand
+
+  def get_struct(index):
+    """Return the structure for a given index."""
+    raise Exception("Not Yet Implemented")
+
+  def get_strand(index):
+    """Return the strand for a given index."""
+    num = (x for x in strand_start if index > x).next()
+    return spec.strands.values()[num]
+
+  return get_index, get_index_strand, get_struct, get_strand
 
 class Convert(object):
   def __init__(self, filename, struct_orient=False):
@@ -239,7 +248,7 @@ class Convert(object):
           offset += strand.length
     
     else: # if strand oriented
-      self.get_index, self.get_index_strand = index_func_strand(self.spec)
+      self.get_index, self.get_index_strand, self.get_struct, self.get_strand = index_func_strand(self.spec)
       
       for strand in self.spec.strands.values():
         for x in range(strand.length):

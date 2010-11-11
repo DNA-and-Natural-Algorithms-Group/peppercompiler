@@ -7,7 +7,7 @@ import DAOEtile5up, DAOEtile3up, DAOEdoubletile35bh_down, DAOEdoubletile35hi_up,
 # Low-bit nucleation barrier
 component Z78_count     = DAOEdoubletile35hi_up: e1* + e2 -> e3 + e1 + inert
 component Z13_count      = DAOEtile5up: e29 + e32 -> e2* + e30
-component Z14_count	   = DAOEtile3up: e20* + e31 -> e3* + e29*
+component Z14_count	   = DAOEtile3up: e30* + e31 -> e3* + e29*
 component Z15_count	   = DAOEtile3up: e34* + e10 -> e32* + e33*
 component Z16_count      = DAOEtile5up: e33 + e27* -> e31* + e34
 
