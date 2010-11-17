@@ -42,23 +42,25 @@ in a specification corresponds to exactly one statement.
 
 \subsection{General lexical conventions}
 \begin{itemize}
-\item Integers are non-empty sequences of digits (regex: {[}0-9{]}+).
-\item Floating point numbers will have the standard syntax used by C, python,
-etc.
+\item Integers are non-empty sequences of digits (regex: [0-9]+).
+
+\item Floating point numbers will have the standard syntax used by C, Python, etc.\ (e.g.\ .1, -24.551, 1e6, 4.2E12, 1.1e-05, etc.).
+
 \item Names are non-empty sequences of characters which are alphanumeric,
 underscore (\_) \textbf{or hyphen (-)}. The first character must \textbf{not}
-be a digit (regex: {[}a-zA-Z\_-{]}{[}a-zA-Z0-9\_-{]}{*}). Names are
+be a digit (regex: [a-zA-Z\_-][a-zA-Z0-9\_-]*). Names are
 identifiers for different objects in the specification, thus each
 object must have a unique name. Names \textbf{are}\textbf{\emph{ }}case
 sensitive.
 \end{itemize}
+
 
 \subsection{Comments and Whitespace}
 
 Whenever there is a whitespace in the specification, any number of
 space or tab characters may be used and will be ignored.
 
-Everything on one line following a {}``\#'' is a comment and will
+Everything on one line following a \texttt{\#} is a comment and will
 be ignored. The comment ends at the end of the line. There are no
 multiline comments.
 
@@ -82,11 +84,12 @@ Syntax:
 \begin{code}
 sequence~<Name>~=~<Constraints>~:~<Length>
 \end{code}
-<Constraints> is a sequence of characters describing what base may
-be assigned to each nucleotide. Each are one of ACGTRYWSMKBDHVN. The
+\texttt{<Constraints>} is a sequence of characters describing what base may
+be assigned to each nucleotide. Each is one of ACGTRYWSMKBDHVN. The
 most common are N for any base, S for a strong base (C or G), W for
 a weak base (A or T) and A, T, C or G for a specific base. For a complete
-list see Table \ref{tab:Nucleotide-symbols}.%
+list see Table \ref{tab:Nucleotide-symbols}.
+
 \begin{table}[b]
 \noindent \begin{centering}
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -99,11 +102,9 @@ Allowed bases & A & C & G & T & AG & CT & AT & CG & AC & GT & CGT & AGT & ACT & 
 \par\end{centering}
 
 \caption{\label{tab:Nucleotide-symbols}Nucleotide symbols}
-
-
-
 \end{table}
- Whitespace is allowed between symbols. <Length> is the integer length
+
+Whitespace is allowed between symbols. \texttt{<Length>} is the integer length
 of the sequence.
 
 For example:
@@ -117,31 +118,31 @@ sequence~\_\_Anon-435~=~SWABBBBBSS~:~10
 sequence~Translate-And-Gate-data\_x~=~SNNNNNNNNNNNNNNNNNNS~:~20
 \end{code}
 
-\subsection{Super-sequences}
+\subsection{Supersequences}
 
-Super-sequences are collections of sequences (or other super-sequences)
+Supersequences are collections of sequences (or other supersequences)
 grouped together for convenience.
 
 Syntax:
 \begin{code}
-super-sequence~<Name>~=~<List~of~sub-sequences>~:~<Length>
+supersequence~<Name>~=~<List~of~(sequence~|~supersequence)>~:~<Length>
 \end{code}
-The <List of sub-sequences> is a space separated list. Each element
-in the list is the name of a sequence or super-sequence optionally
-followed with an asterisk ({*}) meaning the Watson-Crick complement
-of the named sequence (toe\_x{*} means complement of sequence toe\_x).
+The \texttt{<List~of~(sequence~|~supersequence)>} is a space separated list. Each element
+in the list is the name of a sequence or supersequence optionally
+followed with an asterisk (\texttt{*}) meaning the Watson-Crick complement
+of the named sequence (\texttt{toe\_x*} means complement of sequence \texttt{toe\_x}).
 
 For example:
 \begin{code}
-super-sequence~x~=~toe\_x~data\_x~:~21
+supersequence~x~=~toe\_x~data\_x~:~21
 
-super-sequence~input~=~x~y{*}~x~:~60
+supersequence~input~=~x~y{*}~x~:~60
 \end{code}
 
 \subsection{Strands}
 
 Strands identify the actual sequence constraints that a strand will
-have. But, syntactically, they are identical to super-sequences.
+have. But, syntactically, they are identical to supersequences.
 
 Syntax:
 \begin{code}
@@ -167,15 +168,14 @@ or
 \begin{code}
 structure~{[}<Parameters>{]}~<Name>~=~<List~of~strands>~:~<Secondary~structure>
 \end{code}
-The <List of strands> is a list of strand names separated by plus
-signs (+). You may not use the same strand more than once in a structure;
+The \texttt{<List of strands>} is a list of strand names separated by plus
+signs (\texttt{+}). You may not use the same strand more than once in a structure;
 if you want to have two identical strands in a structure, you must
-define two identical strands. <Secondary structure> is in dot-paren
+define two identical strands. \texttt{<Secondary structure>} is in dot-paren
 notation using plus sign as the strand break symbol. Whitespace is
-allowed between symbols. <Parameters> is currently being used only
+allowed between symbols. \texttt{<Parameters>} is currently being used only
 to specify the optimization goal. It may either be no-opt (for no
-optimization) or <Integer>nt (for within <Integer> nucleotides of
-the target structure).
+optimization) or \texttt{<Integer>nt} (for within \texttt{<Integer>} nucleotides of the target structure).
 
 For example:
 \begin{code}
@@ -201,17 +201,17 @@ or
 \begin{code}
 kinetic~{[}<Parameters>{]}~<List~of~inputs>~->~<List~of~outputs>
 \end{code}
-<List of inputs> and <List of outputs> are both lists of structure
-names separated by plus sign (+). <Parameters> is currently being
-used to specify target reaction rates. It's syntax is:
+\texttt{<List of inputs>} and \texttt{<List of outputs>} are both lists of structure
+names separated by plus sign (\texttt{+}). \texttt{<Parameters>} is currently being
+used to specify target reaction rates. Its syntax is:
 \begin{code}
 <Low>~/M/s~<~k~<~<High>~/M/s
 
 <Low>~/s~<~k~<~<High>~/s
 \end{code}
-where the units clearly depend on whether this is a bi-molecular or
-uni-molecular reaction. <Low> and <High> are floating point numbers
-and <High> may be {}``inf'' for no upper bound.
+where the units clearly depend on whether this is a bimolecular or
+unimolecular reaction. \texttt{<Low>} and \texttt{<High>} are floating point numbers
+and \texttt{<High>} may be \texttt{inf} for no upper bound.
 
 For example:
 \begin{code}
@@ -232,13 +232,13 @@ Generally, the syntax is:
 \begin{code}
 noninteracting~{[}<Type>{]}~<List~of~things>
 \end{code}
-Where <List of things> could be sequences, strands or structures and
-their interpretation depends up on the <Type>. Currently, we have
+Where \texttt{<List of things>} could be sequences, strands or structures and
+their interpretation depends up on the \texttt{<Type>}. Currently, we have
 one possible type:
 \begin{code}
 noninteracting~{[}kinetic{]}~<List~of~structures>
 \end{code}
-where <List of structures> is a space separated list of structures
+where \texttt{<List of structures>} is a space separated list of structures
 which should pairwise not react kinetically (and not waste too much
 time interacting). It is specifically used by Chris Berlind's KinD.
 \end{document}
