@@ -1,49 +1,29 @@
-%% LyX 1.6.4 created this file.  For more info, see http://www.lyx.org/.
-%% Do not edit unless you really know what you are doing.
-\documentclass[english]{article}
-\usepackage[T1]{fontenc}
-\usepackage[latin9]{inputenc}
-\usepackage[letterpaper]{geometry}
-\geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
-\setlength{\parskip}{\bigskipamount}
-\setlength{\parindent}{0pt}
+\documentclass{article}
+\usepackage{fullpage}
 
-\makeatletter
+\parindent 0cm
+\parskip 1em
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
-%% Because html converters don't know tabularnewline
-\providecommand{\tabularnewline}{\\}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
-\newenvironment{lyxcode}
+% Define code environment
+\newenvironment{code}
 {\par\begin{list}{}{
 \setlength{\rightmargin}{\leftmargin}
-\setlength{\listparindent}{0pt}% needed for AMS classes
+\setlength{\listparindent}{0pt}
 \raggedright
 \setlength{\itemsep}{0pt}
 \setlength{\parsep}{0pt}
-\normalfont\ttfamily}%
+\normalfont\ttfamily}
  \item[]}
 {\end{list}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-\usepackage{hyperref}
-
-\makeatother
-
-\usepackage{babel}
 
 \begin{document}
 
 \title{PIL Specification}
-
-
 \author{Shawn Ligocki}
-
-
 \date{January 15, 2010}
-
 \maketitle
+
 PIL (Pepper Intermediate Language) is a language used by the Pepper
 compiler framework to describe a DNA design specification. It is loosely
 based on the .des design specification language created by Joe Zadeh
@@ -83,13 +63,13 @@ be ignored. The comment ends at the end of the line. There are no
 multiline comments.
 
 Any line which contains only whitespace and/or a comment is ignored.
-\begin{lyxcode}
+\begin{code}
 \#~This~is~a~comment
 
 \#\#\#~This~is~a~comment~too
 
 sequence~toe\_x~=~6N~:~6~~~\#~This~comment~could~talk~about~the~sequence~
-\end{lyxcode}
+\end{code}
 
 \subsection{Sequences}
 
@@ -99,9 +79,9 @@ enter the length and any constraints on the nucleotides that may be
 used.
 
 Syntax:
-\begin{lyxcode}
+\begin{code}
 sequence~<Name>~=~<Constraints>~:~<Length>
-\end{lyxcode}
+\end{code}
 <Constraints> is a sequence of characters describing what base may
 be assigned to each nucleotide. Each are one of ACGTRYWSMKBDHVN. The
 most common are N for any base, S for a strong base (C or G), W for
@@ -111,9 +91,9 @@ list see Table \ref{tab:Nucleotide-symbols}.%
 \noindent \begin{centering}
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline 
-Symbol & A & C & G & T & R & Y & W & S & M & K & B & D & H & V & N\tabularnewline
+Symbol & A & C & G & T & R & Y & W & S & M & K & B & D & H & V & N\\
 \hline 
-Allowed bases & A & C & G & T & AG & CT & AT & CG & AC & GT & CGT & AGT & ACT & ACG & ACGT\tabularnewline
+Allowed bases & A & C & G & T & AG & CT & AT & CG & AC & GT & CGT & AGT & ACT & ACG & ACGT\\
 \hline
 \end{tabular}
 \par\end{centering}
@@ -127,7 +107,7 @@ Allowed bases & A & C & G & T & AG & CT & AT & CG & AC & GT & CGT & AGT & ACT & 
 of the sequence.
 
 For example:
-\begin{lyxcode}
+\begin{code}
 sequence~toe\_x~=~NNNNNN~:~6
 
 sequence~regulator~=~TCGGACT~:~7
@@ -135,7 +115,7 @@ sequence~regulator~=~TCGGACT~:~7
 sequence~\_\_Anon-435~=~SWABBBBBSS~:~10
 
 sequence~Translate-And-Gate-data\_x~=~SNNNNNNNNNNNNNNNNNNS~:~20
-\end{lyxcode}
+\end{code}
 
 \subsection{Super-sequences}
 
@@ -143,20 +123,20 @@ Super-sequences are collections of sequences (or other super-sequences)
 grouped together for convenience.
 
 Syntax:
-\begin{lyxcode}
+\begin{code}
 super-sequence~<Name>~=~<List~of~sub-sequences>~:~<Length>
-\end{lyxcode}
+\end{code}
 The <List of sub-sequences> is a space separated list. Each element
 in the list is the name of a sequence or super-sequence optionally
 followed with an asterisk ({*}) meaning the Watson-Crick complement
 of the named sequence (toe\_x{*} means complement of sequence toe\_x).
 
 For example:
-\begin{lyxcode}
+\begin{code}
 super-sequence~x~=~toe\_x~data\_x~:~21
 
 super-sequence~input~=~x~y{*}~x~:~60
-\end{lyxcode}
+\end{code}
 
 \subsection{Strands}
 
@@ -164,15 +144,15 @@ Strands identify the actual sequence constraints that a strand will
 have. But, syntactically, they are identical to super-sequences.
 
 Syntax:
-\begin{lyxcode}
+\begin{code}
 strand~<Name>~=~<List~of~sequences>~:~<Length>
-\end{lyxcode}
+\end{code}
 Examples:
-\begin{lyxcode}
+\begin{code}
 strand~X~=~x~:~21
 
 strand~Base~=~x{*}~data\_y~data\_z{*}~:~51
-\end{lyxcode}
+\end{code}
 
 \subsection{Structures}
 
@@ -180,15 +160,15 @@ Structures express the DNA complexes you want including a precise
 target secondary structure.
 
 Syntax:
-\begin{lyxcode}
+\begin{code}
 structure~<Name>~=~<List~of~strands>~:~<Secondary~structure>
-\end{lyxcode}
+\end{code}
 or
-\begin{lyxcode}
+\begin{code}
 structure~{[}<Parameters>{]}~<Name>~=~<List~of~strands>~:~<Secondary~structure>
-\end{lyxcode}
+\end{code}
 The <List of strands> is a list of strand names separated by plus
-signs (+). You may not use the same strand more than once in a structure,
+signs (+). You may not use the same strand more than once in a structure;
 if you want to have two identical strands in a structure, you must
 define two identical strands. <Secondary structure> is in dot-paren
 notation using plus sign as the strand break symbol. Whitespace is
@@ -198,13 +178,13 @@ optimization) or <Integer>nt (for within <Integer> nucleotides of
 the target structure).
 
 For example:
-\begin{lyxcode}
+\begin{code}
 structure~Gate~=~Out~+~Base~:~((((((((((((((((....................+))))))))))))))))......
 
 structure~{[}no-opt{]}~IN\_Waste~=~In~+~Base~:~(((((((((((((((((((+...)))))))))))))))))))
 
 structure~{[}1nt{]}~IN~=~In~:~...................
-\end{lyxcode}
+\end{code}
 
 \subsection{Kinetics}
 
@@ -214,33 +194,33 @@ in an input structure must appear in an output structure. Also, a
 strand may not appear more than once in a kinetic reaction.
 
 Syntax:
-\begin{lyxcode}
+\begin{code}
 kinetic~<List~of~inputs>~->~<List~of~outputs>
-\end{lyxcode}
+\end{code}
 or
-\begin{lyxcode}
+\begin{code}
 kinetic~{[}<Parameters>{]}~<List~of~inputs>~->~<List~of~outputs>
-\end{lyxcode}
+\end{code}
 <List of inputs> and <List of outputs> are both lists of structure
 names separated by plus sign (+). <Parameters> is currently being
 used to specify target reaction rates. It's syntax is:
-\begin{lyxcode}
+\begin{code}
 <Low>~/M/s~<~k~<~<High>~/M/s
 
 <Low>~/s~<~k~<~<High>~/s
-\end{lyxcode}
+\end{code}
 where the units clearly depend on whether this is a bi-molecular or
 uni-molecular reaction. <Low> and <High> are floating point numbers
 and <High> may be {}``inf'' for no upper bound.
 
 For example:
-\begin{lyxcode}
+\begin{code}
 kinetic~IN~+~Gate~->~OUT~+~IN\_Waste
 
 kinetic~{[}0~/M/s~<~k~<~1e6~/M/s{]}~Left~+~SeesawRight~->~Right~+~SeesawLeft
 
 kinetic~{[}1000.1~/s~<~k~<~inf~/s{]}~Glob~->~X~+~Y
-\end{lyxcode}
+\end{code}
 
 \subsection{Noninteracting}
 
@@ -249,15 +229,15 @@ targets. These are sets of things that we do not want to interact
 with each other.
 
 Generally, the syntax is:
-\begin{lyxcode}
+\begin{code}
 noninteracting~{[}<Type>{]}~<List~of~things>
-\end{lyxcode}
+\end{code}
 Where <List of things> could be sequences, strands or structures and
 their interpretation depends up on the <Type>. Currently, we have
 one possible type:
-\begin{lyxcode}
+\begin{code}
 noninteracting~{[}kinetic{]}~<List~of~structures>
-\end{lyxcode}
+\end{code}
 where <List of structures> is a space separated list of structures
 which should pairwise not react kinetically (and not waste too much
 time interacting). It is specifically used by Chris Berlind's KinD.
