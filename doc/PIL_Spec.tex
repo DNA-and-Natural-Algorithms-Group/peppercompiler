@@ -28,19 +28,19 @@
 
 \title{PIL Specification}
 \author{Shawn Ligocki, Chris Berlind, Joseph Schaeffer, Erik Winfree}
-\date{January 15, 2010}
+\date{November 30, 2010}
 \maketitle
 
 PIL (Pepper Intermediate Language) is a language used by the Pepper
-compiler framework to describe a DNA design specification. \add{It is
+compiler framework to describe a DNA design specification. It is
 derived from the .DES design specification language created by Joe
-Zadeh, Brian Wolfe, Niles Pierce, et al for the NUPACK multiobjective designer} and
+Zadeh, Brian Wolfe, Niles Pierce, et al for the NUPACK multiobjective designer and
 has been extended to include kinetic and other information about DNA
 designs. A PIL design contains information about every sequence
 (domain), strand, structure (multi-stranded complex) and kinetic
-reaction in a design.  \add{It is meant to provide a common framework for
+reaction in a design.  It is meant to provide a common framework for
 sequence designers, including those used for pseudoknotted structures
-such as DNA tiles.}
+such as DNA tiles.  Existing software may not yet implement or utilize all features of PIL, as discussed in section~\ref{software}.
 
 
 
@@ -135,8 +135,16 @@ supersequence x = toe\_x data\_x~:~21
 supersequence input = x y{*} x~:~60
 \end{code}
 
+\subsection{Equal}
 
-\add{Needs discussion of {\bf equal} statement.  Does this apply to sequences, supersequences, and/or strands?}
+A sequence or supersequence can be forced to be exactly equal to
+another sequence, supersequence, or it complement.  This is
+particularly useful for linking together PIL code fragments that define two DNA components that must interact by shared sequence domains.
+
+Example equal statement:
+\begin{code}
+equal anon435 y* toehold
+\end{code}
 
 \subsection{Strands}
 
@@ -150,7 +158,7 @@ Syntax:
 \begin{code}
 strand <Name> = <List of (sequence | supersequence)>~:~<Length>
 \end{code}
-or \add{(as a new feature, not yet fully supported)} 
+or 
 \begin{code}
 strand [<Substrate type>] <Name> = <List of (sequence | supersequence)>~:~<Length>
 \end{code}
@@ -172,8 +180,6 @@ strand Base = x{*} data\_y data\_z{*}~:~51
 
 A structure statement represents a single- or multi-stranded ordered complex and its exact secondary structure (pseudoknotted or unpseudoknotted) at the base-pair level.
 
-\add{NEEDS DESCRIPTION of domain-level specification and how strands' domains are calculated when supersequence definitions are involved.}
-
 Syntax:
 \begin{code}
 structure <Name> = <List of strands>~:~<Secondary structure>
@@ -185,7 +191,7 @@ structure [<Parameters>] <Name> = <List of strands>~:~<Secondary structure>
 The \texttt{<List of strands>} is a list of strand names separated by plus signs (\texttt{+}). A strand \textbf{may} appear twice in a single structure.
 
 \texttt{<Secondary structure>} is specified using dot-bracket
-notation. To allow for pseudoknotted structures, \add{future versions will support} any bracket type (i.e.\ \texttt{(} \texttt{)}, \texttt{[} \texttt{]}, \texttt{\{} \texttt{\}}, \texttt{<} \texttt{>}) or labeled brackets (i.e.\ \texttt{(0} \texttt{0)}, \texttt{(1} \texttt{1)}, etc.) may represent paired bases, a dot (\texttt{.}) represents unpaired bases, and a plus sign represents a strand break. Whitespace is allowed between symbols \add{and must appear after number-labeled left brackets and before number-labeled right brackets}. 
+notation. To allow for pseudoknotted structures, \add{future versions will support} any bracket type (i.e.\ \texttt{(} \texttt{)}, \texttt{[} \texttt{]}, \texttt{\{} \texttt{\}}, \texttt{<} \texttt{>}) or labeled brackets (i.e.\ \texttt{(0} \texttt{0)}, \texttt{(1} \texttt{1)}, etc.) may represent paired bases, a dot (\texttt{.}) represents unpaired bases, and a plus sign represents a strand break. Whitespace is allowed between symbols and must appear after number-labeled left brackets and before number-labeled right brackets. 
 
 \texttt{<Parameters>} uses the following syntax:
 \begin{code}
@@ -197,13 +203,13 @@ set of conditions under which the set of targets in \texttt{<List of
 targets>} should be satisfied. Possible target elements include
 \texttt{no-opt} (meaning no optimization) and \texttt{<Float>nt}
 (meaning within \texttt{<Float>} nucleotides of the target
-structure, \add{e.g. on average}), \add{and \texttt{<Low> kcal/mol < dG < <High> kcal/mol} (meaning the free energy must be within the range).
-\texttt{<Low>} and \texttt{<High>} may be \texttt{-inf} or \texttt{inf} to indicate no bounds are given. }
+structure, e.g. on average), and \texttt{<Low> kcal/mol < dG < <High> kcal/mol} (meaning the free energy must be within the range).
+\texttt{<Low>} and \texttt{<High>} may be \texttt{-inf} or \texttt{inf} to indicate no bounds are given. 
 Possible condition elements include
 \texttt{temperature=<Float>C} (temperature in degrees Celsius) and
-\texttt{Na=<Float>M} (sodium ion concentration) \add{and
-\texttt{Mg=<Float>M} (magnesium ion concentration)}.
-\add{Units \texttt{K} for Kelvin, and \texttt{mM}, \texttt{uM}, \texttt{nM} are also supported.}
+\texttt{Na=<Float>M} (sodium ion concentration) and
+\texttt{Mg=<Float>M} (magnesium ion concentration).
+Units \texttt{K} for Kelvin, and \texttt{mM}, \texttt{uM}, \texttt{nM} are also supported.
 
 
 Examples of structure statements:
@@ -270,19 +276,29 @@ one possible type:
 noninteracting [kinetic] <List of structures>
 \end{code}
 where \texttt{<List of structures>} is a space separated list of structures
-which should pairwise not react kinetically (and not waste too much
-time interacting). It is specifically used by Chris Berlind's KinD.
+which should pairwise not react kinetically, and not waste too much
+time interacting. 
 
-\add{Additional noninteracting lists will be used by Spurious_Design:  \texttt{sticky-ends} for tile sticky ends, \texttt{toeholds} for strand displacement toeholds, \texttt{branch-migration} for 3-way and 4-way branch migration domains, and \texttt{single-stranded} for single-strandedsequences that must not hybridize to each other.}
+Additional noninteracting lists will be used by Spurious\_Design:
+\texttt{sticky-ends} for tile sticky ends, \texttt{toeholds} for
+strand displacement toeholds, \texttt{branch-migration} for 3-way and
+4-way branch migration domains, and \texttt{single-stranded} for
+single-stranded sequences that must not hybridize to each other.
 
 
+\section{Related software tools} \label{software}
 
-\subsection{Related software tools}
 
-\add{Software that currently (November 2010) reads or writes PIL include: 
-  \texttt{spurious_design.py} (the wrapper for the \texttt{spuriousC} sequence-symmetry designer),
+\subsection{Software}
+
+Software that currently (November 2010) reads or writes PIL include: 
+  \texttt{spurious\_design.py} (the wrapper for the \texttt{spuriousC} sequence-symmetry designer),
   \texttt{KinD.py} (strand displacement kinetics network evaluator and sequence designer),
-  \texttt{random_design.py} (a trivial random sequence designer),
-  \texttt{PIL-to-DES.py} (an yet-to-be-written converter for using the NUPACK designer).}
+  \texttt{random\_design.py} (a trivial random sequence designer),
+  \texttt{PIL-to-DES.py} (an yet-to-be-written converter for using the NUPACK designer).
+
+\subsection{Implementation status}
+
+Currently, no software implements the \texttt{[<Substrate type>]} qualifier.  Currently no software implements the psuedoknotted dot-paren notation.  Currently no software implements the structure target criteria specifications.
 
 \end{document}
