@@ -27,65 +27,74 @@ def print_list(xs, filename, format):
     f.write(format % x)
   f.close()
 
-def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=False, struct_orient=False, extra_pars=""):
+def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=False, struct_orient=False, old_output=False, extra_pars=""):
   stname = basename + ".st"
   wcname = basename + ".wc"
   eqname = basename + ".eq"
   sp_outname = basename + ".sp"
   
-  #if reuse:
-  #  for name in stname, wcname, eqname:
-  #    assert os.path.isfile(name), "Error: requested --reuse, but file '%s' doesn't exist" % name
-  
-  # Prepare the constraints
-  print "Reading design from  file '%s'" % infilename
-  print "Preparing constraints files for spuriousC."
-  convert = Convert(infilename, struct_orient)
-  eq, wc, st = convert.get_constraints()
-  
-  # Convert specifications
-  def eq_map(x):
-    return x + 1  if x != None  else 0
-  eq = map(eq_map, eq)
-  
-  def wc_map(x):
-    return x + 1  if x != None  else -1
-  wc = map(wc_map, wc)
-  
-  def st_map(x):
-    return x  if x != None  else " "
-  st = map(st_map, st)
-  
-  # Print them to files
-  print_list(eq, eqname, "%d ")
-  print_list(wc, wcname, "%d ")
-  print_list(st, stname, "%c")
-  
-  if "_" in st:
-    print "System over-constrained."
-    sys.exit(1)
-  
-  # Run SpuriousC
-  # TODO: take care of prevents.
-  if verbose:
-    quiet = "quiet=ALL"
+  if reuse:
+    raise NotImplementedError
+    print "Reusing old constraints files."
+    for name in stname, wcname, eqname:
+      assert os.path.isfile(name), "Error: requested --reuse, but file '%s' doesn't exist" % name
+    eq = open(eqname,'r').read().split(' ')
+    wc = open(wcname,'r').read().split(' ')
+    st = open(stname,'r').read().split(' ')
   else:
-    quiet = "quiet=TRUE"
+    # Prepare the constraints
+    print "Reading design from  file '%s'" % infilename
+    print "Preparing constraints files for spuriousC."
+    convert = Convert(infilename, struct_orient)
+    eq, wc, st = convert.get_constraints()
+    
+    # Convert specifications
+    def eq_map(x):
+      return x + 1  if x != None  else 0
+    eq = map(eq_map, eq)
+    
+    def wc_map(x):
+      return x + 1  if x != None  else -1
+    wc = map(wc_map, wc)
+    
+    def st_map(x):
+      return x  if x != None  else " "
+    st = map(st_map, st)
+    
+    # Print them to files
+    print_list(eq, eqname, "%d ")
+    print_list(wc, wcname, "%d ")
+    print_list(st, stname, "%c")
+    
+    if "_" in st:
+      print "System over-constrained."
+      sys.exit(1)
   
-  spo = open(sp_outname,'w') 
-  
-  command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
-  print command
-  spurious_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-
-  data = spurious_proc.stdout.readline()
-  while data:
+  # Run SpuriousC or read old data.
+  # TODO: take care of prevents.
+  if not old_output:
     if verbose:
-      sys.stdout.write(data)
-    spo.write(data)
-    data = spurious_proc.stdout.readline()
+      quiet = "quiet=ALL"
+    else:
+      quiet = "quiet=TRUE"
+    
+    spo = open(sp_outname,'w') 
+    
+    command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
+    print command
+    spurious_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
 
-  spo.close()
+    data = spurious_proc.stdout.readline()
+    while data:
+      if verbose:
+        sys.stdout.write(data)
+      spo.write(data)
+      data = spurious_proc.stdout.readline()
+
+    spo.close()
+  else:
+    print "Loading old spuriousC output from '%s'" % sp_outname
+    assert os.path.isfile(sp_outname), "Error: requested --use-old-output, but file '%s' doesn't exist" % sp_outname 
   
   # Load results
   nts = open(sp_outname, "r").read()
@@ -116,7 +125,7 @@ if __name__ == "__main__":
   # Parse command line options.
   usage = "usage: %prog [options] infilename [spuriousC_parameters ...]"
   parser = OptionParser(usage=usage)
-  parser.set_defaults(verbose=False, struct_orient=False, cleanup=True)
+  parser.set_defaults(verbose=False, struct_orient=False, cleanup=True, old_output=False, reuse=False)
   parser.add_option("-v", "--verbose", action="store_true", dest="verbose", help="Verbose output from spuriousC")
   parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="No output from spuriousC [Default]")
   parser.add_option("-o", "--output", help="Output file [defaults to BASENAME.mfe]", metavar="FILE")
@@ -126,9 +135,9 @@ if __name__ == "__main__":
   
   parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp)")
   parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use [Default]")
-  # TODO: parser.add_option("--reuse", action="store_true", help="Reuse the .st, .wc and .eq files if they already exist (Saves time if a session was terminated, or if you want to rerun a design).")
+  parser.add_option("--reuse", action="store_true", help="Reuse the .st, .wc and .eq files if they already exist (Saves time if a session was terminated, or if you want to rerun a design)")
+  parser.add_option("--use-old-output", action="store_true", dest="old_output", help="Use old spuriousC output if it already exists (Useful primarily if spuriousC finished successfully, but spurious_design crashed)")
   (options, args) = parser.parse_args()
-  options.reuse = False # TODO
   
   if len(args) < 1:
     parser.error("missing required argument infilename")
@@ -150,4 +159,4 @@ if __name__ == "__main__":
   # Collect extra arguments for spuriousC
   spurious_pars = string.join(args[1:], " ")
   
-  design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.struct_orient, spurious_pars)
+  design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.struct_orient, options.old_output, spurious_pars)
