@@ -51,7 +51,7 @@ class Sequence(object):
     if wilds == 0: # no wildcards
       seq_lengths = sum(lengths)
       if length:
-        assert length == seq_lengths, "Length mismatch for sequence %s (%r != %r)" % (name, self.length, seq_length)
+        assert length == seq_lengths, "Length mismatch for sequence %s (%r != %r)" % (name, length, seq_lengths)
       else: # If length was not specified (None), we set it
         length = seq_lengths
     else: # one wildcard

@@ -16,7 +16,10 @@ from utils import match, warning, error
 def parse_fixed(line):
   """Parse a line in the fixed file."""
   m = match(r"(\w+) ([\w_-]+)[ \t]*=[ \t]*([ATCGNS]+)(?: #.*)?", line)
-  type_, name, seq = m.groups()
+  try:
+      type_, name, seq = m.groups()
+  except AttributeError:
+      raise ValueError(line)
   return type_, name, seq
 
 def load_fixed(filename):
@@ -44,6 +47,13 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False)
     for type_, name, fixed_seq in fixed_sequences:
       if type_ in "sequence":
         system.seqs[name].fix_seq( fixed_seq )
+      elif type_ in "signal":
+        # As a small hack, fix the first sequence in the list for the signal.
+        for seq in system.signals[name]:
+          if not seq[2]:
+            seq[0].fix_seq( fixed_seq )
+          else:
+            seq[0].wc.fix_seq( fixed_seq )
       elif type_ == "strand":
         system.strands[name].fix_seq( fixed_seq )
       elif type_ == "structure":

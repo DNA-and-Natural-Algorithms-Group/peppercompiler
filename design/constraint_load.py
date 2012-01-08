@@ -24,7 +24,8 @@ def intersect_groups(x1, x2):
   g1 = group[x1]; g2 = group[x2]
   inter = set(g1).intersection(set(g2))
   # TODO: better errors for overconstrained system
-  assert len(inter) > 0, "System over-constrained. %s and %s cannot be equal." % (x1, x2)
+  if len(inter) == 0:
+      raise ValueError
   inter = list(inter)
   inter.sort()
   inter = string.join(inter, "")
@@ -35,13 +36,15 @@ class Constraints(object):
     self.eq = {}
     self.wc = {}
     self.st = {}
+    self.name = {}
   
-  def init(self, x, letter="N"):
+  def init(self, x, letter="N", name="NoName"):
     """Must initialize an index 'x' before constraining it."""
     assert x not in self.eq and x not in self.wc and x not in self.st, "Cannot initialize an index twice: %r" % x
     self.eq[x] = []
     self.wc[x] = []
     self.st[x] = letter
+    self.name[x] = name
   
   def add_eq(self, x, y):
     """Add a single equality constraint between items x and y."""
@@ -81,12 +84,18 @@ class Constraints(object):
         for y in self.eq[x]:
           assert y not in done, (x, y)
           st_y = self.st[y]
-          st = intersect_groups(st, st_y)
+          try:
+              st = intersect_groups(st, st_y)
+          except ValueError:
+              raise ValueError("{}, {}".format( self.name[x], self.name[y] ) )
         # ... and the complement of all wc
         for y in self.wc[x]:
           assert y not in done, (x, y)
           st_y = complement[self.st[y]]
-          st = intersect_groups(st, st_y)
+          try:
+              st = intersect_groups(st, st_y)
+          except ValueError:
+              raise ValueError("{}, {}".format( self.name[x], self.name[y] ) )
         
         # Apply new template
         for y in self.eq[x]:
@@ -204,9 +213,11 @@ def index_func_strand(spec):
     raise Exception("Not Yet Implemented")
 
   def get_strand(index):
-    """Return the strand for a given index."""
-    num = (x for x in strand_start if index > x).next()
-    return spec.strands.values()[num]
+    """Return the strand and offset for a given index."""
+    if type(index) == tuple:
+        index = index[0]
+    num = len([x for x in strand_start if index > x])-1
+    return (spec.strands.values()[num], index - strand_start[num])
 
   return get_index, get_index_strand, get_struct, get_strand
 
@@ -253,9 +264,9 @@ class Convert(object):
       for strand in self.spec.strands.values():
         for x in range(strand.length):
           x2 = self.get_index_strand(strand, x)
-          self.constraints.init(x2)
+          self.constraints.init(x2, name=strand.name)
     
-    
+    self.constraints.get_strand = self.get_strand 
     ## Add constraints
     # Structural constraints
     for struct in self.spec.structs.values():
@@ -272,13 +283,13 @@ class Convert(object):
       num += 1
       for x, letter in enumerate(seq.template):
         x2 = (seq.num, x)
-        self.constraints.init(x2, letter)
+        self.constraints.init(x2, letter, name=seq.name)
       # We list both sequences and reverse_sequences making constraints code simpler
       seq.wc.num = num
       num += 1
       for x in range(seq.wc.length):
         x2 = (seq.wc.num, x)
-        self.constraints.init(x2)
+        self.constraints.init(x2, name=seq.name+"_reversed")
         self.constraints.add_wc(x2, (seq.num, seq.length - x - 1) ) # Add wc constraint
     # and for super-sequences
     for seq in self.spec.sup_seqs.values():
@@ -292,7 +303,7 @@ class Convert(object):
       num += 1
       for x in range(seq.wc.length):
         x2 = (seq.wc.num, x)
-        self.constraints.init(x2)
+        self.constraints.init(x2, name=seq.name+"_super")
         self.constraints.add_wc(x2, (seq.num, seq.length - x - 1) ) # Add wc constraint
     
     
