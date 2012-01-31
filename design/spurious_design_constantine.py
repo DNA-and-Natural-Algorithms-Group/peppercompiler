@@ -80,7 +80,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
     
     spo = open(sp_outname,'w') 
     
-    command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
+    command = "spuriousc.py %s %s %s %s" % (stname, wcname, eqname, extra_pars)
     print command
     if just_files:
       return
