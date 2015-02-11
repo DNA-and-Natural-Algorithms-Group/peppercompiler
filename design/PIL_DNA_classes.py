@@ -29,7 +29,7 @@ class Sequence(object):
   def set_seq(self, seq):
     """Set the sequence."""
     if self.seq: # If this sequence is already defined
-      assert self.seq == seq, "Sequence %s was designed with 2 different sequences: %s and %s" % (self.name, self.seqs, seqs)
+      assert self.seq == seq, "Sequence %s was designed with 2 different sequences: %s and %s" % (self.name, self.seq, seq)
     else: # If it's not defined yet
       self.seq = seq
       self.wc.seq = seq_comp(seq)
