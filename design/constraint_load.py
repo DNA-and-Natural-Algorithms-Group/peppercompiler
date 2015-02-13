@@ -176,8 +176,16 @@ def index_func_struct(spec):
     """Return the general index for a nucleotide from the given strand."""
     assert index < strand.length, "get_index called with an index that is too big. %d >= %d" % (index, strand.length)
     return strand_start[strand.num] + index
-  
-  return get_index, get_index_strand
+
+  def get_struct(index):
+    """Return the structure for a given index."""
+    raise Exception("Not Yet Implemented")
+
+  def get_strand(index):
+    """Return the strand and offset for a given index."""
+    raise Exception("Not Yet Implemented")
+
+  return get_index, get_index_strand, get_struct, get_strand
 
 def index_func_strand(spec):
   """Return an index function based on the STRAND-centric specification"""
@@ -241,7 +249,7 @@ class Convert(object):
     """Distil out constraints information from the specification."""
     ## Initialize all struct/strand constraints lists
     if self.struct_orient:
-      self.get_index, self.get_index_strand = index_func_struct(self.spec)
+      self.get_index, self.get_index_strand, self.get_struct, self.get_strand = index_func_struct(self.spec)
       
       for struct in self.spec.structs.values():
         for x in range(struct.length):
