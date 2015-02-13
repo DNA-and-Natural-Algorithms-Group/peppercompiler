@@ -30,7 +30,7 @@ def load_fixed(filename):
   f = open(filename, "r")
   return [parse_fixed(line) for line in f if not re.match(r"\s*(#.*)?\s*\Z", line)]
   
-def compiler(basename, args, outputname, savename, fixed_file=None, synth=False):
+def compiler(basename, args, outputname, savename, fixed_file=None, synth=False, includes=None):
   """
   Start compiling a specification.
   
@@ -39,7 +39,7 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False)
   
   print "Compiling '%s' ..." % basename
   # Read in system (or component)
-  system = load_file(basename, args, prefix="")
+  system = load_file(basename, args, prefix="", includes=includes)
   
   if fixed_file:
     print "Fixing sequences from file '%s'" % fixed_file
@@ -112,6 +112,7 @@ if __name__ == "__main__":
   parser.add_option("--synthesis", action="store_true", dest="pil", help="Depricated, use --pil instead.")
   parser.add_option("--output", help="Output file [defaults to BASENAME.pil]", metavar="FILE")
   parser.add_option("--save", help="Saved state file [defaults to BASENAME.save]", metavar="FILE")
+  parser.add_option("-I","--include", help="Add PATH to search path for component imports", metavar="PATH",action="append")
   (options, args) = parser.parse_args()
   
   # Get basename of input specification
@@ -137,4 +138,4 @@ if __name__ == "__main__":
   args, keys = quickargs.get_args(args[1:])
   assert not keys, "Don't provide keywords to compiler.py"
   
-  compiler(basename, args, options.output, options.save, options.fixed, options.pil)
+  compiler(basename, args, options.output, options.save, options.fixed, options.pil, options.include)

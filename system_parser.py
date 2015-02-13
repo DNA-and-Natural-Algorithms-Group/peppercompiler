@@ -10,7 +10,7 @@ from var_substitute import process_list
 from utils import error
 
 
-def load_system(filename, args, prefix, path):
+def load_system(filename, args, prefix, path, includes=None):
   """Load system file"""
   # Find first statement
   f = open(filename, "r")
@@ -25,7 +25,7 @@ def load_system(filename, args, prefix, path):
   name, param_names, system_inputs, system_outputs = parse_declare_statement(line)
   
   # Create system object
-  system = System(path, name, prefix, param_names)
+  system = System(path, name, prefix, param_names, includes=includes)
   
   # Open file and do parameter substitution
   params = {}

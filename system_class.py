@@ -9,43 +9,53 @@ from utils import ordered_dict, default_ordered_dict, PrintObject, error
 
 DEBUG = False
 
-def load_file(basename, args, prefix, path="."):
+def load_file(basename, args, prefix, path=".", includes=None):
   """Load the file basename.(sys|comp) with args from path."""
   # Imported in the function to avoid circular import error.
   import os
   from system_parser import load_system
   from component_parser import load_component
+ 
+  if includes:
+    paths = [path] + includes
+  else:
+    paths = [path]
   
-  basename = os.path.join(path, basename) # Add the correct directory name
-  new_path = os.path.dirname(basename) # Local directory of basename
-  
-  sys_name = basename+".sys"   # Name if file is a system specification
-  comp_name = basename+".comp" # Name if file is a component spec.
-  
-  issys = os.path.isfile(sys_name)   # Is it a system file?
-  iscomp = os.path.isfile(comp_name) # Is it a component file?
+  for incpath in paths:
+    basenameandpath = os.path.join(incpath, basename) # Add the correct directory name
+    new_path = os.path.dirname(basenameandpath) # Local directory of basename
+    
+    sys_name = basenameandpath+".sys"   # Name if file is a system specification
+    comp_name = basenameandpath+".comp" # Name if file is a component spec.
+    
+    issys = os.path.isfile(sys_name)   # Is it a system file?
+    iscomp = os.path.isfile(comp_name) # Is it a component file?
+
+    if issys and iscomp:
+      error("Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name))
+
+    if issys or iscomp:
+      break
   
   # Check that exactly one of the two types exists
   if not (issys or iscomp):
     error("Neither '%s' nor '%s' exist" % (sys_name, comp_name))
   
-  if issys and iscomp:
-    error("Ambiguous specification: Both '%s' and '%s' exist. Please remove the one that does not belong and rerun the compiler." % (sys_name, comp_name))
-  
   # And load it
   if issys:
-    return load_system(sys_name, args, prefix, new_path)
+    return load_system(sys_name, args, prefix, new_path, includes=includes)
   
   else: # iscomp
     return load_component(comp_name, args, prefix)
 
 class System(PrintObject):
   """Stores all the information in a system's connectivity file"""
-  def __init__(self, path, name, prefix, params):
+  def __init__(self, path, name, prefix, params, includes=None):
     """Initialized the cicuit with the declare statement"""
     self.path = path  # Filesystem path to load components relative to.
     self.name = name
     self.prefix = prefix  # Prefix for all sub-components.
+    self.includes = includes
     
     self.template = ordered_dict()
     self.signals = ordered_dict()
@@ -81,7 +91,7 @@ class System(PrintObject):
     # Setup components
     assert templ_name in self.template, "Template referenced before import: " + templ_name
     assert comp_name not in self.components, "Duplicate component definition: " + comp_name
-    self.components[comp_name] = this_comp = load_file(self.template[templ_name], templ_args, self.prefix + comp_name + "-", self.path)
+    self.components[comp_name] = this_comp = load_file(self.template[templ_name], templ_args, self.prefix + comp_name + "-", self.path, includes=self.includes)
     assert len(inputs) == len(this_comp.input_seqs),   "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len( inputs), len(this_comp.input_seqs ))
     assert len(outputs) == len(this_comp.output_seqs), "Length mismatch. %s / %s: %r != %r" % (comp_name, templ_name, len(outputs), len(this_comp.output_seqs))
     # Constrain all component inputs and outputs
