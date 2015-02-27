@@ -1,12 +1,8 @@
 import re
 import sys
 
-# Extend path to see compiler library
-import sys
-here = sys.path[0] # System path to this module.
-sys.path.append(here+"/..")
 
-from utils import error
+from ..utils import error
 import nupack_in_class
 from DNA_nupack_classes import group
 

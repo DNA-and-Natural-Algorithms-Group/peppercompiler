@@ -11,13 +11,8 @@ import os
 from new_loading import load_file
 from DNA_nupack_classes import group, rev_group, complement, seq_comp
 
-# Extend path to see compiler library
-import sys
-here = sys.path[0] # System path to this module.
-sys.path.append(here+"/..")
-
-from DNAfold import DNAfold
-from utils import error
+from ..DNAfold import DNAfold
+from ..utils import error
 
 DEBUG = False
 

@@ -11,11 +11,7 @@ import sys
 
 from constraint_load import Convert
 
-# Extend path to see compiler library
-here = sys.path[0] # System path to this module.
-sys.path.append(here+"/..")
-
-from utils import error
+from ..utils import error
 
 DEBUG = False
 

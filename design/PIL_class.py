@@ -1,11 +1,6 @@
 from PIL_DNA_classes import *
 
-# Extend path to see compiler library
-import sys
-here = sys.path[0] # System path to this module.
-sys.path.append(here+"/..")
-
-from utils import ordered_dict, PrintObject
+from ..utils import ordered_dict, PrintObject
 
 def get_seqs(seq_names, seq_dict):
   """Get list of sequences from list of names."""

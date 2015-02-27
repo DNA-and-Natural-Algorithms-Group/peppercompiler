@@ -5,13 +5,7 @@ from constraints import propagate_constraints
 from PIL_parser import load_spec
 from PIL_DNA_classes import group, rev_group, complement, seq_comp
 
-# Extend path to see compiler library
-import sys
-here = sys.path[0] # System path to this module.
-sys.path.append(here+"/..")
-
-from DNAfold import DNAfold
-from utils import warning
+from ..utils import warning
 
 def min_(xs):
   """Returns min element (or None if there are no elements)"""
@@ -367,6 +361,7 @@ class Convert(object):
     for num, struct in enumerate(self.spec.structs.values()):
       # TODO-maybe: change output format so we don't need to run DNAfold in designer.
       if findmfe:
+        from ..DNAfold import DNAfold
         struct.mfe_struct, dG = DNAfold(struct.seq)
       else:
         struct.mfe_struct = struct.struct
