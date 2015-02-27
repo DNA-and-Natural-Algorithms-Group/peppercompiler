@@ -361,12 +361,16 @@ class Convert(object):
     for struct in self.spec.structs.values():
       struct.get_seq()
   
-  def output(self, outname):
+  def output(self, outname, findmfe=True):
     """Output designed sequences to outfilename in .mfe format."""
     f = open(outname, "w")
     for num, struct in enumerate(self.spec.structs.values()):
       # TODO-maybe: change output format so we don't need to run DNAfold in designer.
-      struct.mfe_struct, dG = DNAfold(struct.seq)
+      if findmfe:
+        struct.mfe_struct, dG = DNAfold(struct.seq)
+      else:
+        struct.mfe_struct = struct.struct
+        dG = 0
       
       # Write structure (with dummy content)
       f.write("%d:%s\n" % (num, struct.name))

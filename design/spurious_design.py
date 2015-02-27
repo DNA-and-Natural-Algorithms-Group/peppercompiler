@@ -27,11 +27,15 @@ def print_list(xs, filename, format):
     f.write(format % x)
   f.close()
 
-def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=False, just_files=False, struct_orient=False, old_output=False, extra_pars=""):
-  stname = basename + ".st"
-  wcname = basename + ".wc"
-  eqname = basename + ".eq"
-  sp_outname = basename + ".sp"
+def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse=False, just_files=False, struct_orient=False, old_output=False, tempname=None, extra_pars="", findmfe=True):
+  
+  if not tempname:
+    tempname = basename
+  
+  stname = tempname + ".st"
+  wcname = tempname + ".wc"
+  eqname = tempname + ".eq"
+  sp_outname = tempname + ".sp"
   
   if reuse:
     raise NotImplementedError
@@ -105,7 +109,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   nts = nts.split("\n")[-2]
   print "Processing results of spuriousC."
   convert.process_results(nts)
-  convert.output(outfilename)
+  convert.output(outfilename, findmfe=findmfe)
   print "Done, results saved to '%s'" % outfilename
   
   if cleanup:
@@ -131,6 +135,7 @@ if __name__ == "__main__":
   parser.add_option("-v", "--verbose", action="store_true", dest="verbose", help="Verbose output from spuriousC")
   parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="No output from spuriousC [Default]")
   parser.add_option("-o", "--output", help="Output file [defaults to BASENAME.mfe]", metavar="FILE")
+  parser.add_option("-t", "--tempname", help="Base name for temporary files (for multiple simultaneous runs)", metavar="TEMPBASE")
   
   parser.add_option("--strand", action="store_false", dest="struct_orient", help="List constraints in strand-oriented manner [Default]")
   parser.add_option("--struct", action="store_true", dest="struct_orient", help="List constraints in structure-oriented manner")
@@ -162,4 +167,4 @@ if __name__ == "__main__":
   # Collect extra arguments for spuriousC
   spurious_pars = string.join(args[1:], " ")
   
-  design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.just_files, options.struct_orient, options.old_output, spurious_pars)
+  design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.just_files, options.struct_orient, options.old_output, options.tempname, spurious_pars)
