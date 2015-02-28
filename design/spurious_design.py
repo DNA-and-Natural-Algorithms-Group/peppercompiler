@@ -23,7 +23,7 @@ def print_list(xs, filename, format):
     f.write(format % x)
   f.close()
 
-def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse=False, just_files=False, struct_orient=False, old_output=False, tempname=None, extra_pars="", findmfe=True):
+def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse=False, just_files=False, struct_orient=False, old_output=False, tempname=None, extra_pars="", findmfe=True, spuriousbinary="spuriousSSM"):
   
   if not tempname:
     tempname = basename
@@ -80,7 +80,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     
     spo = open(sp_outname,'w') 
     
-    command = "spuriousSSM score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
+    command = "%s score=automatic template=%s wc=%s eq=%s %s %s" % (spuriousbinary, stname, wcname, eqname, extra_pars, quiet)
     print command
     if just_files:
       return
