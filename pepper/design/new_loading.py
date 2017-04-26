@@ -3,8 +3,8 @@ import sys
 
 
 from ..utils import error
-import nupack_in_class
-from DNA_nupack_classes import group
+from . import nupack_in_class
+from .DNA_nupack_classes import group
 
 def load_file(filename):
   """Load a NUPACK style input file."""
@@ -55,7 +55,7 @@ def parse_seq(line):
     error("Invalid sequence statement format:\n"
           "Should be: sequence <name> = <constraints>\n"
           "Invalid:   %s" % line)
-  assert set(seq).issubset( set(group.keys()) ), "Sequence constraints must be written out in allowed alphabet. %r not in %r" % (seq, group.keys())
+  assert set(seq).issubset( set(group.keys()) ), "Sequence constraints must be written out in allowed alphabet. %r not in %r" % (seq, list(group.keys()))
   return name, seq
 
 def parse_apply(line):

@@ -2,8 +2,8 @@
 import os
 import subprocess
 
-import RNAfold_grammar as gram
-from utils import mktemp, search_file
+from . import RNAfold_grammar as gram
+from .utils import mktemp, search_file
 
 BREAK = "NNNNN" # Fake sequence used for strand break
 def DNAfold(seq, temp, exe, par_file):

@@ -1,4 +1,4 @@
-from DNA_nupack_classes import *
+from .DNA_nupack_classes import *
 
 from ..utils import ordered_dict, PrintObject
 

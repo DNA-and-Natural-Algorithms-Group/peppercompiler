@@ -9,7 +9,7 @@ import string
 import subprocess
 import sys
 
-from constraint_load import Convert
+from .constraint_load import Convert
 
 from ..utils import error
 
@@ -35,7 +35,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
   
   if reuse:
     raise NotImplementedError
-    print "Reusing old constraints files."
+    print("Reusing old constraints files.")
     for name in stname, wcname, eqname:
       assert os.path.isfile(name), "Error: requested --reuse, but file '%s' doesn't exist" % name
     eq = open(eqname,'r').read().split(' ')
@@ -43,23 +43,23 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     st = open(stname,'r').read().split(' ')
   else:
     # Prepare the constraints
-    print "Reading design from  file '%s'" % infilename
-    print "Preparing constraints files for spuriousC."
+    print("Reading design from  file '%s'" % infilename)
+    print("Preparing constraints files for spuriousC.")
     convert = Convert(infilename, struct_orient)
     eq, wc, st = convert.get_constraints()
     
     # Convert specifications
     def eq_map(x):
       return x + 1  if x != None  else 0
-    eq = map(eq_map, eq)
+    eq = list(map(eq_map, eq))
     
     def wc_map(x):
       return x + 1  if x != None  else -1
-    wc = map(wc_map, wc)
+    wc = list(map(wc_map, wc))
     
     def st_map(x):
       return x  if x != None  else " "
-    st = map(st_map, st)
+    st = list(map(st_map, st))
     
     # Print them to files
     print_list(eq, eqname, "%d ")
@@ -67,7 +67,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     print_list(st, stname, "%c")
     
     if "_" in st:
-      print "System over-constrained."
+      print("System over-constrained.")
       sys.exit(1)
   
   # Run SpuriousC or read old data.
@@ -81,7 +81,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     spo = open(sp_outname,'w') 
     
     command = "%s score=automatic template=%s wc=%s eq=%s %s %s" % (spuriousbinary, stname, wcname, eqname, extra_pars, quiet)
-    print command
+    print(command)
     if just_files:
       return
     spurious_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
@@ -95,7 +95,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
 
     spo.close()
   else:
-    print "Loading old spuriousC output from '%s'" % sp_outname
+    print("Loading old spuriousC output from '%s'" % sp_outname)
     assert os.path.isfile(sp_outname), "Error: requested --use-old-output, but file '%s' doesn't exist" % sp_outname 
   
   # Load results
@@ -103,13 +103,13 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
   # File has all sorts of runtime info.
   # The final sequences are stored on the last full line.
   nts = nts.split("\n")[-2]
-  print "Processing results of spuriousC."
+  print("Processing results of spuriousC.")
   convert.process_results(nts)
   convert.output(outfilename, findmfe=findmfe)
-  print "Done, results saved to '%s'" % outfilename
+  print("Done, results saved to '%s'" % outfilename)
   
   if cleanup:
-    print "Deleting temporary files"
+    print("Deleting temporary files")
     os.remove(stname)
     os.remove(wcname)
     os.remove(eqname)
@@ -119,7 +119,7 @@ if __name__ == "__main__":
   import re
   from optparse import OptionParser
   
-  from find_file import find_file, BadFilename
+  from .find_file import find_file, BadFilename
   
   if sys.version_info < (2, 5):
     error("Must use python 2.5 or greater.")

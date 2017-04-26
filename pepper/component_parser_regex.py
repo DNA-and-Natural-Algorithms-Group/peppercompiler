@@ -3,9 +3,9 @@
 import re
 import sys
 
-from HU2dotParen import extended2dotParen, HU2dotParen
-from DNA_classes import group
-from utils import error, match
+from .HU2dotParen import extended2dotParen, HU2dotParen
+from .DNA_classes import group
+from .utils import error, match
 
 #TODO: use these
 sequence_flag = "sequence"
@@ -19,7 +19,7 @@ def parse_constraints(constraints):
           'Valid example: "5N" seq1 "SNNCTB" Toe_SEQ\n'
           "Was:           %s" % constraints)
   constraints = re.findall(r'("[?\w\s]+"|domains\([-\w]+\*?\)|[-\w]+\*?)', constraints)
-  constraints = map(parse_constraint, constraints)
+  constraints = list(map(parse_constraint, constraints))
   return constraints
 
 def parse_constraint(word):
@@ -84,10 +84,10 @@ def parse_declare_statement(line):
     params = []
   inputs = inputs.split("+")
   inputs = [x.strip() for x in inputs if x.strip()]
-  inputs = map(parse_signal, inputs)
+  inputs = list(map(parse_signal, inputs))
   outputs = outputs.split("+")
   outputs = [x.strip() for x in outputs if x.strip()]
-  outputs = map(parse_signal, outputs)
+  outputs = list(map(parse_signal, outputs))
   return [name, params, inputs, outputs]
 
 # TODO: make parse_general_sequence_statement()

@@ -11,8 +11,8 @@ def propagate_constraints(eq, wc):
   
   NOTE: Assumes that if  y in eq[x]  =>  x in eq[y]  and likewise for wc.
   """
-  keys = eq.keys() # Items we are constraining
-  assert wc.keys() == keys, "eq.keys() and wc.keys() must be equal to the set of items to constrain over"
+  keys = list(eq.keys()) # Items we are constraining
+  assert list(wc.keys()) == keys, "eq.keys() and wc.keys() must be equal to the set of items to constrain over"
   eq_all = {}
   wc_all = {}
   

@@ -68,8 +68,8 @@ def process_list(lines, params):
 if __name__ == "__main__":
   import sys
   
-  import system_parser
-  import component_parser
+  from . import system_parser
+  from . import component_parser
   
   def substitute(filename, args):
     # Find first statement
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     elif re.match(r".*\.comp\Z", filename):
       param_names = component_parser.parse_declare_statement(line)[1]
     else:
-      raise ValueError, "File %s is neither system nor component type." % filename
+      raise ValueError("File %s is neither system nor component type." % filename)
     # and do substitution.
     params = {}
     assert len(param_names) == len(args), (param_names, args)
@@ -93,5 +93,5 @@ if __name__ == "__main__":
     return process_filename(filename, params)
 
   filename = sys.argv[1]
-  args = map(eval, sys.argv[2:])
-  print substitute(filename, args)
+  args = list(map(eval, sys.argv[2:]))
+  print(substitute(filename, args))

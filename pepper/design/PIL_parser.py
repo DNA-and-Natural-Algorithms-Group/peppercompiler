@@ -1,8 +1,8 @@
 import re
 import sys
 
-import PIL_class
-from DNA_nupack_classes import group
+from . import PIL_class
+from .DNA_nupack_classes import group
 
 from ..utils import error, match
 
@@ -55,7 +55,7 @@ def parse_seq(line):
           "Was:       %s" % line)
   name, template = m.group(1, 2)
   if not set(template).issubset( set(group.keys()) ):
-    error("Sequence's constraint template must be in allowed alphabet (%r).\nLine: %s" % (group.keys(), line))
+    error("Sequence's constraint template must be in allowed alphabet (%r).\nLine: %s" % (list(group.keys()), line))
   return name, template
 
 def parse_sup_seq(line):
@@ -106,4 +106,4 @@ def parse_equal(line):
 if __name__ == "__main__":
   import sys
   
-  print load_spec(sys.argv[1])
+  print(load_spec(sys.argv[1]))

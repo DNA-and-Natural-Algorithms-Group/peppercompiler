@@ -4,8 +4,8 @@ The System class stores all of the information in a system file.
 
 import string
 
-import DNA_classes
-from utils import ordered_dict, default_ordered_dict, PrintObject, error
+from . import DNA_classes
+from .utils import ordered_dict, default_ordered_dict, PrintObject, error
 
 DEBUG = False
 
@@ -13,8 +13,8 @@ def load_file(basename, args, prefix, path=".", includes=None):
   """Load the file basename.(sys|comp) with args from path."""
   # Imported in the function to avoid circular import error.
   import os
-  from system_parser import load_system
-  from component_parser import load_component
+  from .system_parser import load_system
+  from .component_parser import load_component
  
   if includes:
     paths = [path] + includes
@@ -74,7 +74,7 @@ class System(PrintObject):
   
   ## Add information from document statements to object
   def add_import(self, imports):
-    if DEBUG: print "import", imports
+    if DEBUG: print("import", imports)
     for path, name in imports:
       if name == None:
         # filename is used as the internal name by default
@@ -82,12 +82,12 @@ class System(PrintObject):
           name = path
         else:
           name = path.split("/")[-1]  # Strip off lower directories
-      if DEBUG: print "import", name, path
+      if DEBUG: print("import", name, path)
       assert name not in self.template, "Duplicate import %s" % name
       self.template[name] = path
 
   def add_component(self, comp_name, templ_name, templ_args, inputs, outputs):
-    if DEBUG: print "component", comp_name, templ_name, templ_args, inputs, outputs
+    if DEBUG: print("component", comp_name, templ_name, templ_args, inputs, outputs)
     # Setup components
     assert templ_name in self.template, "Template referenced before import: " + templ_name
     assert comp_name not in self.components, "Duplicate component definition: " + comp_name
@@ -142,7 +142,7 @@ class System(PrintObject):
       comp_objs = this_comp.__dict__[type_] # this_comp.seqs, this_comp.base_seqs, ...
       system_objs = self.__dict__[type_]   # self.seqs, self.base_seqs, ...
       # Point to all of those items from here with a prefix added to the name
-      for name, obj in comp_objs.items():
+      for name, obj in list(comp_objs.items()):
         system_objs[comp_name + "-" + name] = obj
   
   def add_IO(self, inputs, outputs):
@@ -169,7 +169,7 @@ class System(PrintObject):
     else:
       outfile.write("#\n## Top System\n")
     # For each component write it's contents with prefix "name-".
-    for component_name, template in self.components.items():
+    for component_name, template in list(self.components.items()):
       template.output_synthesis(prefix+component_name+"-", outfile)
     
     # For each signal sequence connecting components constrain them to be be equal.
@@ -204,7 +204,7 @@ class System(PrintObject):
     else:
       outfile.write("#\n## Top System\n")
     # For each component write it's contents in Zadeh's format with prefix "name-".
-    for comp_name, template in self.components.items():
+    for comp_name, template in list(self.components.items()):
       template.output_nupack(prefix+comp_name+"-", outfile)
     
     # For each signal sequence connecting components constrain them to be be equal.

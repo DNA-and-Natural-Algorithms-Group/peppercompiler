@@ -2,12 +2,12 @@
 
 import re
 
-from system_parser_pyparsing import (parse_declare_statement, 
+from .system_parser_pyparsing import (parse_declare_statement, 
   parse_import_statement, parse_component_statement)
 
-from system_class import System
-from var_substitute import process_list
-from utils import error
+from .system_class import System
+from .var_substitute import process_list
+from .utils import error
 
 
 def load_system(filename, args, prefix, path, includes=None):

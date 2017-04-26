@@ -1,5 +1,5 @@
 """Multistrand wrapper"""
-from __future__ import division
+
 
 import os
 import string
@@ -7,7 +7,7 @@ import subprocess
 import random
 import re
 
-from utils import mktemp, error
+from .utils import mktemp, error
 
 urandom = random.SystemRandom()
 def random_seed():
@@ -39,7 +39,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   # Print input file for Multistrand
   # Strand Definitions
   f.write("#Strands\n")
-  for name, seq in strands.items():
+  for name, seq in list(strands.items()):
     f.write("%s,%s\n" % (name, seq))
   # Start Structure
   f.write("#StartStructure\n")
@@ -83,7 +83,7 @@ def DNAkinfold(strands, start_struct, back_struct, stop_struct, trials, sim_time
   # If we asked for quiet, keep it quiet.
   if out_interval == -1:
     command += " > /dev/null"
-  print "$", command
+  print("$", command)
   subprocess.check_call(command, shell=True)
   
   f = open(out_name, "r")

@@ -2,9 +2,9 @@
 
 import sys
 sys.path += ("..",) # Extend path to find pyparsing.py
-from pyparsing import *
+from .pyparsing import *
 
-Map = lambda func: (lambda s, t, l: map(func, l))
+Map = lambda func: (lambda s, t, l: list(map(func, l)))
 
 int_ = Word(nums).setParseAction(Map(int))
 

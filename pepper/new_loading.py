@@ -1,7 +1,7 @@
 import re
 
-import system_class
-import component_class
+from . import system_class
+from . import component_class
 
 def split(string):
   #return string.split()
@@ -54,10 +54,10 @@ def load_file(filename, args):
   assert len(args) == len(param_names), "Argument length mismatch.\n%d Params: %r\n%d Args: %r\n" % (len(param_names), param_names, len(args), args) # TODO: more info
   
   # Do parameter substitution.
-  params = dict(zip(param_names, args))
+  params = dict(list(zip(param_names, args)))
   doc = preprocess(f, params)
   
-  print doc
+  print(doc)
   
   if type_ == "system":
     return load_system(doc, name, ins, outs)
@@ -107,7 +107,7 @@ def load_system(doc, name, ins, outs):
 def parse_seq(rest):
   # TODO: allow variable spacing. Maybe use re.VERBOSE
   p = re.match(r"(\w+) = (.+) : (\d+)\n", rest)
-  assert p, "Sequence syntax incorrect.\n" + `rest` # TODO: add line and syntax
+  assert p, "Sequence syntax incorrect.\n" + repr(rest) # TODO: add line and syntax
   name, const, length = p.groups("")
   
   length = int(length)
@@ -124,7 +124,7 @@ def parse_seq(rest):
 def parse_strand(rest):
   # TODO: allow variable spacing. Maybe use re.VERBOSE
   p = re.match(r"(\w+) = (.+) : (\d+)\n", rest)
-  assert p, "Strand syntax incorrect.\n" + `rest` # TODO: add line and syntax
+  assert p, "Strand syntax incorrect.\n" + repr(rest) # TODO: add line and syntax
   name, const, length = p.groups("")
   
   length = int(length)
@@ -169,5 +169,5 @@ if __name__ == "__main__":
   component_class.DEBUG = system_class.DEBUG = True
   
   filename = sys.argv[1]
-  args = map(eval, sys.argv[2:])
-  print load_file(filename, args)
+  args = list(map(eval, sys.argv[2:]))
+  print(load_file(filename, args))

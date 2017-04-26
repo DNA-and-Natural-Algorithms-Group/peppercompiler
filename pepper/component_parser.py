@@ -2,18 +2,18 @@
 
 import re
 
-from component_parser_regex import (parse_declare_statement, 
+from .component_parser_regex import (parse_declare_statement, 
   parse_general_sequence_statement, parse_super_sequence_statement,
   parse_strand_statement, parse_structure_statement, parse_kinetic_statement,
   sequence_flag, domains_flag, nucleotide_flag)
 
-from var_substitute import process_list
-from utils import error
+from .var_substitute import process_list
+from .utils import error
 
 
 def load_component(filename, args, prefix):
   """Load component file"""
-  from component_class import Component  # Imported in the function because of import loop problems in python
+  from .component_class import Component  # Imported in the function because of import loop problems in python
   
   # Find first statement
   f = open(filename, "r")

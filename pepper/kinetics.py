@@ -1,10 +1,10 @@
-from __future__ import division
+
 
 import os
 
-from utils import ordered_dict, PrintObject, error
-import nupack_out_grammar as ngram
-from multistrand import DNAkinfold
+from .utils import ordered_dict, PrintObject, error
+from . import nupack_out_grammar as ngram
+from .multistrand import DNAkinfold
 
 def read_design(filename):
   """Extracts the designed sequences and the mfe structures"""

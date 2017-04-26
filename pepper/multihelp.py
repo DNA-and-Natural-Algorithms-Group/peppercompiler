@@ -1,5 +1,5 @@
 """Multistrand wrapper"""
-from __future__ import division
+
 
 import os
 import subprocess
@@ -35,7 +35,7 @@ def DNAkinfold(base_infile, params):
   out_name = params[OUTFILE]
   
   # Write out all parameters.
-  for name, value in params.items():
+  for name, value in list(params.items()):
     fin.write("#%s=%s\n" % (name, value))
   
   fin.close()
@@ -47,7 +47,7 @@ def DNAkinfold(base_infile, params):
   if params["OutputInterval"] == -1: # If we say quiet, we mean it.
     command += " > /dev/null"
     
-  print command
+  print(command)
   subprocess.check_call(command, shell=True)
 
 if __name__ == "__main__":
@@ -57,6 +57,6 @@ if __name__ == "__main__":
     infile = sys.argv[1]
     params = dict([arg.split("=", 1) for arg in sys.argv[2:]])
   except:
-    print "usage: python multihelp.py infile [ARG=VAL ...]"
+    print("usage: python multihelp.py infile [ARG=VAL ...]")
     sys.exit(1)
   DNAkinfold(infile, params)

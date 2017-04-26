@@ -2,10 +2,10 @@
 
 import sys
 
-from pyparsing import *
-from utils import error
+from .pyparsing import *
+from .utils import error
 
-Map = lambda func: (lambda s, t, l: map(func, l))
+Map = lambda func: (lambda s, t, l: list(map(func, l)))
 
 int_ = Word(nums).setParseAction(Map(int))
 
@@ -19,6 +19,6 @@ def parse(s):
   """Parse a string in extended dot-paren notation."""
   try:
     return expr.parseString(s, parseAll=True)
-  except ParseException, e:
+  except ParseException as e:
     error("%s\n%s" % (e, s))
 

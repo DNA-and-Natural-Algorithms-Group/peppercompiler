@@ -1,9 +1,9 @@
 import unittest
 
-import utils
+from . import utils
 utils.DEBUG = True
 
-from tests import *
+from .tests import *
 
 if __name__ == '__main__':
   unittest.main()

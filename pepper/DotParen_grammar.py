@@ -2,7 +2,7 @@
 
 import sys
 sys.path += ("..",) # Extend path to find pyparsing.py
-from pyparsing import *
+from .pyparsing import *
 
 # This is a recursive grammar and requires using the 'exression' before it is defined
 expr = Forward()

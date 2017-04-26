@@ -1,5 +1,5 @@
 """Useful classes and functions."""
-from __future__ import division
+
 
 import math
 import os
@@ -15,7 +15,7 @@ def print_linenums(text):
    """Print text with line numbers prepended. Start counting at line 1 to fit with pyparsings line numberings"""
    for n, line in enumerate(text.split("\n")):
      line_num = "%3d:" % (n + 1)
-     print line_num + line
+     print(line_num + line)
 
 ## Custom regular expression wrapper
 class ParseException(Exception): pass
@@ -59,14 +59,14 @@ def error(text):
     sys.stderr.write(red("ERROR: %s\n" % text))
     sys.exit(1)
   else:
-    raise Exception, red("ERROR: %s\n" % text)
+    raise Exception(red("ERROR: %s\n" % text))
 
 def warning(text):
   """Print a formatted warning message."""
   if not DEBUG:
     sys.stderr.write(red("Warning: %s\n" % text))
   else:
-    raise Exception, red("Warning: %s\n" % text)
+    raise Exception(red("Warning: %s\n" % text))
 
 
 def mktemp(mode, *args, **keys):
@@ -79,7 +79,7 @@ def mktemp(mode, *args, **keys):
 
 def _dummy(*args, **kw):
   """A method not available function."""
-  raise Exception, "methods not available"
+  raise Exception("methods not available")
 
 ## Generic Objects
 class ordered_dict(dict):
@@ -155,7 +155,7 @@ class ordered_set(set):
 class PrintObject(object):
   """Generic default-printable object."""
   def __str__(self):
-    attribs = ["%s=%r" % (name, value) for (name, value) in self.__dict__.items()]
+    attribs = ["%s=%r" % (name, value) for (name, value) in list(self.__dict__.items())]
     attribs = string.join(attribs, ", ")
     return "%s(%s)" % (self.__class__.__name__, attribs)
   __repr__ = __str__

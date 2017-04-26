@@ -1,6 +1,6 @@
 """Nucleic Acid template design grammar"""
 
-from nupack_in_class import Spec
+from .nupack_in_class import Spec
 
 from ..pyparsing import *
 
@@ -11,7 +11,7 @@ S = Suppress
 O = Optional
 H = Hidden = lambda x: Empty().setParseAction(lambda s,t,l: x)  # A hidden field, it tags an entry
 List = lambda x: Group(OneOrMore(x))
-Map = lambda func: (lambda s,l,t: map(func, t) )
+Map = lambda func: (lambda s,l,t: list(map(func, t)) )
 # syntax names and sets
 # Codes for different subsets of nucleotides
 NAcodes = "ACGTUNSWRYMKVHBD"
@@ -61,10 +61,10 @@ def load_design(filename):
     # Load data
     statements = document.parseFile(filename)
   
-  except ParseException, e:
-    print
-    print "Parsing error in template:", filename
-    print e
+  except ParseException as e:
+    print()
+    print("Parsing error in template:", filename)
+    print(e)
     sys.exit(1)
   
   # Build data

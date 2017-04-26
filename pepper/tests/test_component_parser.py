@@ -74,9 +74,9 @@ class TestComponentParser(unittest.TestCase):
     for name, params, inputs, outputs in self.example_declare:
       # Build the statement
       params_str = string.join(params, ", ")
-      inputs_str = map(format_signal, inputs)
+      inputs_str = list(map(format_signal, inputs))
       inputs_str = string.join(inputs_str, " + ")
-      outputs_str = map(format_signal, outputs)
+      outputs_str = list(map(format_signal, outputs))
       outputs_str = string.join(outputs_str, " + ")
       statement = "declare component %s(%s): %s -> %s" % (name, params_str, inputs_str, outputs_str)
       # Test the statement
@@ -120,7 +120,7 @@ class TestComponentParser(unittest.TestCase):
     """Test example Component Sequence statements are parsed correctly"""
     for name, constraints, length in self.example_sequence:
       # Build the statement
-      constr_str = map(format_constraint, constraints)
+      constr_str = list(map(format_constraint, constraints))
       constr_str = string.join(constr_str, " ")
       length_str = (": %d" % length if length != None else "")
       statement = "sequence %s = %s %s" % (name, constr_str, length_str)
@@ -157,7 +157,7 @@ class TestComponentParser(unittest.TestCase):
     for name, dummy, constraints, length in self.example_strand:
       # Build the statement
       dummy_str = ("[dummy]" if dummy else "")
-      constr_str = map(format_constraint, constraints)
+      constr_str = list(map(format_constraint, constraints))
       constr_str = string.join(constr_str, " ")
       length_str = (": %d" % length if length != None else "")
       statement = "strand %s %s = %s %s" % (dummy_str, name, constr_str, length_str)

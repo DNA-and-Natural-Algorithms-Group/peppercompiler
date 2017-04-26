@@ -3,9 +3,9 @@ assert (2,3) <= v < (3,), "Python >= 2.3 required (python 3 not tested)"
 
 import string
 
-import HU_grammar as hu_gram
-import DotParen_grammar as dp_gram
-import exDotParen_grammar as xdp_gram
+from . import HU_grammar as hu_gram
+from . import DotParen_grammar as dp_gram
+from . import exDotParen_grammar as xdp_gram
 
 def HU2dotParen(hu):
   """Convert Zadeh's HU notation to dot-paren notation."""
@@ -40,16 +40,16 @@ def extended2dotParen(sin):
   try:
     dp_gram.parse(sout)
   except xdp_gram.ParseException:
-    raise Exception, "Parens don't match %s -> %s" % (sin, sout)
+    raise Exception("Parens don't match %s -> %s" % (sin, sout))
   return sout
 
 def count_dots(p):
   num = 0
   try:
-    term = p.next()
+    term = next(p)
     while term == ".":
       num += 1
-      term = p.next()
+      term = next(p)
     return num, term
   except StopIteration:
     return num, None
@@ -67,11 +67,11 @@ def dotParen2HU(dotParen):
     p = iter(p)
     hu = ""
     try:
-      term = p.next()
+      term = next(p)
       while term:
         if term == "+":
           hu += "+ "
-          term = p.next()
+          term = next(p)
         elif term == ".":
           num, term = count_dots(p)
           hu += "U%d " % (num + 1)
@@ -81,7 +81,7 @@ def dotParen2HU(dotParen):
           hu += "H%d(" % (num + 1)
           hu += resolve(expr)
           hu += ") "
-          term = p.next()
+          term = next(p)
     except StopIteration:
       pass
     return hu.strip()

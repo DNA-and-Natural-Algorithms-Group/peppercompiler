@@ -35,18 +35,18 @@ def call(f):
   
   try:
     return f(*args, **keys)
-  except TypeError, e:
+  except TypeError as e:
     if re.search(bad_call, e.message):
-      print e.message
-      print "Incorrect usage."
+      print(e.message)
+      print("Incorrect usage.")
       help(f)
     else:
       raise
 
 
 def test_printargs(*args, **keys):
-  print "Arguments are:", args
-  print "Keys are:", keys
+  print("Arguments are:", args)
+  print("Keys are:", keys)
 
 def test_1arg(x):
   """

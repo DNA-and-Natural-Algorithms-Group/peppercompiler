@@ -1,8 +1,8 @@
 """Grammar for NUPACK's mfe used by DNAfold"""
 
-from pyparsing import *
+from .pyparsing import *
 
-Map = lambda f: (lambda s, t, l: map(f, l))
+Map = lambda f: (lambda s, t, l: list(map(f, l)))
 
 ParserElement.setDefaultWhitespaceChars(" \t\n")
 

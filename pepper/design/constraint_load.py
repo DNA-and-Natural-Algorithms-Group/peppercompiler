@@ -1,9 +1,9 @@
 import string
 from collections import defaultdict
 
-from constraints import propagate_constraints
-from PIL_parser import load_spec
-from PIL_DNA_classes import group, rev_group, complement, seq_comp
+from .constraints import propagate_constraints
+from .PIL_parser import load_spec
+from .PIL_DNA_classes import group, rev_group, complement, seq_comp
 
 from ..utils import warning
 
@@ -72,7 +72,7 @@ class Constraints(object):
     """
     assert set(self.st.keys()) == set(self.eq.keys()) == set(self.wc.keys())
     done = set()
-    for x, st in self.st.items():
+    for x, st in list(self.st.items()):
       if x not in done:
         # Constraint must match all equal ...
         for y in self.eq[x]:
@@ -105,7 +105,7 @@ class Constraints(object):
     self.eq_rep = {}
     self.wc_rep = {}
     
-    for x in self.eq.keys():
+    for x in list(self.eq.keys()):
       self.eq_rep[x] = min_([y for y in self.eq[x] if isvalid(y)])
       self.wc_rep[x] = min_([y for y in self.wc[x] if isvalid(y)])
       for y in self.eq[x]:
@@ -124,7 +124,7 @@ class Constraints(object):
     """
     assert set(self.st.keys()) == set(self.eq.keys()) == set(self.wc.keys())
     ## NOTE: drops the sequences and super-sequences from constraints lists.
-    N = max([key for key in self.eq_rep.keys() if isinstance(key, int)]) + 1 # Number of indexes to be used
+    N = max([key for key in list(self.eq_rep.keys()) if isinstance(key, int)]) + 1 # Number of indexes to be used
     eq = [self.eq_rep.get(i) for i in range(N)]
     wc = [self.wc_rep.get(i) for i in range(N)]
     st = [self.st.get(i) for i in range(N)]
@@ -219,7 +219,7 @@ def index_func_strand(spec):
     if type(index) == tuple:
         index = index[0]
     num = len([x for x in strand_start if index > x])-1
-    return (spec.strands.values()[num], index - strand_start[num])
+    return (list(spec.strands.values())[num], index - strand_start[num])
 
   return get_index, get_index_strand, get_struct, get_strand
 
@@ -245,13 +245,13 @@ class Convert(object):
     if self.struct_orient:
       self.get_index, self.get_index_strand, self.get_struct, self.get_strand = index_func_struct(self.spec)
       
-      for struct in self.spec.structs.values():
+      for struct in list(self.spec.structs.values()):
         for x in range(struct.length):
           x2 = self.get_index(struct, x)
           self.constraints.init(x2)
       
       # Constrain all instances of the same strand to be equal
-      for struct in self.spec.structs.values():
+      for struct in list(self.spec.structs.values()):
         offset = 0
         for strand in struct.strands:
           for x in range(strand.length):
@@ -263,7 +263,7 @@ class Convert(object):
     else: # if strand oriented
       self.get_index, self.get_index_strand, self.get_struct, self.get_strand = index_func_strand(self.spec)
       
-      for strand in self.spec.strands.values():
+      for strand in list(self.spec.strands.values()):
         for x in range(strand.length):
           x2 = self.get_index_strand(strand, x)
           self.constraints.init(x2, name=strand.name)
@@ -271,7 +271,7 @@ class Convert(object):
     self.constraints.get_strand = self.get_strand 
     ## Add constraints
     # Structural constraints
-    for struct in self.spec.structs.values():
+    for struct in list(self.spec.structs.values()):
       for x, y in struct.bonds:
         x2 = self.get_index(struct, x)
         y2 = self.get_index(struct, y)
@@ -280,7 +280,7 @@ class Convert(object):
     
     ## Initialize all sequence constraints lists
     num = 0
-    for seq in self.spec.base_seqs.values():
+    for seq in list(self.spec.base_seqs.values()):
       seq.num = num
       num += 1
       for x, letter in enumerate(seq.template):
@@ -294,7 +294,7 @@ class Convert(object):
         self.constraints.init(x2, name=seq.name+"_reversed")
         self.constraints.add_wc(x2, (seq.num, seq.length - x - 1) ) # Add wc constraint
     # and for super-sequences
-    for seq in self.spec.sup_seqs.values():
+    for seq in list(self.spec.sup_seqs.values()):
       seq.num = num
       num += 1
       for x in range(seq.length):
@@ -318,7 +318,7 @@ class Convert(object):
           self.constraints.add_eq( (first_seq.num, x), (seq.num, x) )
     
     # Super-sequence constraints
-    for seq in self.spec.sup_seqs.values():
+    for seq in list(self.spec.sup_seqs.values()):
       offset = 0
       for sub_seq in seq.seqs:
         for x in range(sub_seq.length):
@@ -326,7 +326,7 @@ class Convert(object):
         offset += sub_seq.length
     
     # Strand constraints
-    for strand in self.spec.strands.values():
+    for strand in list(self.spec.strands.values()):
       offset = 0
       for seq in strand.seqs:
         for x in range(seq.length):
@@ -348,11 +348,11 @@ class Convert(object):
 
   def process_results(self, nts):
     """Once a designer has designed a nucleotide sequence, reincorporate that info back into the specification."""
-    for strand in self.spec.strands.values():
+    for strand in list(self.spec.strands.values()):
       seq = [nts[self.get_index_strand(strand, x)] for x in range(strand.length)]
       strand.set_seq(string.join(seq, ""))
     
-    for struct in self.spec.structs.values():
+    for struct in list(self.spec.structs.values()):
       struct.get_seq()
   
   def output(self, outname, findmfe=True):
@@ -404,4 +404,4 @@ if __name__ == "__main__":
   import sys
   
   convert = Convert(sys.argv[1], (len(sys.argv) > 2))
-  print convert.get_constraints()
+  print(convert.get_constraints())

@@ -2,11 +2,11 @@
 
 import sys
 
-from HU2dotParen import extended2dotParen, HU2dotParen
-from var_substitute import process
-from utils import print_linenums, error
+from .HU2dotParen import extended2dotParen, HU2dotParen
+from .var_substitute import process
+from .utils import print_linenums, error
 
-from pyparsing import *
+from .pyparsing import *
 
 ## Some globals
 # Pyparsing shortcuts
@@ -14,7 +14,7 @@ K = CaselessKeyword
 S = Suppress
 O = Optional
 H = Hidden = lambda x: Empty().setParseAction(lambda s, l, t: x)  # A hidden field, it tags an entry
-Map = lambda func: (lambda s, l, t: map(func, t) )
+Map = lambda func: (lambda s, l, t: list(map(func, t)) )
 
 def List(expr, delim=""):
   """My delimited list. Allows for length zero list and uses no delimiter by default."""
@@ -140,24 +140,24 @@ document.ignore(pythonStyleComment)
 
 def load_component(filename, args, prefix):
   """Load component file"""
-  from component_class import Component
+  from .component_class import Component
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
-  except ParseBaseException, e:
-    print
-    print "Parsing error in component:", filename
-    print e
+  except ParseBaseException as e:
+    print()
+    print("Parsing error in component:", filename)
+    print(e)
     sys.exit(1)
     
   try:
     # Load data
     declare, statements = result2list(document.parseString(doc, parseAll=True))
-  except ParseBaseException, e:
-    print
+  except ParseBaseException as e:
+    print()
     print_linenums(doc)
-    print "Parsing error in component:", filename
-    print e
+    print("Parsing error in component:", filename)
+    print(e)
     sys.exit(1)
   
   command, name, params, inputs, outputs = declare
@@ -182,7 +182,7 @@ def load_component(filename, args, prefix):
       component.add_kinetic(*statement[1:])
     
     else:
-      raise Exception, "Unexpected statement:\n%s" % statement
+      raise Exception("Unexpected statement:\n%s" % statement)
   component.add_IO(inputs, outputs)
   return component
 

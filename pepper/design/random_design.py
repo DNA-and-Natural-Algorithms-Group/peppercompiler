@@ -3,13 +3,13 @@
 Designs sequences randomly constrained to the forced WC-complementarity by basepairing.
 Uses Joe Zadah's input and output formats for compatibility with compiler.
 """
-from __future__ import division
+
 
 import random
 import string
 
-from nupack_in_parser import load_design
-from DNA_nupack_classes import group, complement
+from .nupack_in_parser import load_design
+from .DNA_nupack_classes import group, complement
 
 from ..DNAfold import DNAfold
 from ..utils import error
@@ -68,7 +68,7 @@ def design(infilename, outfile):
   
   # Create complementarity matrix
   connect = Connect()
-  for struct in d.structs.values():
+  for struct in list(d.structs.values()):
     for x,y in struct.bonds:
       connect.add(struct, x, y)
   # Randomly color sequences
@@ -92,7 +92,7 @@ def design(infilename, outfile):
   # Test thermo and redesign to improve structure
   build_structs(d.structs)
   res = score(d.structs)
-  print len(res)
+  print(len(res))
   good_enough = True
   best_res = res
   while not good_enough:
@@ -107,7 +107,7 @@ def design(infilename, outfile):
       for j, symb in enumerate(seq.seq):
         seq.seq = str_replace(seq.seq, j, connect.data[i][j][True].base)
     new_res = score(d.structs)
-    print len(new_res), len(res), len(best_res)
+    print(len(new_res), len(res), len(best_res))
     res = new_res
     best_res = min(best_res, res)
     #raw_input()
@@ -115,7 +115,7 @@ def design(infilename, outfile):
   output_sequences(d, connect, outfile)
 
 def build_structs(structs):
-  for struct in structs.values():
+  for struct in list(structs.values()):
     breaks = [i for i, symb in enumerate(struct.struct) if symb == "+"]
     lengths = [y - x - 1 for x, y in zip([-1] + breaks, breaks + [len(struct.struct)])] # = diffs of breaks
     #print breaks, lengths
@@ -123,11 +123,11 @@ def build_structs(structs):
     # Build strands list
     strand = []
     struct.strands = [strand]
-    l = lengths.next()
+    l = next(lengths)
     #print struct.seqs
     for seq in struct.seqs:
       if l == 0:
-        l = lengths.next()
+        l = next(lengths)
         strand = []
         struct.strands.append(strand)
       if seq.length <= l:
@@ -136,13 +136,13 @@ def build_structs(structs):
         l -= seq.length
       else:
         #print struct.name, seq.name, l, seq.length
-        raise ValueError, "Sequences do not match structure"
+        raise ValueError("Sequences do not match structure")
     assert l == 0 and end_iter(lengths)
 
 def end_iter(foo):
   """Iterate to the end of foo."""
   try:
-    foo.next()
+    next(foo)
     return False
   except StopIteration:
     return True
@@ -154,7 +154,7 @@ def build_seq(struct):
 def score(structs):
   """Find unwanted base-pairing"""
   diffs = []
-  for struct in structs.values():
+  for struct in list(structs.values()):
     struct.seq = build_seq(struct)
     #print struct.name, struct.seq
     struct.mfe_struct, dG = DNAfold(struct.seq)
@@ -174,14 +174,14 @@ def diff(lable, str_a, str_b):
 def output_sequences(d, connect, fn):
   """Output sequences in Joe's format."""
   f = open(fn, "w")
-  for struct in d.structs.values():
+  for struct in list(d.structs.values()):
     # Write structure (with dummy content)
     f.write("%d:%s\n" % (0, struct.name))
     gc_content = (struct.seq.count("C") + struct.seq.count("G")) / (len(struct.seq) - len(struct.strands)) # - len(struct.strands) because of the +'s in the struct.seq
     f.write("%s %f %f %d\n" % (struct.seq, 0, gc_content, 0))
     f.write("%s\n" % struct.struct)   # Target structure
     f.write("%s\n" % struct.mfe_struct)  # MFE structure of chosen sequences
-  for seq in d.seqs.values():
+  for seq in list(d.seqs.values()):
     # Write sequence (with dummy content)
     f.write("%d:%s\n" % (0, seq.name))
     gc_content = (seq.seq.count("C") + seq.seq.count("G")) / seq.length
@@ -200,7 +200,7 @@ if __name__ == "__main__":
   import sys
   import re
   
-  from find_file import find_file
+  from .find_file import find_file
   
   if sys.version_info < (2, 5):
     error("Must use python 2.5 or greater.")

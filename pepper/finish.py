@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from __future__ import division
+
 
 import sys
-from utils import error
+from .utils import error
 if sys.version_info < (2, 5):
   error("Must use python 2.5 or greater.")
 
@@ -10,13 +10,13 @@ import string
 from copy import copy
 from subprocess import CalledProcessError
 
-from compiler import load
-from kinetics import read_design, test_kinetics, test_spuradic
+from .compiler import load
+from .kinetics import read_design, test_kinetics, test_spuradic
 
-from system_class import System
-from component_class import Component
-from DNA_classes import wc
-import myStat as stat
+from .system_class import System
+from .component_class import Component
+from .DNA_classes import wc
+from . import myStat as stat
 
 def get_components(obj, prefix=""):
   """Return all components and the prefixes showing how to reach them."""
@@ -24,11 +24,11 @@ def get_components(obj, prefix=""):
     return [(obj, prefix)]
   elif isinstance(obj, System):
     components = []
-    for component_name, component in obj.components.items():
+    for component_name, component in list(obj.components.items()):
       components += get_components(component, prefix + component_name + "-")
     return components
   else:
-    raise Exception, 'Object "%r" is neither a System or Component.' % obj
+    raise Exception('Object "%r" is neither a System or Component.' % obj)
 
 def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials, time, temp, conc, spurious, spurious_time):
   """
@@ -42,34 +42,34 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
   In the future it might test for bad kinetics, etc.
   """
   
-  print "Finishing compilation of %s ..." % savename
+  print("Finishing compilation of %s ..." % savename)
   # Re-load the design system/component
   system = load(savename)
   
-  print "Applying the design from '%s'" % designname
+  print("Applying the design from '%s'" % designname)
   seqs = read_design(designname)
   apply_design(system, seqs)
   
   # Document all sequences, super-sequences, strands, and structures
-  print "Writing sequences file: %s" % seqsname
+  print("Writing sequences file: %s" % seqsname)
   f = open(seqsname, "w")
   
   f.write("# Sequences\n")
-  for name, seq in system.seqs.items():
+  for name, seq in list(system.seqs.items()):
     f.write("sequence %s = %s\n" % (name, seq.seq))
   f.write("# Strands\n")
-  for name, strand in system.strands.items():
+  for name, strand in list(system.strands.items()):
     f.write("strand %s = %s\n" % (name, strand.seq))
   f.write("# Structures\n")
-  for name, struct in system.structs.items():
+  for name, struct in list(system.structs.items()):
     f.write("structure %s = %s\n" % (name, struct.seq))
   f.close()
   
   # Document all strands that will be used in the final experiment
   if strandsname:
-    print 'Writing "stands to order" file: %s' % strandsname
+    print('Writing "stands to order" file: %s' % strandsname)
     f = open(strandsname, "w")
-    for name, strand in system.strands.items():
+    for name, strand in list(system.strands.items()):
       if not strand.dummy:
         f.write("strand %s\t%s\n" % (name, strand.seq) )
     f.close()
@@ -78,30 +78,30 @@ def finish(savename, designname, seqsname, strandsname, run_kin, cleanup, trials
   
   # Run Kinetic tests
   if run_kin:
-    print "Testing Kinetics."
-    print "Trials: %d" % trials
-    print "SimTime: %.1f s" % time
-    print "Temperature: %.1f deg C" % temp
-    print "Concentration: %f uM" % conc
+    print("Testing Kinetics.")
+    print("Trials: %d" % trials)
+    print("SimTime: %.1f s" % time)
+    print("Temperature: %.1f deg C" % temp)
+    print("Concentration: %f uM" % conc)
     for component, prefix in get_components(system):
       kinetic(component, prefix, cleanup, trials, time, temp, conc)
   
   # Test spuradic kinetics
   if spurious:
-    print "Input structures to be tested for spuradic kinetics."
-    for struct1 in system.structs.values():
-      for struct2 in system.structs.values():
-        print "Testing spurious kinetics of:", struct1.full_name, struct2.full_name
+    print("Input structures to be tested for spuradic kinetics.")
+    for struct1 in list(system.structs.values()):
+      for struct2 in list(system.structs.values()):
+        print("Testing spurious kinetics of:", struct1.full_name, struct2.full_name)
         try:
           process_kinetics(test_spuradic([struct1, struct2], cleanup, trials, spurious_time, temp, conc))
-        except CalledProcessError, e:
+        except CalledProcessError as e:
           error(str(e))
 
 
 def apply_design(system, seqs):
   """Assigns designed sequences and provided mfe structures to the respective objects."""
   # Assign all the designed sequences
-  for name, seq in system.base_seqs.items():
+  for name, seq in list(system.base_seqs.items()):
     if not seq.dummy:
       seq.seq  = seqs[name]
       assert len(seq.seq) == seq.length
@@ -110,14 +110,14 @@ def apply_design(system, seqs):
     else:
       seq.seq = seq.wc.seq = ""
   
-  for sup_seq in system.sup_seqs.values():
+  for sup_seq in list(system.sup_seqs.values()):
     sup_seq.seq  = string.join([seq.seq for seq in sup_seq.base_seqs], "")
     sup_seq.wc.seq = string.join([seq.seq for seq in sup_seq.wc.base_seqs], "")
   
-  for strand in system.strands.values():
+  for strand in list(system.strands.values()):
     strand.seq = string.join([seq.seq for seq in strand.base_seqs], "")
   
-  for name, struct in system.structs.items():
+  for name, struct in list(system.structs.items()):
     struct.seq = string.join([strand.seq for strand in struct.strands], "+")
     assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
 
@@ -141,7 +141,7 @@ def choices(x):
 # TODO: get rid of need for component, so get rid of recursion.
 def kinetic(component, prefix, cleanup, trials, time, temp, conc):
   """Test all kinetic pathways in a component."""
-  for kin in component.kinetics.values():
+  for kin in list(component.kinetics.values()):
     ## First, we gather the set of all possible input structures.
     pos_inputs = [None] * len(kin.inputs)
     for n, struct in enumerate(kin.inputs):
@@ -195,14 +195,14 @@ def sub_inputs(kin, inputs):
 
 def print_kin(kin, gate_name):
   """Print kinetic testing info"""
-  print
-  print "kinetic", gate_name, ":",
+  print()
+  print("kinetic", gate_name, ":", end=' ')
   for struct in kin.inputs:
-    print struct.full_name,
-  print "->",
+    print(struct.full_name, end=' ')
+  print("->", end=' ')
   for struct in kin.outputs:
-    print struct.full_name,
-  print
+    print(struct.full_name, end=' ')
+  print()
   sys.stdout.flush()
 
 def process_kinetics(ret):
@@ -215,10 +215,10 @@ def process_kinetics(ret):
   num_trials = num_for + num_rev + num_over
   
   if num_over > 0:
-    print
-    print "WARNING: %d/%d trajectories went overtime." % (num_over, num_trials)
-    print "Reported statistics may be unreliable."
-    print
+    print()
+    print("WARNING: %d/%d trajectories went overtime." % (num_over, num_trials))
+    print("Reported statistics may be unreliable.")
+    print()
   
   # Rate at which collisions that will eventually go forward happen
   for_coll_rate = sum([coll_rate for (time, coll_rate) in forward]) / num_trials
@@ -227,11 +227,11 @@ def process_kinetics(ret):
   for_rate = stat.mean(for_rates)
   for_rate_stddev = stat.stddev(for_rates)
   
-  print "* %d/%d trajectories went forward." % (num_for, num_trials)
+  print("* %d/%d trajectories went forward." % (num_for, num_trials))
   if num_for > 0:
-    print "  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000)
-    print "  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev)
-    print
+    print("  Estimated Forward Collision Rate: %f /uM/s" % (for_coll_rate / 1000000))
+    print("  Estimated Forward Trajectory Rate: %f (std-dev %f) /s" % (for_rate, for_rate_stddev))
+    print()
   
   # Rate at which collisions that will eventually reverse happen
   rev_coll_rate = sum([coll_rate for (time, coll_rate) in reverse]) / num_trials
@@ -240,10 +240,10 @@ def process_kinetics(ret):
   rev_rate = stat.mean(rev_rates)
   rev_rate_quants = stat.quantiles(rev_rates, .25, .75)
   
-  print "* %d/%d trajectories went back." % (num_rev, num_trials)
+  print("* %d/%d trajectories went back." % (num_rev, num_trials))
   if num_rev > 0:
-    print "  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000)
-    print "  Estimated Reverse Trajectory Rate: %f (50%% range: %r) /s" % (rev_rate, rev_rate_quants)
+    print("  Estimated Reverse Collision Rate: %f /uM/s" % (rev_coll_rate / 1000000))
+    print("  Estimated Reverse Trajectory Rate: %f (50%% range: %r) /s" % (rev_rate, rev_rate_quants))
 
   
 if __name__ == "__main__":

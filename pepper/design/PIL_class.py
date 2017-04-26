@@ -1,4 +1,4 @@
-from PIL_DNA_classes import *
+from .PIL_DNA_classes import *
 
 from ..utils import ordered_dict, PrintObject
 

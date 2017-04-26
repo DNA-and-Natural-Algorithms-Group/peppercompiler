@@ -21,14 +21,14 @@ class TestDNAClasses(unittest.TestCase):
     """Just check that we can make a sequence without error."""
     name, prefix, constraints, length = "name", "prefix-", [(5, "N")], None
     sequence = DNA_classes.Sequence(name, prefix, constraints, length)
-    self.assert_(isinstance(sequence, DNA_classes.Sequence))
+    self.assertTrue(isinstance(sequence, DNA_classes.Sequence))
   
   def test_sequence_correct(self):
     """Check that we can make a sequence correctly."""
     name, prefix, constraints, length = "name", "prefix-", [(5, "N")], 5
     sequence = DNA_classes.Sequence(name, prefix, constraints, length)
     
-    self.assert_(isinstance(sequence, DNA_classes.Sequence))
+    self.assertTrue(isinstance(sequence, DNA_classes.Sequence))
     self.assertEqual(name, sequence.name)
     self.assertEqual(prefix + name, sequence.full_name)
     self.assertEqual("NNNNN", sequence.const)
@@ -36,14 +36,14 @@ class TestDNAClasses(unittest.TestCase):
     self.assertEqual(False, sequence.reversed)
     self.assertEqual(False, sequence.dummy)
     
-    self.assert_(isinstance(sequence.wc, DNA_classes.ReverseSequence))
+    self.assertTrue(isinstance(sequence.wc, DNA_classes.ReverseSequence))
     self.assertEqual(name + "*", sequence.wc.name)
     self.assertEqual(prefix + name + "*", sequence.wc.full_name)
     self.assertEqual(length, sequence.wc.length)
     self.assertEqual(True, sequence.wc.reversed)
     self.assertEqual(False, sequence.wc.dummy)
     
-    self.assert_(sequence is sequence.wc.wc)
+    self.assertTrue(sequence is sequence.wc.wc)
   
   def test_sequence_example(self):
     """Test example sequences and check that constraints were handled correctly."""
@@ -59,14 +59,14 @@ class TestDNAClasses(unittest.TestCase):
     """Just check that we can make a super-sequence without error."""
     name, prefix, constraints, length = "name", "prefix-", [[(5, "N")]], None
     sequence = DNA_classes.SuperSequence(name, prefix, constraints, length)
-    self.assert_(isinstance(sequence, DNA_classes.SuperSequence))
+    self.assertTrue(isinstance(sequence, DNA_classes.SuperSequence))
   
   def test_super_sequence_correct(self):
     """Check that we can make a super-sequence correctly."""
     name, prefix, constraints, length = "name", "prefix-", [[(5, "N")]], 5
     sequence = DNA_classes.SuperSequence(name, prefix, constraints, length)
     
-    self.assert_(isinstance(sequence, DNA_classes.SuperSequence))
+    self.assertTrue(isinstance(sequence, DNA_classes.SuperSequence))
     self.assertEqual(name, sequence.name)
     self.assertEqual(prefix + name, sequence.full_name)
     self.assertEqual(length, sequence.length)
@@ -74,17 +74,17 @@ class TestDNAClasses(unittest.TestCase):
     self.assertEqual(False, sequence.dummy)
     
     self.assertEqual(1, len(sequence.seqs))
-    self.assert_(isinstance(sequence.seqs[0], DNA_classes.AnonymousSequence))
+    self.assertTrue(isinstance(sequence.seqs[0], DNA_classes.AnonymousSequence))
     self.assertEqual(5, sequence.seqs[0].length)
     
-    self.assert_(isinstance(sequence.wc, DNA_classes.ReverseSuperSequence))
+    self.assertTrue(isinstance(sequence.wc, DNA_classes.ReverseSuperSequence))
     self.assertEqual(name + "*", sequence.wc.name)
     self.assertEqual(prefix + name + "*", sequence.wc.full_name)
     self.assertEqual(length, sequence.wc.length)
     self.assertEqual(True, sequence.wc.reversed)
     self.assertEqual(False, sequence.wc.dummy)
     
-    self.assert_(sequence is sequence.wc.wc)
+    self.assertTrue(sequence is sequence.wc.wc)
   
   # TODO: Test with actual subsequences
   
@@ -94,7 +94,7 @@ class TestDNAClasses(unittest.TestCase):
     """Just check that we can make a strand without error."""
     name, prefix, constraints, length = "name", "prefix-", [[(5, "N")]], None
     sequence = DNA_classes.Strand(name, prefix, constraints, length)
-    self.assert_(isinstance(sequence, DNA_classes.Strand))
+    self.assertTrue(isinstance(sequence, DNA_classes.Strand))
   
   # TODO: Test with actual subsequences
   

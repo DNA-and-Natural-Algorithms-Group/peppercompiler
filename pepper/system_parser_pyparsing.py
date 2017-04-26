@@ -1,10 +1,10 @@
 import sys
 
-from system_class import System
-from var_substitute import process
-from utils import print_linenums, error
+from .system_class import System
+from .var_substitute import process
+from .utils import print_linenums, error
 
-from pyparsing import *
+from .pyparsing import *
 
 def result2list(foo):
   """Convert from ParseResults to normal list."""
@@ -17,7 +17,7 @@ def result2list(foo):
 K = CaselessKeyword
 S = Suppress
 O = Optional
-Map = lambda func: (lambda s, l, t: map(func, t) )  # A useful mapping function
+Map = lambda func: (lambda s, l, t: list(map(func, t)) )  # A useful mapping function
 
 def List(expr, delim=""):
   """My delimited list. Allows for length zero list and uses no delimiter by default."""
@@ -82,20 +82,20 @@ def load_system(filename, args, prefix, path):
   try:
     # Open file and do parameter substitution
     doc = substitute(filename, args)
-  except ParseBaseException, e:
-    print
-    print "Parsing error in system:", filename
-    print e
+  except ParseBaseException as e:
+    print()
+    print("Parsing error in system:", filename)
+    print(e)
     sys.exit(1)
     
   try:
     # Load data
     declare, statements = document.parseString(doc, parseAll=True)
-  except ParseBaseException, e:
-    print
+  except ParseBaseException as e:
+    print()
     print_linenums(doc)
-    print "Parsing error in system:", filename
-    print e
+    print("Parsing error in system:", filename)
+    print(e)
     sys.exit(1)
   
   x, name, params, inputs, outputs = declare
@@ -108,7 +108,7 @@ def load_system(filename, args, prefix, path):
     elif stat[0] == component:
       system.add_component(*stat[1:])
     else:
-      raise Exception, "Unexpected statement:\n%s" % stat
+      raise Exception("Unexpected statement:\n%s" % stat)
   system.add_IO(inputs, outputs)
   return system
 

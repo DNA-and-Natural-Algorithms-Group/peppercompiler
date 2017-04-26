@@ -13,7 +13,7 @@ Uses the input format from Winfree's SpuriousC algorithm.
 import sys
 import random
 
-import DNA_nupack_classes as DNA_classes
+from . import DNA_nupack_classes as DNA_classes
 
 def last(n, foo):
   """Gets the last n items in foo."""
@@ -34,7 +34,7 @@ class Design(object):
     """Load in the parameters for the system."""
     assert len(st) == len(eq) == len(wc)
     self.n = len(st)
-    self.st = map(get_group, st)  # Get the groups from the letter.
+    self.st = list(map(get_group, st))  # Get the groups from the letter.
     self.eq = eq
     self.wc = wc
   
@@ -119,10 +119,10 @@ class Design(object):
 
 def testU(k, n):
   """Test for a length n unpaired single strand."""
-  d = Design("N"*n, range(n), [-1]*n)
+  d = Design("N"*n, list(range(n)), [-1]*n)
   return d.avoid(k)
 
 def testH(k, n):
   """Test for a length n helix."""
-  d = Design("N"*n + " " + "N"*n, range(2*n+1), range(2*n, -1, -1))
+  d = Design("N"*n + " " + "N"*n, list(range(2*n+1)), list(range(2*n, -1, -1)))
   return d.avoid(k)

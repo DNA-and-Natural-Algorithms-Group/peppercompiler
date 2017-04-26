@@ -11,4 +11,4 @@ def find_file(name, ext=".des"):
   elif os.path.isfile(name + ext):
     return name + ext
   else:
-    raise BadFilename, "File not found: neither %s nor %s exist." % (name, name + ext)
+    raise BadFilename("File not found: neither %s nor %s exist." % (name, name + ext))

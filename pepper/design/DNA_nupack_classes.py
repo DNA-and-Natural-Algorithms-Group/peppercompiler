@@ -6,7 +6,7 @@ group = {"A": "A", "T": "T", "C": "C", "G": "G",
          "W": "AT", "S": "CG", "M": "AC", "K": "GT", 
          "B": "CGT", "V": "ACG", "D": "AGT", "H": "ACT",
          "N": "ACGT"} # SpuriousC group codes
-rev_group = dict([(v, k) for (k, v) in group.items()])  # A reverse lookup for group.
+rev_group = dict([(v, k) for (k, v) in list(group.items())])  # A reverse lookup for group.
 complement = {"A": "T", "T": "A", "C": "G", "G": "C",
               "W": "W", "S": "S", "M": "K", "K": "M",
               "B": "V", "V": "B", "D": "H", "H": "D",

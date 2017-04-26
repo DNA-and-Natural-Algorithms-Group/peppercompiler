@@ -46,9 +46,9 @@ class TestSystemParser(unittest.TestCase):
     for name, params, inputs, outputs in self.example_declare:
       # Build the statement
       params_str = string.join(params, ", ")
-      inputs_str = map(format_seq, inputs)
+      inputs_str = list(map(format_seq, inputs))
       inputs_str = string.join(inputs_str, " + ")
-      outputs_str = map(format_seq, outputs)
+      outputs_str = list(map(format_seq, outputs))
       outputs_str = string.join(outputs_str, " + ")
       statement = "declare system %s(%s): %s -> %s" % (name, params_str, inputs_str, outputs_str)
       # Test the statement
@@ -115,11 +115,11 @@ class TestSystemParser(unittest.TestCase):
     """Test example System Component statements are parsed correctly"""
     for type, name, params, ins, outs in self.example_component:
       # Build the statement
-      params_str = map(repr, params)
+      params_str = list(map(repr, params))
       params_str = string.join(params_str, ", ")
-      ins_str = map(format_seq, ins)
+      ins_str = list(map(format_seq, ins))
       ins_str = string.join(ins_str, " + ")
-      outs_str = map(format_seq, outs)
+      outs_str = list(map(format_seq, outs))
       outs_str = string.join(outs_str, " + ")
       statement = "component %s = %s(%s): %s -> %s" % (type, name, params_str, ins_str, outs_str)
       # Test the statement

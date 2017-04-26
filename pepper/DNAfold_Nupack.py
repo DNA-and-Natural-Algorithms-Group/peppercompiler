@@ -2,8 +2,8 @@
 import os
 import subprocess
 
-import nupack_mfe_grammar as gram
-from utils import mktemp
+from . import nupack_mfe_grammar as gram
+from .utils import mktemp
 
 def DNAfold(seq, temp, exe):
   """Runs NUPACK mfe on sequence 'seq' at temperature 'temp'."""

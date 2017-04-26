@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.6
 
 import sys
-from utils import error
+from .utils import error
 if sys.version_info < (2, 5):
   error("Must use python 2.5 or greater.")
 
@@ -10,8 +10,8 @@ import os
 import pickle
 import time
 
-from system_class import load_file
-from utils import match, warning, error
+from .system_class import load_file
+from .utils import match, warning, error
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
@@ -37,12 +37,12 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False,
   Currently, it produces a .des file that can be used by sequence designers.
   """
   
-  print "Compiling '%s' ..." % basename
+  print("Compiling '%s' ..." % basename)
   # Read in system (or component)
   system = load_file(basename, args, prefix="", includes=includes)
   
   if fixed_file:
-    print "Fixing sequences from file '%s'" % fixed_file
+    print("Fixing sequences from file '%s'" % fixed_file)
     fixed_sequences = load_fixed(fixed_file)
     for type_, name, fixed_seq in fixed_sequences:
       if type_ in "sequence":
@@ -61,7 +61,7 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False,
   
 
   # Write the Zadeh-style design file
-  print "System/component compiled into '%s'" % outputname
+  print("System/component compiled into '%s'" % outputname)
   outfile = open(outputname, "w")
   outfile.write("## Specification for %s compiled at: %s\n" % (basename, time.ctime()))
   if synth:
@@ -71,9 +71,9 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False,
   outfile.close()
 
   # Save compiler state to be reloaded when designer finishes
-  print "Compiler state saved into '%s'" % savename
+  print("Compiler state saved into '%s'" % savename)
   save(system, savename)
-  print "Run a designer on '%s' and process the result with python finish.py" % outputname
+  print("Run a designer on '%s' and process the result with python finish.py" % outputname)
 
 def save(obj, filename):
   """Save an object for later finishing."""
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     options.save = basename + ".save"
   
   # Eval remaining arguments
-  import quickargs
+  from . import quickargs
   args, keys = quickargs.get_args(args[1:])
   assert not keys, "Don't provide keywords to compiler.py"
   

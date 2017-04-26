@@ -8,8 +8,8 @@ import string
 import subprocess
 import os
 
-from new_loading import load_file
-from DNA_nupack_classes import group, rev_group, complement, seq_comp
+from .new_loading import load_file
+from .DNA_nupack_classes import group, rev_group, complement, seq_comp
 
 from ..DNAfold import DNAfold
 from ..utils import error
@@ -57,8 +57,8 @@ class Connections(object):
     # seq_const[n][1] = list of (s, i) where it's the complement
     seq_const = [([], []) for seq in spec.seqs]
     
-    self.structs = spec.structs.values()
-    self.seqs = spec.seqs.values()
+    self.structs = list(spec.structs.values())
+    self.seqs = list(spec.seqs.values())
     
     # HACK: Adding pseudo-structures for sequences
     self.num_structs = len(self.structs) + len(self.seqs)
@@ -83,7 +83,7 @@ class Connections(object):
     # Expand these sets for specific nucleotides ...
     for seq_num, (eq, wc) in enumerate(seq_const):
       seq = spec.seqs.get_index(seq_num)
-      for nt in xrange(seq.length):
+      for nt in range(seq.length):
         new_eq = [(s, i + nt) for (s, i) in eq]
         rep_eq = min_(new_eq)
         new_wc = [(s, i + (seq.length - 1 - nt)) for (s, i) in wc]
@@ -102,7 +102,7 @@ class Connections(object):
     new_eq_x = new_wc_y = min_rep(eq_x, wc_y)
     new_eq_y = new_wc_x = min_rep(eq_y, wc_x)
     
-    for z, (eq_z, wc_z) in self.table.items():
+    for z, (eq_z, wc_z) in list(self.table.items()):
       if eq_z != NOTHING:
         # If z == x (== y*), update it to be equal
         if eq_z in (eq_x, wc_y):
@@ -112,12 +112,12 @@ class Connections(object):
           self.table[z] = new_eq_y, new_wc_y
   
   def printf(self):
-    print "Connections.printf()"
-    for s in xrange(self.num_structs):
-      for i in xrange(self.struct_length[s]):
+    print("Connections.printf()")
+    for s in range(self.num_structs):
+      for i in range(self.struct_length[s]):
         (eq, wc) = self.table[(s, i)]
-        print (s, i), eq, wc
-    print
+        print((s, i), eq, wc)
+    print()
 
 def prepare(in_name):
   """Create eq, wc and sequence template lists in spuriousC format."""
@@ -141,7 +141,7 @@ def prepare(in_name):
   st = []  # We start it as a list because python strings aren't mutable
   for s, struct in enumerate(c.structs):
     start = len(eq)
-    for i in xrange(c.struct_length[s]):
+    for i in range(c.struct_length[s]):
       this = len(eq)
       if struct.struct[this-start] == "+":
         # Single spaces between strands.
@@ -165,7 +165,7 @@ def prepare(in_name):
   # The pseudo-structures.
   for seq_num, seq in enumerate(c.seqs):
     s = len(c.structs) + seq_num
-    for i in xrange(c.struct_length[s]):
+    for i in range(c.struct_length[s]):
       f[(s, i)] = len(eq)
       # Get the representatives for (s, i)
       eq_si, wc_si = c.table[(s, i)]
@@ -185,7 +185,7 @@ def prepare(in_name):
   st = st[:-2]
   
   # Constrain st appropriately
-  for i in xrange(len(eq)):
+  for i in range(len(eq)):
     #sys.stdout.write(st[i])
     # Skip strand breaks
     if eq[i] == NOTHING:
@@ -195,18 +195,18 @@ def prepare(in_name):
       old_stj = st[j]
       st[j] = intersect_groups(st[j], st[i])
       if st[j] == "_" and "_" not in (st[i], old_stj):
-        print
-        print i, j, st[i], old_stj
+        print()
+        print(i, j, st[i], old_stj)
         
     if wc[i] != NOTHING and wc[i] < i:
       j = wc[i]
       old_stj = st[j]
       st[j] = intersect_groups(st[j], complement[st[i]])
       if st[j] == "_" and "_" not in (st[i], old_stj):
-        print
-        print i, j, st[i], old_stj
+        print()
+        print(i, j, st[i], old_stj)
   # Propagate the changes
-  for i in xrange(len(eq)):
+  for i in range(len(eq)):
     if eq[i] != NOTHING and eq[i] < i:
       j = eq[i]
       st[i] = st[j]
@@ -236,7 +236,7 @@ def process_result(c, inname, outname):
   f = open(outname, "w")
   assert len(c.structs) == len(seqs), "%d != %d" % (len(c.structs), len(seqs))
   for struct, nseq in zip(c.structs, seqs):
-    if DEBUG: print struct.name, nseq
+    if DEBUG: print(struct.name, nseq)
     # Save the sequence
     struct.nseq = nseq.replace(" ", "+")
     struct.mfe_struct, dG = DNAfold(struct.nseq)
@@ -293,8 +293,8 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   #    assert os.path.isfile(name), "Error: requested --reuse, but file '%s' doesn't exist" % name
   
   # Prepare the constraints
-  print "Reading design from  file '%s'" % infilename
-  print "Preparing constraints files for spuriousC."
+  print("Reading design from  file '%s'" % infilename)
+  print("Preparing constraints files for spuriousC.")
   st, eq, wc, c = prepare(infilename)
   
   # Convert specifications
@@ -309,7 +309,7 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
   print_list(eq, eqname, "%d ")
   
   if "_" in st:
-    print "System over-constrained."
+    print("System over-constrained.")
     sys.exit(1)
   
   # Run SpuriousC
@@ -320,15 +320,15 @@ def design(basename, infilename, outfilename, cleanup, verbose=False, reuse=Fals
     quiet = "quiet=TRUE > %s" % sp_outname
   
   command = "spuriousC score=automatic template=%s wc=%s eq=%s %s %s" % (stname, wcname, eqname, extra_pars, quiet)
-  print command
+  print(command)
   subprocess.check_call(command, shell=True)
   
   # Process results
-  print "Processing results of spuriousC."
+  print("Processing results of spuriousC.")
   process_result(c, sp_outname, outfilename)
-  print "Done, results saved to '%s'" % outfilename
+  print("Done, results saved to '%s'" % outfilename)
   if cleanup:
-    print "Deleting temporary files"
+    print("Deleting temporary files")
     os.remove(stname)
     os.remove(wcname)
     os.remove(eqname)
@@ -338,7 +338,7 @@ if __name__ == "__main__":
   import re
   from optparse import OptionParser
   
-  from find_file import find_file, BadFilename
+  from .find_file import find_file, BadFilename
   
   if sys.version_info < (2, 5):
     error("Must use python 2.5 or greater.")
