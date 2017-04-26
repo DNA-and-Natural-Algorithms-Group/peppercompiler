@@ -16,4 +16,4 @@ setup(
     author = "Constantine Evans et al (this version)",
     author_email = "cgevans@evans.foundation",
     description = "PepperCompiler in a pythonic form"
-}
+)

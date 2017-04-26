@@ -1,6 +1,3 @@
-from sys import version_info as v
-assert (2,3) <= v < (3,), "Python >= 2.3 required (python 3 not tested)"
-
 import string
 
 from . import HU_grammar as hu_gram
