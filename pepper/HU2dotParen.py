@@ -33,7 +33,7 @@ def extended2dotParen(sin):
   for num, symb in p:
     # ... put 'num' repetitions of 'symb'
     sout += symb * num
-  sout = string.join(sout, "")
+  sout = "".join(sout)
   try:
     dp_gram.parse(sout)
   except xdp_gram.ParseException:

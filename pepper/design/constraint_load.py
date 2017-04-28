@@ -22,7 +22,7 @@ def intersect_groups(x1, x2):
       raise ValueError
   inter = list(inter)
   inter.sort()
-  inter = string.join(inter, "")
+  inter = "".join(inter)
   return rev_group[inter]
 
 class Constraints(object):
@@ -350,7 +350,7 @@ class Convert(object):
     """Once a designer has designed a nucleotide sequence, reincorporate that info back into the specification."""
     for strand in list(self.spec.strands.values()):
       seq = [nts[self.get_index_strand(strand, x)] for x in range(strand.length)]
-      strand.set_seq(string.join(seq, ""))
+      strand.set_seq("".join(seq))
     
     for struct in list(self.spec.structs.values()):
       struct.get_seq()

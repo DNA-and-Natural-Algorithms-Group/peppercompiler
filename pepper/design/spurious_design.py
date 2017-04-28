@@ -78,7 +78,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     else:
       quiet = "quiet=TRUE"
     
-    spo = open(sp_outname,'w') 
+    spo = open(sp_outname,'wb') 
     
     command = "%s score=automatic template=%s wc=%s eq=%s %s %s" % (spuriousbinary, stname, wcname, eqname, extra_pars, quiet)
     print(command)

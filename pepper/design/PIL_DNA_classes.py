@@ -13,7 +13,7 @@ complement = {"A": "T", "T": "A", "C": "G", "G": "C",
               "N": "N"} # Should satisfy set(group[complement[X]]) == set(seq_comp(group[X]))
 def seq_comp(seq):
   """Returns the WC complement of a nucleotide sequence."""
-  return string.join([complement[nt] for nt in reversed(seq)], "")
+  return "".join(complement[nt] for nt in reversed(seq))
 
 class Sequence(object):
   """Container for sequences"""
@@ -94,7 +94,7 @@ class SuperSequence(object):
     if self.seq:
       return self.seq
     else:
-      return string.join([sub_seq.get_seq() for sub_seq in self.seqs], "")
+      return "".join([sub_seq.get_seq() for sub_seq in self.seqs])
   
   def __repr__(self):
     return "SuperSequence(%(name)r, %(seqs)r)" % self.__dict__
@@ -160,7 +160,7 @@ class Structure(object):
   
   def get_seq(self):
     """Get sequence from strands which have been set."""
-    self.seq = string.join([strand.seq for strand in self.strands], "+")
+    self.seq = "+".join(strand.seq for strand in self.strands)
   
   def __repr__(self):
     return "Structure(%(name)r, %(strands)r, %(struct)r, %(params)r)" % self.__dict__

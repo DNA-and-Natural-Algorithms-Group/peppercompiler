@@ -15,7 +15,7 @@ from .utils import match, warning, error
 
 def parse_fixed(line):
   """Parse a line in the fixed file."""
-  m = match(r"(\w+) ([\w_-]+)[ \t]*=[ \t]*([ATCGNS]+)(?: #.*)?", line)
+  m = match(r"(\w+) ([\w_-]+)[ \t]*=[ \t]*([ATCGNS+]+)(?: #.*)?", line)
   try:
       type_, name, seq = m.groups()
   except AttributeError:
@@ -77,7 +77,7 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False,
 
 def save(obj, filename):
   """Save an object for later finishing."""
-  f = open(filename, "w")
+  f = open(filename, "wb")
   pickle.dump(obj, f)
   f.close()
 

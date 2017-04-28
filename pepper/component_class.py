@@ -22,7 +22,7 @@ class Component(PrintObject):
     self.kinetics = ordered_dict()
     self.kin_num = 0
   
-  def assert_(self, statement, message):
+  def assertTrue(self, statement, message):
     """Raise error if statement is false. Adds component information to message."""
     prefix = "In component %s: " % self.name
     if not statement:
@@ -203,14 +203,14 @@ class Component(PrintObject):
     # Define super-sequences
     for sup_seq in list(self.sup_seqs.values()):
       if not seq.dummy:
-        const = string.join([seq.full_name for seq in sup_seq.seqs if not seq.dummy], " ")
+        const = " ".join(seq.full_name for seq in sup_seq.seqs if not seq.dummy)
         outfile.write("sup-sequence %s = %s : %d\n" % (sup_seq.full_name, const, sup_seq.length))
     
     # Define strands
     for strand in list(self.strands.values()):
       if not strand.in_structure:
         warning("Strand %s is defined but never used in a structure. It may not be designed." % strand.full_name)
-      const = string.join([seq.full_name for seq in strand.seqs if not seq.dummy], " ")
+      const = " ".join(seq.full_name for seq in strand.seqs if not seq.dummy)
       if strand.dummy:
         dummy = "[dummy] "
       else:
@@ -219,13 +219,13 @@ class Component(PrintObject):
     
     # Define structures
     for struct in list(self.structs.values()):
-      strands = string.join([strand.full_name for strand in struct.strands], " + ")
+      strands = " + ".join([strand.full_name for strand in struct.strands])
       outfile.write("structure [%dnt] %s = %s : %s\n" % (struct.opt, struct.full_name, strands, struct.struct))
     
     # Define kinetics
     for kin in list(self.kinetics.values()):
-      inputs = string.join([struct.full_name for struct in kin.inputs], " + ")
-      outputs = string.join([struct.full_name for struct in kin.outputs], " + ")
+      inputs = " + ".join(struct.full_name for struct in kin.inputs)
+      outputs = " + ".join(struct.full_name for struct in kin.outputs)
       outfile.write("kinetic [%f /M/s < k < %f /M/s] %s -> %s\n" % (kin.low, kin.high, inputs, outputs))
   
   

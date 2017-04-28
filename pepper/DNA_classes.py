@@ -13,7 +13,7 @@ complement = {"A": "T", "T": "A", "C": "G", "G": "C",
               "N": "N"} # Should satisfy set(group[complement[X]]) == set(wc(group[X]))
 def wc(seq):
   """Returns the WC complement of a nucleotide sequence."""
-  return string.join([complement[nt] for nt in reversed(seq)], "")
+  return "".join(complement[nt] for nt in reversed(seq))
 
 class WildError(AssertionError):
   """For when a sequence is defined a wildcard, but without a length."""
@@ -69,12 +69,21 @@ class Sequence(object):
     return length, const
   
   def fix_seq(self, fixed_seq):
-    """Constrian ourselves to a specific sequence."""
+    """Constrian ourselves to a specific sequence. NOTE: THIS MERGES
+    CONSTRAINTS, CHANGING OLD FUNCTIONALITY. - CGE 2017-04-27
+    """
     assert len(fixed_seq) == self.length
+    const = ""
     for const_nt, fixed_nt in zip(self.const, fixed_seq):
       const_set = set(group[const_nt])
       fixed_set = set(group[fixed_nt])
-      assert fixed_set.issubset( const_set ), "fix_seq: sequence %s is not a subset of constraint %s for sequence %s" % (fixed_seq, self.const, self.full_name)
+      comb_set = set.intersection(const_set, fixed_set)
+      if not comb_set:
+        err = (fixed_seq, self.const, self.full_name)
+        raise ValueError(
+          "Seq {} is not a subset of constraint {} for {}".format(*err),
+          *err)
+      const = ''.join((const, rev_group[''.join(sorted(comb_set))]))
     self.const = fixed_seq
   
   def __invert__(self):
@@ -233,7 +242,7 @@ class Structure(object):
   def fix_seq(self, fixed_seq):
     """Constrian ourselves to a specific sequence."""
     strand_seqs = fixed_seq.split("+")
-    assert len(strand_seqs) == len(self.stands), "fix_seq: structure %s cannot have sequence fixed to %s because it has %d strands" % (self.name, fixed_seq, len(self.strands))
+    assert len(strand_seqs) == len(self.strands), "fix_seq: structure %s cannot have sequence fixed to %s because it has %d strands" % (self.name, fixed_seq, len(self.strands))
     for strand, strand_seq in zip(self.strands, strand_seqs):
       strand.fix_seq(strand_seq)
   
