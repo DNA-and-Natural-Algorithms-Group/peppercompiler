@@ -235,7 +235,7 @@ class System(PrintObject):
         elif isinstance(loc_seq, DNA_classes.SuperSequence):
           # If it's a super-seq, list the subsequences
           sig_name = comp_name + "-" + loc_seq.name
-          seqs = string.join([prefix+comp_name+"-"+seq.name for seq in loc_seq.base_seqs if not seq.dummy])
+          seqs = ' '.join([prefix+comp_name+"-"+seq.name for seq in loc_seq.base_seqs if not seq.dummy])
         else: # it's a system signal
           sig_name = comp_name + "-" + loc_seq
           seqs = prefix + sig_name

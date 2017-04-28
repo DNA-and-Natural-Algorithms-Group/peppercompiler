@@ -1,6 +1,6 @@
 """Grammar for Vienna RNAfold output format"""
 
-from .pyparsing import *
+from pyparsing import *
 
 Map = lambda f: (lambda s, t, l: list(map(f, l)))
 

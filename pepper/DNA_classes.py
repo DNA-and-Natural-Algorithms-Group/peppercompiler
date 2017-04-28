@@ -84,7 +84,7 @@ class Sequence(object):
           "Seq {} is not a subset of constraint {} for {}".format(*err),
           *err)
       const = ''.join((const, rev_group[''.join(sorted(comb_set))]))
-    self.const = fixed_seq
+    self.const = const
   
   def __invert__(self):
     """Returns the Watson-Crick complementary sequence."""

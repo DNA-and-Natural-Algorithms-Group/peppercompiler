@@ -161,6 +161,6 @@ if __name__ == "__main__":
     options.output = basename + ".mfe"
   
   # Collect extra arguments for spuriousC
-  spurious_pars = string.join(args[1:], " ")
+  spurious_pars = " ".join(args[1:])
   
   design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.just_files, options.struct_orient, options.old_output, options.tempname, spurious_pars)

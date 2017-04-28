@@ -256,7 +256,7 @@ class Component(PrintObject):
     
     # Apply sequences to structures and set objective function
     for struct in list(self.structs.values()):
-      seqs = string.join([seq.full_name for seq in struct.base_seqs if not seq.dummy])
+      seqs = ' '.join([seq.full_name for seq in struct.base_seqs if not seq.dummy])
       outfile.write("%s : %s\n" % (struct.full_name, seqs))
       if struct.opt: # Optimization parameter
         outfile.write("%s < %f\n" % (struct.full_name, struct.opt))

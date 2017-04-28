@@ -7,7 +7,7 @@ setup(
     version = "v0.0.1dev",
     packages = ['pepper'],
 
-    install_requires = [],
+    install_requires = ["pyparsing"],
 
     include_package_data=True,
 

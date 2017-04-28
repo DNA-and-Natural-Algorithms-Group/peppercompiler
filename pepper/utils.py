@@ -82,36 +82,8 @@ def _dummy(*args, **kw):
   raise Exception("methods not available")
 
 ## Generic Objects
-class ordered_dict(dict):
-  """A standard dictionary that remembers the order you added items in.
-     Only supports __setitem__, __iter__, keys, values, items and read-only ops."""
-  def __init__(self):
-    self.order = []
-    dict.__init__(self)
-  
-  def get_index(self, index):
-    return self[self.order[index]]
-  
-  def __setitem__(self, key, value):
-    if key not in self:
-      self.order.append(key)
-    dict.__setitem__(self, key, value)
-  def __iter__(self):
-    for key in self.order:
-      yield key
-  def keys(self):
-    return self.order
-  def values(self):
-    return [self[key] for key in self]
-  def items(self):
-    return [(key, self[key]) for key in self]
-  
-  def __delitem__(self, key):
-    self.order.remove(key)
-    dict.__delitem__(self, key)
-  ### TODO-maybe: impliment clear, copy, iter*, ...
-  clear = copy = iteritems = iterkeys = itervalues = pop \
-        = popitem = update = fromkeys = _dummy
+from collections import OrderedDict
+ordered_dict = OrderedDict
 
 class default_ordered_dict(ordered_dict):
   """An ordered dictionary automatically defaults to a given value on unset key.
@@ -156,6 +128,6 @@ class PrintObject(object):
   """Generic default-printable object."""
   def __str__(self):
     attribs = ["%s=%r" % (name, value) for (name, value) in list(self.__dict__.items())]
-    attribs = string.join(attribs, ", ")
+    attribs = ", ".join(attribs)
     return "%s(%s)" % (self.__class__.__name__, attribs)
   __repr__ = __str__

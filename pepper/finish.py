@@ -111,14 +111,14 @@ def apply_design(system, seqs):
       seq.seq = seq.wc.seq = ""
   
   for sup_seq in list(system.sup_seqs.values()):
-    sup_seq.seq  = string.join([seq.seq for seq in sup_seq.base_seqs], "")
-    sup_seq.wc.seq = string.join([seq.seq for seq in sup_seq.wc.base_seqs], "")
+    sup_seq.seq  = "".join([seq.seq for seq in sup_seq.base_seqs])
+    sup_seq.wc.seq = "".join([seq.seq for seq in sup_seq.wc.base_seqs])
   
   for strand in list(system.strands.values()):
-    strand.seq = string.join([seq.seq for seq in strand.base_seqs], "")
+    strand.seq = "".join([seq.seq for seq in strand.base_seqs])
   
   for name, struct in list(system.structs.items()):
-    struct.seq = string.join([strand.seq for strand in struct.strands], "+")
+    struct.seq = "+".join([strand.seq for strand in struct.strands])
     assert struct.seq == seqs[name], "Design is inconsistant! %s != %s" % (struct.seq, seqs[name])
 
 

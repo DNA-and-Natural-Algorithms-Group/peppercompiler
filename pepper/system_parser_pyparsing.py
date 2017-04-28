@@ -4,7 +4,7 @@ from .system_class import System
 from .var_substitute import process
 from .utils import print_linenums, error
 
-from .pyparsing import *
+from pyparsing import *
 
 def result2list(foo):
   """Convert from ParseResults to normal list."""

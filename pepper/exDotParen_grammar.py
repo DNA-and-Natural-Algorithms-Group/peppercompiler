@@ -2,7 +2,7 @@
 
 import sys
 
-from .pyparsing import *
+from pyparsing import *
 from .utils import error
 
 Map = lambda func: (lambda s, t, l: list(map(func, l)))

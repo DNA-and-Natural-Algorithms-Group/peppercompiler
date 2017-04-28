@@ -1,6 +1,6 @@
 """Grammar for NUPACK's mfe used by DNAfold"""
 
-from .pyparsing import *
+from pyparsing import *
 
 Map = lambda f: (lambda s, t, l: list(map(f, l)))
 

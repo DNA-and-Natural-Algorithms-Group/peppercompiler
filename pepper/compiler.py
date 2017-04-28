@@ -85,7 +85,7 @@ def load(filename):
   """Load it back."""
   if not os.path.isfile(filename):
     error("Cannot load save state. No such file '%s'." % filename)
-  f = open(filename, "r")
+  f = open(filename, 'rb')
   obj = pickle.load(f)
   f.close()
   return obj

@@ -1,8 +1,7 @@
 """Grammar for Joe Zadeh's Helix Unpaired notation."""
 
 import sys
-sys.path += ("..",) # Extend path to find pyparsing.py
-from .pyparsing import *
+from pyparsing import *
 
 Map = lambda func: (lambda s, t, l: list(map(func, l)))
 
