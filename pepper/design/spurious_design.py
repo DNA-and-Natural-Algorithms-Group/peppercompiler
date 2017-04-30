@@ -115,14 +115,12 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     os.remove(eqname)
     os.remove(sp_outname)
 
-if __name__ == "__main__":
+def main():
   import re
   from optparse import OptionParser
   
   from .find_file import find_file, BadFilename
   
-  if sys.version_info < (2, 5):
-    error("Must use python 2.5 or greater.")
     
   # Parse command line options.
   usage = "usage: %prog [options] infilename [spuriousC_parameters ...]"

@@ -2,8 +2,6 @@
 
 import sys
 from .utils import error
-if sys.version_info < (2, 5):
-  error("Must use python 2.5 or greater.")
 
 import re
 import os
@@ -90,7 +88,7 @@ def load(filename):
   f.close()
   return obj
 
-if __name__ == "__main__":
+def main():
   import sys
   from optparse import OptionParser
   

@@ -11,7 +11,9 @@ setup(
 
     include_package_data=True,
 
-    #entry_points={ 'console_scripts': [] },
+    entry_points={ 'console_scripts': [
+        'pepper-compiler = pepper.compiler:main',
+        'pepper-design-spurious = pepper.design.spurious_design:main']},
 
     author = "Constantine Evans et al (this version)",
     author_email = "cgevans@evans.foundation",
