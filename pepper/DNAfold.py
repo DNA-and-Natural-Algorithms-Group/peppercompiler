@@ -4,7 +4,10 @@ import sys
 from .utils import error
 
 try:
-  import config_choices as config
+  import xdg, os
+  sys.path = [xdg.save_config_path('pepper')]+sys.path
+  import config_choices
+
 except ImportError:
   error("DNA Circuit Compiler is not configured, please run config.py")
 

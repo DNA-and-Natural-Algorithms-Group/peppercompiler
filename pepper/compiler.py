@@ -93,6 +93,8 @@ def main():
   from optparse import OptionParser
   
   try:
+    import sys, xdg.BaseDirectory, os
+    sys.path = [xdg.BaseDirectory.save_config_path('pepper')]+sys.path
     import config_choices
   except ImportError:
     warning("DNA Circuit Compiler is not configured, please run config.py")

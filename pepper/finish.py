@@ -246,7 +246,7 @@ def process_kinetics(ret):
     print("  Estimated Reverse Trajectory Rate: %f (50%% range: %r) /s" % (rev_rate, rev_rate_quants))
 
   
-if __name__ == "__main__":
+def main():
   import re
   from optparse import OptionParser, OptionGroup
   
