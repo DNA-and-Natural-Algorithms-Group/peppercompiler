@@ -2,7 +2,7 @@
 
 from .nupack_in_class import Spec
 
-from ..pyparsing import *
+from pyparsing import *
 
 ## Some globals
 # Pyparsing shortcuts

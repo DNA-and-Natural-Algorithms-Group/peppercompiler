@@ -4,7 +4,7 @@ import string
 
 import unittest
 
-import system_parser
+import pepper.system_parser as system_parser
 
 ## Helper functions
 def format_seq(signal):
@@ -45,11 +45,11 @@ class TestSystemParser(unittest.TestCase):
     """Test example System Declare statements are parsed correctly"""
     for name, params, inputs, outputs in self.example_declare:
       # Build the statement
-      params_str = string.join(params, ", ")
+      params_str = ", ".join(params)
       inputs_str = list(map(format_seq, inputs))
-      inputs_str = string.join(inputs_str, " + ")
+      inputs_str = " + ".join(inputs_str)
       outputs_str = list(map(format_seq, outputs))
-      outputs_str = string.join(outputs_str, " + ")
+      outputs_str = " + ".join(outputs_str)
       statement = "declare system %s(%s): %s -> %s" % (name, params_str, inputs_str, outputs_str)
       # Test the statement
       result = system_parser.parse_declare_statement(statement)
@@ -82,7 +82,7 @@ class TestSystemParser(unittest.TestCase):
     for imports in self.example_import:
       # Build the statement
       parts = [("%s as %s" % (path, name) if name else path) for path, name in imports]
-      statement = "import " + string.join(parts, ", ")
+      statement = "import " + ", ".join(parts)
       # Test the statement
       result = system_parser.parse_import_statement(statement)
       self.assertEqual(imports, result)
@@ -116,11 +116,11 @@ class TestSystemParser(unittest.TestCase):
     for type, name, params, ins, outs in self.example_component:
       # Build the statement
       params_str = list(map(repr, params))
-      params_str = string.join(params_str, ", ")
+      params_str = ", ".join(params_str)
       ins_str = list(map(format_seq, ins))
-      ins_str = string.join(ins_str, " + ")
+      ins_str = " + ".join(ins_str)
       outs_str = list(map(format_seq, outs))
-      outs_str = string.join(outs_str, " + ")
+      outs_str = " + ".join(outs_str)
       statement = "component %s = %s(%s): %s -> %s" % (type, name, params_str, ins_str, outs_str)
       # Test the statement
       result = system_parser.parse_component_statement(statement)

@@ -4,8 +4,8 @@ import string
 
 import unittest
 
-import component_parser
-from component_parser import sequence_flag, nucleotide_flag, domains_flag
+import pepper.component_parser as component_parser
+from pepper.component_parser import sequence_flag, nucleotide_flag, domains_flag
 
 ## Helper functions
 def format_signal(signal):
@@ -32,7 +32,7 @@ def format_constraint(constraint):
   else:
     assert constraint_type == nucleotide_flag, constraint_type
     nucleotides = [str(num) + letter for num, letter in value]
-    nucleotides = string.join(nucleotides)
+    nucleotides = " ".join(nucleotides)
     return '"%s"' % nucleotides
 
 
@@ -73,11 +73,11 @@ class TestComponentParser(unittest.TestCase):
     """Test example Component Declare statements are parsed correctly"""
     for name, params, inputs, outputs in self.example_declare:
       # Build the statement
-      params_str = string.join(params, ", ")
+      params_str = ", ".join(params)
       inputs_str = list(map(format_signal, inputs))
-      inputs_str = string.join(inputs_str, " + ")
+      inputs_str = " + ".join(inputs_str)
       outputs_str = list(map(format_signal, outputs))
-      outputs_str = string.join(outputs_str, " + ")
+      outputs_str = " + ".join(outputs_str)
       statement = "declare component %s(%s): %s -> %s" % (name, params_str, inputs_str, outputs_str)
       # Test the statement
       result = component_parser.parse_declare_statement(statement)
@@ -121,7 +121,7 @@ class TestComponentParser(unittest.TestCase):
     for name, constraints, length in self.example_sequence:
       # Build the statement
       constr_str = list(map(format_constraint, constraints))
-      constr_str = string.join(constr_str, " ")
+      constr_str = " ".join(constr_str)
       length_str = (": %d" % length if length != None else "")
       statement = "sequence %s = %s %s" % (name, constr_str, length_str)
       # Test the statement
@@ -158,7 +158,7 @@ class TestComponentParser(unittest.TestCase):
       # Build the statement
       dummy_str = ("[dummy]" if dummy else "")
       constr_str = list(map(format_constraint, constraints))
-      constr_str = string.join(constr_str, " ")
+      constr_str = " ".join(constr_str)
       length_str = (": %d" % length if length != None else "")
       statement = "strand %s %s = %s %s" % (dummy_str, name, constr_str, length_str)
       # Test the statement
@@ -199,7 +199,7 @@ class TestComponentParser(unittest.TestCase):
     """Test example Component Structure statements are parsed correctly"""
     for name, opt, strands, (domain, struct) in self.example_structure:
       # Build the statement
-      strands_str = string.join(strands, " + ")
+      strands_str = " + ".join(strands)
       domain_str = ("domain" if domain else "")
       statement = "structure [%snt] %s = %s : %s %s" % (opt, name, strands_str, domain_str, struct)
       # Test the statement
@@ -243,8 +243,8 @@ class TestComponentParser(unittest.TestCase):
       else:
         params = ""
         
-      inputs_str  = string.join(inputs, " + ")
-      outputs_str = string.join(outputs, " + ")
+      inputs_str  = " + ".join(inputs)
+      outputs_str = " + ".join(outputs)
       statement = "kinetic %s %s -> %s" % (params, inputs_str, outputs_str)
       # Test the statement
       result = component_parser.parse_kinetic_statement(statement)

@@ -7,7 +7,6 @@ from setuptools.command.develop import develop
 class build_with_spurious(build):
     def run(self):
         import os
-        print "Compiling spuriousSSM"
         os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o pepper/_spuriousSSM -lm")
         
         build.run(self)
@@ -15,7 +14,6 @@ class build_with_spurious(build):
 class develop_with_spurious(develop):
     def run(self):
         import os
-        print "Compiling spuriousSSM"
         os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o pepper/_spuriousSSM -lm")
         
         develop.run(self)

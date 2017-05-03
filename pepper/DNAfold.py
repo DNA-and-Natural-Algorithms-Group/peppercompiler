@@ -4,8 +4,8 @@ import sys
 from .utils import error
 
 try:
-  import xdg, os
-  sys.path = [xdg.save_config_path('pepper')]+sys.path
+  import xdg.BaseDirectory, os
+  sys.path = [xdg.BaseDirectory.save_config_path('pepper')]+sys.path
   import config_choices
 
 except ImportError:

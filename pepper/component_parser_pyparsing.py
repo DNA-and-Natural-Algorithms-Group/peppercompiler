@@ -6,7 +6,7 @@ from .HU2dotParen import extended2dotParen, HU2dotParen
 from .var_substitute import process
 from .utils import print_linenums, error
 
-from .pyparsing import *
+from pyparsing import *
 
 ## Some globals
 # Pyparsing shortcuts
@@ -30,7 +30,7 @@ def Flag(expr):
   return p
 
 import string
-lowers = string.lowercase
+lowers = string.ascii_lowercase
 
 
 nucleotide_flag = "Anonymous"
