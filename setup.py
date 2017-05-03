@@ -27,6 +27,8 @@ setup(
 
     include_package_data=True,
     package_data={'pepper': ['_spuriousSSM']},
+
+    test_suite='pepper.tests',
     
     cmdclass={'build': build_with_spurious, 'develop': develop_with_spurious},
     
