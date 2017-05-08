@@ -4,7 +4,7 @@ import string
 
 import unittest
 
-import pepper.system_parser as system_parser
+import peppercompiler.system_parser as system_parser
 
 ## Helper functions
 def format_seq(signal):

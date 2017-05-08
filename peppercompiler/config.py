@@ -131,7 +131,7 @@ def main():
 
   ## Write configuration file
   config_file = os.path.join(
-    xdg.BaseDirectory.save_config_path('pepper'),
+    xdg.BaseDirectory.save_config_path('peppercompiler'),
     "config_choices.py")
 
   f = open(config_file, "w")

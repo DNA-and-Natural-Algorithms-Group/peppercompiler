@@ -5,7 +5,7 @@ from .utils import error
 
 try:
   import xdg.BaseDirectory, os
-  sys.path = [xdg.BaseDirectory.save_config_path('pepper')]+sys.path
+  sys.path = [xdg.BaseDirectory.save_config_path('peppercompiler')]+sys.path
   import config_choices
 
 except ImportError:

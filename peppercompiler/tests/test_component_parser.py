@@ -4,8 +4,8 @@ import string
 
 import unittest
 
-import pepper.component_parser as component_parser
-from pepper.component_parser import sequence_flag, nucleotide_flag, domains_flag
+import peppercompiler.component_parser as component_parser
+from peppercompiler.component_parser import sequence_flag, nucleotide_flag, domains_flag
 
 ## Helper functions
 def format_signal(signal):

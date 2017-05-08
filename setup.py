@@ -7,39 +7,39 @@ from setuptools.command.develop import develop
 class build_with_spurious(build):
     def run(self):
         import os
-        os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o pepper/_spuriousSSM -lm")
+        os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm")
         
         build.run(self)
 
 class develop_with_spurious(develop):
     def run(self):
         import os
-        os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o pepper/_spuriousSSM -lm")
+        os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm")
         
         develop.run(self)
 
 setup(
-    name = "pepper",
-    version = "v0.0.1dev",
-    packages = ['pepper'],
+    name = "peppercompiler",
+    version = "v0.1.0.dev1",
+    packages = ['peppercompiler'],
 
     install_requires = ["pyparsing","xdg","six"],
 
     include_package_data=True,
-    package_data={'pepper': ['_spuriousSSM']},
+    package_data={'peppercompiler': ['_spuriousSSM']},
 
-    test_suite='pepper.tests',
+    test_suite='peppercompiler.tests',
     
     cmdclass={'build': build_with_spurious, 'develop': develop_with_spurious},
     
     entry_points={ 'console_scripts': [
-        'pepper-compiler = pepper.compiler:main',
-        'pepper-design-spurious = pepper.design.spurious_design:main',
-        'pepper-finish = pepper.finish:main',
-        'pepper-config = pepper.config:main',
-        'spuriousSSM = pepper._spuriousSSM_wrapper:main']},
+        'pepper-compiler = peppercompiler.compiler:main',
+        'pepper-design-spurious = peppercompiler.design.spurious_design:main',
+        'pepper-finish = peppercompiler.finish:main',
+        'pepper-config = peppercompiler.config:main',
+        'spuriousSSM = peppercompiler._spuriousSSM_wrapper:main']},
 
     author = "Constantine Evans et al (this version)",
-    author_email = "cgevans@evans.foundation",
+    author_email = "cge@dna.caltech.edu",
     description = "PepperCompiler in a pythonic form"
 )

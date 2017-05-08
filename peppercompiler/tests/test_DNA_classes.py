@@ -2,7 +2,7 @@
 
 import unittest
 
-import pepper.DNA_classes as DNA_classes
+import peppercompiler.DNA_classes as DNA_classes
 
 class TestDNAClasses(unittest.TestCase):
   
