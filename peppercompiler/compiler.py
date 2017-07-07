@@ -71,7 +71,7 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False,
   # Save compiler state to be reloaded when designer finishes
   print("Compiler state saved into '%s'" % savename)
   save(system, savename)
-  print("Run a designer on '%s' and process the result with python finish.py" % outputname)
+  print("Run a designer on '%s' and process the result with pepper-finish" % outputname)
 
 def save(obj, filename):
   """Save an object for later finishing."""
