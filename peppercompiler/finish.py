@@ -18,6 +18,8 @@ from .component_class import Component
 from .DNA_classes import wc
 from . import myStat as stat
 
+from __future__ import print_function
+
 def get_components(obj, prefix=""):
   """Return all components and the prefixes showing how to reach them."""
   if isinstance(obj, Component):
