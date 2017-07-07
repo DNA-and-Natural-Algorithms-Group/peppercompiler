@@ -4,18 +4,20 @@ import sys
 from .utils import error
 
 try:
-  import xdg.BaseDirectory, os
-  sys.path = [xdg.BaseDirectory.save_config_path('peppercompiler')]+sys.path
-  import config_choices
-
+  import os
+  if 'NUPACKHOME' in os.environ:
+    nupack_path = os.path.join(os['NUPACKHOME'],'bin','mfe')
+    dnafold_choice = 'nupack'
+  else:
+    dnafold_choice = 'none'
+    
 except ImportError:
   error("DNA Circuit Compiler is not configured, please run config.py")
 
 def DNAfold(seq, temp=25):
   """Run the installed thermodynamic mfe package"""
-  if config.thermo == config.NUPACK:
+  if dnafold_choice == 'nupack':
     from . import DNAfold_Nupack
-    return DNAfold_Nupack.DNAfold(seq, temp, exe=config.nupack_path)
+    return DNAfold_Nupack.DNAfold(seq, temp, exe=nupack_path)
   else:
-    from . import DNAfold_Vienna
-    return DNAfold_Vienna.DNAfold(seq, temp, exe=config.vienna_path, par_file=config.par_file)
+    raise Exception("Sorry Dave, I can't do that: running DNAfold requires that NUPACKHOME is set.")

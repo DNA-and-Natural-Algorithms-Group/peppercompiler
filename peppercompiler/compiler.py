@@ -91,14 +91,7 @@ def load(filename):
 def main():
   import sys
   from optparse import OptionParser
-  
-  try:
-    import sys, xdg.BaseDirectory, os
-    sys.path = [xdg.BaseDirectory.save_config_path('peppercompiler')]+sys.path
-    import config_choices
-  except ImportError:
-    warning("DNA Circuit Compiler is not configured, please run config.py")
-  
+    
   # Parse command line options.
   usage = "usage: %prog [options] BASENAME [parameters ...]"
   parser = OptionParser(usage=usage)
