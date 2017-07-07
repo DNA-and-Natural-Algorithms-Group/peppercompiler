@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Designs sequences using Winfree's SpuriousDesign/spuriousC.c algorithm.
+Designs sequences using Winfree's SpuriousDesign/spuriousSSM algorithm.
 Uses PIL input and Zadeh's .mfe output formats for compatibility with compiler.
 """
 
@@ -44,7 +44,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
   else:
     # Prepare the constraints
     print("Reading design from  file '%s'" % infilename)
-    print("Preparing constraints files for spuriousC.")
+    print("Preparing constraints files for spuriousSSM.")
     convert = Convert(infilename, struct_orient)
     eq, wc, st = convert.get_constraints()
     
@@ -95,7 +95,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
 
     spo.close()
   else:
-    print("Loading old spuriousC output from '%s'" % sp_outname)
+    print("Loading old spuriousSSM output from '%s'" % sp_outname)
     assert os.path.isfile(sp_outname), "Error: requested --use-old-output, but file '%s' doesn't exist" % sp_outname 
   
   # Load results
@@ -103,7 +103,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
   # File has all sorts of runtime info.
   # The final sequences are stored on the last full line.
   nts = nts.split("\n")[-2]
-  print("Processing results of spuriousC.")
+  print("Processing results of spuriousSSM.")
   convert.process_results(nts)
   convert.output(outfilename, findmfe=findmfe)
   print("Done, results saved to '%s'" % outfilename)
@@ -123,11 +123,11 @@ def main():
   
     
   # Parse command line options.
-  usage = "usage: %prog [options] infilename [spuriousC_parameters ...]"
+  usage = "usage: %prog [options] infilename [spuriousSSM_parameters ...]"
   parser = OptionParser(usage=usage)
   parser.set_defaults(verbose=False, struct_orient=False, cleanup=True, old_output=False, reuse=False, just_files=False)
-  parser.add_option("-v", "--verbose", action="store_true", dest="verbose", help="Verbose output from spuriousC")
-  parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="No output from spuriousC [Default]")
+  parser.add_option("-v", "--verbose", action="store_true", dest="verbose", help="Verbose output from spuriousSSM")
+  parser.add_option("-q", "--quiet", action="store_false", dest="verbose", help="No output from spuriousSSM [Default]")
   parser.add_option("-o", "--output", help="Output file [defaults to BASENAME.mfe]", metavar="FILE")
   parser.add_option("-t", "--tempname", help="Base name for temporary files (for multiple simultaneous runs)", metavar="TEMPBASE")
   
@@ -135,10 +135,10 @@ def main():
   parser.add_option("--struct", action="store_true", dest="struct_orient", help="List constraints in structure-oriented manner")
   
   parser.add_option("--keep-temp", action="store_false", dest="cleanup", help="Keep temporary files (.st, .wc, .eq, .sp)")
-  parser.add_option("--just-files", action="store_true", dest="just_files", help="Just create input files for spuriousC")
+  parser.add_option("--just-files", action="store_true", dest="just_files", help="Just create input files for spuriousSSM")
   parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Remove temporary files after use [Default]")
   parser.add_option("--reuse", action="store_true", help="Reuse the .st, .wc and .eq files if they already exist (Saves time if a session was terminated, or if you want to rerun a design)")
-  parser.add_option("--use-old-output", action="store_true", dest="old_output", help="Use old spuriousC output if it already exists (Useful primarily if spuriousC finished successfully, but spurious_design crashed)")
+  parser.add_option("--use-old-output", action="store_true", dest="old_output", help="Use old spurious output if it already exists (Useful primarily if spuriousSSM finished successfully, but spurious_design crashed)")
   (options, args) = parser.parse_args()
   
   if len(args) < 1:
@@ -158,7 +158,7 @@ def main():
   if not options.output:
     options.output = basename + ".mfe"
   
-  # Collect extra arguments for spuriousC
+  # Collect extra arguments for spuriousSSM
   spurious_pars = " ".join(args[1:])
   
   design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.just_files, options.struct_orient, options.old_output, options.tempname, spurious_pars)
