@@ -89,7 +89,7 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     data = spurious_proc.stdout.readline()
     while data:
       if verbose:
-        sys.stdout.write(data)
+        sys.stdout.write(data.decode())
       spo.write(data)
       data = spurious_proc.stdout.readline()
 
