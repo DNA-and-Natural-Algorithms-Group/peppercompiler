@@ -6,7 +6,7 @@ from .utils import error
 try:
   import os
   if 'NUPACKHOME' in os.environ:
-    nupack_path = os.path.join(os['NUPACKHOME'],'bin','mfe')
+    nupack_path = os.path.join(os.environ['NUPACKHOME'],'bin','mfe')
     dnafold_choice = 'nupack'
   else:
     dnafold_choice = 'none'
