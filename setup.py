@@ -23,7 +23,7 @@ setup(
     version = "v0.1.0.dev1",
     packages = ['peppercompiler'],
 
-    install_requires = ["pyparsing","xdg","six"],
+    install_requires = ["pyparsing","six"],
 
     include_package_data=True,
     package_data={'peppercompiler': ['_spuriousSSM']},
