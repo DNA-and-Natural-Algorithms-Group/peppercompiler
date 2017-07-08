@@ -36,7 +36,6 @@ setup(
         'pepper-compiler = peppercompiler.compiler:main',
         'pepper-design-spurious = peppercompiler.design.spurious_design:main',
         'pepper-finish = peppercompiler.finish:main',
-        'pepper-config = peppercompiler.config:main',
         'spuriousSSM = peppercompiler._spuriousSSM_wrapper:main']},
 
     author = "Constantine Evans et al (this version)",

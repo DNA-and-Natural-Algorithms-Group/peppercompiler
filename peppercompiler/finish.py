@@ -254,7 +254,7 @@ def main():
   # Parse command line options.
   usage = "usage: %prog [options] BASENAME"
   parser = OptionParser(usage=usage)
-  parser.set_defaults(run_kin=True, cleanup=False)
+  parser.set_defaults(run_kin=False, cleanup=False)
   #parser.set_defaults(verbose=True)
   #parser.add_option("-v", "--verbose", action="store_true", dest="verbose")
   # TODO: implement quiet
@@ -266,6 +266,7 @@ def main():
   #TODO: parser.add_option("--kinetic", help="Custom kinetics output file, defaults to BASENAME.kin")
   
   kin_parser = OptionGroup(parser, "Kinetics Options")
+  kin_parser.add_option("--kin", action="store_true", dest="run_kin", help="Run kinetics [default]")
   kin_parser.add_option("--no-kin", action="store_false", dest="run_kin", help="Don't run kinetics")
   kin_parser.add_option("--trials", type="int", default=24, help="Number of trials to run [Default = %default]")
   kin_parser.add_option("--time", type="float", default=100000, help="Simulation seconds [Default = %default]")

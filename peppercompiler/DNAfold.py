@@ -3,16 +3,13 @@ import sys
 
 from .utils import error
 
-try:
-  import os
-  if 'NUPACKHOME' in os.environ:
-    nupack_path = os.path.join(os.environ['NUPACKHOME'],'bin','mfe')
-    dnafold_choice = 'nupack'
-  else:
-    dnafold_choice = 'none'
+import os
+if 'NUPACKHOME' in os.environ:
+  nupack_path = os.path.join(os.environ['NUPACKHOME'],'bin','mfe')
+  dnafold_choice = 'nupack'
+else:
+  dnafold_choice = 'none'
     
-except ImportError:
-  error("DNA Circuit Compiler is not configured, please run config.py")
 
 def DNAfold(seq, temp=25):
   """Run the installed thermodynamic mfe package"""
