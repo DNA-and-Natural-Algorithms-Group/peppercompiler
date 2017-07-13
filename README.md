@@ -1,88 +1,83 @@
-This is the Winfree lab DNA Circut Compiler, peppercompiler, developed by Shawn
-Ligocki and currently maintained by Constantine Evans.
+This is the Winfree lab DNA Circut Compiler, peppercompiler.  It assists DNA
+programmers in building DNA computers by providing a templating language for
+specifying generic components and interfacing with state of the art designers
+and kinetic simulators to create and test sequences.
 
-This git repository is the *new* version of peppercompiler, which installs as a
-Python package.  It is *not ready for use yet*, and at the moment should not be
-considered to have a stable API.  In particular, the package name will soon
-change from pepper to peppercompiler.
+Peppercompiler can be used directly, through scripts starting with "pepper-", or
+can be used as a Python library, though the API should not be considered stable
+yet.  Users of older versions should note that script names have changed.
 
-The old Readme is reproduced below, but please note that most of it no longer
-applies.
+Peppercompiler also includes, and installs, SpuriousSSM.
 
-# Old Readme
+## Setup and Installation
 
-This is the Winfree lab DNA Circuit Compiler developed by Shawn Ligocki.
-It assists DNA programmers in building DNA computers by providing a
-templating language for specifying generic components and interfacing
-with state of the art designers and kinetic simulators to create and
-test sequences.
+The easiest way to install peppercompiler is via Pip:
 
-## Setup
+    pip install git+https://github.com/DNA-and-Natural-Algorithms-Group/peppercompiler.git
+	
+Alternatively, normal python installation methods (easy_install, setup.py) may
+be used.  Peppercompiler is compatible with both Python 2.7 and Python 3.
 
-Run
+Installation requires a working C compiler so that SpuriousSSM can be compiled.
+If compilation does not work for you, please let us know.
 
-`$ python config.py`
-
-to set up the DNA Circuit Compiler to work with your system. It helps to
-have NUPACKHOME or VIENNAHOME environment variables set before you
-begin.
+To use Nupack, NUPACKHOME should be set to your Nupack directory.
 
 ## Basic usage
 
 Run
 
-`$ python compile.py circuit`
+    $ pepper-compile circuit`
 
 to compile “circuit.sys” or “circuit.comp” and produce the design
 specification, “circuit.pil” (use --des for .des format used by Joe's
 designer).
 
-Process “circuit.pil” with a designer. There is a wrapper for Erik's
-SpuriousC in “design/”. Run
+Process “circuit.pil” with a designer.  For example, to use spuriousSSM, run
 
-`$ python design/spurious_design.py circuit`
+    $ pepper-design-spurious circuit
 
 to produce the design, “circuit.mfe”.
 
-Then,
+Then, run
 
-`$ python finish.py circuit`
+    $ pepper-finish circuit
 
 to produce a list of all sequences, “circuit.seqs” and run Multistrand
 on the designed sequences.
 
 ## Advanced Usage
 
-Advanced options of compiler.py, spurious\_design.py and finish.py can
+Advanced options of `pepper-compile`, `pepper-design-spurious` and `finish` can
 be examined by using the --help flag (e.g. python compiler.py --help).
 
 Extended functionality:
 
 -   You can fix certain sequences when you begin compilation
+    
+    Ex:
 
-Ex:
-
-`$ python compiler.py --fixed=circuit.fixed circuit`
+    `$ pepper-compile --fixed=circuit.fixed circuit`
 
 -   You can get verbose progress information while designing with
     spuriousC
+    
+    Ex:
 
-Ex:
-
-`$ python design/spurious_design.py -v circuit`
+    `$ pepper-design-spurious -v circuit`
 
 -   finish.py can output a list of “strands to order”
 
-Ex:
+    Ex:
 
-`$ python finish.py --strands=circuit.strands circuit`
+    `$ pepper-finish --strands=circuit.strands circuit`
 
 Furthermore, all input and output files can be specified specifically
 with options. Therefore, for example, you can run two designs on the
 same system at the same time. Ex:
 
-`$ python compiler.py --output=run1.des --save=run1.save examples/Georg_System/Circuit`\
-`$ python compiler.py --output=run2.des --save=run2.save examples/Georg_System/Circuit`
+`$ pepper-compile --output=run1.des --save=run1.save examples/Georg_System/Circuit`
+`$ pepper-compile --output=run2.des --save=run2.save examples/Georg_System/Circuit`
 
 (These two designs will not interfere with each other.)
 
@@ -105,23 +100,4 @@ The specifications for system and component files can be found on the
 DNA wiki.
 
 <http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler>
-
-## Requirements
-
-DNA Circuit Compiler requires:
-
--   Python &gt;= 2.5
--   pyparsing &gt;= 1.5.1 (currently included in the directory)
--   [Multistrand](Multistrand "wikilink") (available on the cluster at
-    /research/bin/Multistrand or by CVS)
--   NUPACK mfe (available on the cluster at /research/bin/mfe or
-    <http://www.nupack.org/downloads>)
-
-design/spurious\_design.py requires:
-
--   spuriousC (available on the dna cluster at /research/bin/spuriousC
-    or by CVS)
--   Vienna RNAfold (available on the dna cluser at
-    /research/bin/RNAfold or
-    <http://www.tbi.univie.ac.at/~ivo/RNA/>)
 
