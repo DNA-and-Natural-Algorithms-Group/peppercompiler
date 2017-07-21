@@ -27,7 +27,7 @@ To use Nupack, NUPACKHOME should be set to your Nupack directory.
 
 Run
 
-    $ pepper-compile circuit`
+    $ pepper-compile circuit
 
 to compile “circuit.sys” or “circuit.comp” and produce the design
 specification, “circuit.pil” (use --des for .des format used by Joe's
@@ -97,7 +97,4 @@ The “examples/” directory has some instructive examples.
 ## System/Component specification
 
 The specifications for system and component files can be found on the
-DNA wiki.
-
-<http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler>
-
+DNA wiki: <http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler>
