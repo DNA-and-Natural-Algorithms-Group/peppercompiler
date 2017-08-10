@@ -65,6 +65,7 @@ unsigned short xsubi[3];
 
 void init_rand(void)
 {
+    FILE *urandom;
     urandom = fopen ("/dev/urandom", "r");
     setvbuf (urandom, NULL, _IONBF, 0); 
     xsubi[0] = (fgetc (urandom) << 8) | fgetc (urandom);
