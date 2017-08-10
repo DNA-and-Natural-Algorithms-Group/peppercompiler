@@ -65,11 +65,12 @@ unsigned short xsubi[3];
 
 void init_rand(void)
 {
-  time_t t;
-  (void) time(&t);
-  xsubi[0] = (unsigned short) t;
-  xsubi[1] = (unsigned short) ((unsigned)t >> 16);
-  xsubi[2] = 5246;
+    urandom = fopen ("/dev/urandom", "r");
+    setvbuf (urandom, NULL, _IONBF, 0); 
+    xsubi[0] = (fgetc (urandom) << 8) | fgetc (urandom);
+    xsubi[1] = (fgetc (urandom) << 8) | fgetc (urandom);
+    xsubi[2] = (fgetc (urandom) << 8) | fgetc (urandom);
+    fclose (urandom);
 }
 
 extern double erand48(unsigned short[]); 
