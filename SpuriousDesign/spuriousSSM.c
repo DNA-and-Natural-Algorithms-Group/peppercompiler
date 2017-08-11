@@ -1053,7 +1053,7 @@ int main(int argc, char *argv[])
      else if (strncmp(argv[i],"imax=",5)==0) imax=atoi(&argv[i][5]);
      else if (strncmp(argv[i],"bored=",6)==0) {bmax=atoi(&argv[i][6]); bmax_set=1;}
      else if (strncmp(argv[i],"bmax=",5)==0) {bmax=atoi(&argv[i][5]); bmax_set=1;}
-     else if (strncmp(argv[i],"bmult=",5)==0) {bmult=atoi(&argv[i][5]);}
+     else if (strncmp(argv[i],"bmult=",6)==0) {bmult=atoi(&argv[i][5]);}
      else if (strncmp(argv[i],"score=automatic",15)==0) automatic=1;
      else if (strncmp(argv[i],"score=noautomatic",17)==0) automatic=0;
      else if (strncmp(argv[i],"score=verboten",14)==0) { W_spurious=0.0; W_verboten=1.0; W_bonds=0.0; }
