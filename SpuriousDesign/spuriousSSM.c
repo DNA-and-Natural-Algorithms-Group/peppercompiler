@@ -44,7 +44,7 @@ int debug=0;  int quiet=0, watch=1;
 double W_verboten=0.0, W_spurious=1.0, W_bonds=0.0; 
 int W_verboten_set=0, W_spurious_set=0, W_bonds_set=0;
 int spurious_intraS_set=0, spurious_interS_set=0, spurious_interC_set=0, bmax_set=0;
-int bmult=12.0;
+int bmult=12;
 double spurious_beta=5.0, spurious_intraS=25.0/3125, spurious_interS=5.0/3125, spurious_interC=1.0/3125, spurious_mismatch=25.0;
 int spurious_equality=1, spurious_range=6;
 double verboten_weak=1.0, verboten_strong=2.0, verboten_regular=0.5;
@@ -1053,7 +1053,7 @@ int main(int argc, char *argv[])
      else if (strncmp(argv[i],"imax=",5)==0) imax=atoi(&argv[i][5]);
      else if (strncmp(argv[i],"bored=",6)==0) {bmax=atoi(&argv[i][6]); bmax_set=1;}
      else if (strncmp(argv[i],"bmax=",5)==0) {bmax=atoi(&argv[i][5]); bmax_set=1;}
-     else if (strncmp(argv[i],"bmult=",6)==0) {bmult=atoi(&argv[i][5]);}
+     else if (strncmp(argv[i],"bmult=",6)==0) {bmult=atoi(&argv[i][6]);}
      else if (strncmp(argv[i],"score=automatic",15)==0) automatic=1;
      else if (strncmp(argv[i],"score=noautomatic",17)==0) automatic=0;
      else if (strncmp(argv[i],"score=verboten",14)==0) { W_spurious=0.0; W_verboten=1.0; W_bonds=0.0; }
