@@ -44,6 +44,7 @@ int debug=0;  int quiet=0, watch=1;
 double W_verboten=0.0, W_spurious=1.0, W_bonds=0.0; 
 int W_verboten_set=0, W_spurious_set=0, W_bonds_set=0;
 int spurious_intraS_set=0, spurious_interS_set=0, spurious_interC_set=0, bmax_set=0;
+int bmult=12.0;
 double spurious_beta=5.0, spurious_intraS=25.0/3125, spurious_interS=5.0/3125, spurious_interC=1.0/3125, spurious_mismatch=25.0;
 int spurious_equality=1, spurious_range=6;
 double verboten_weak=1.0, verboten_strong=2.0, verboten_regular=0.5;
@@ -60,7 +61,7 @@ int *freeloc; // freeloc[m] is position of m^th such independent base pair (star
 // but the values of wc[i] and eq[i] are given using 1...N, as is the case in the input files.
 
 /*------------------------------------------------------------------------*/
-/* borrowing some random number code from ViennaRNA 1.4 */
+/* New random number code. */
 unsigned short xsubi[3];
 
 void init_rand(void)
@@ -644,7 +645,7 @@ int set_auto_spurious_weights(char *S, int *wc, int *eq) // returns bmax value
   n=strlen(S); for (i=0; i<n; i++)  if (eq[i]==i+1 && (wc[i]>i+1 || wc[i]==-1)) nq++; 
   if (!quiet) printf("Automatic: counted %d unique base equivalence classes.\n",nq);
 
-  return (12*nq+1); // get bored after 4-fold coverage of all possible single mutations
+  return (bmult*nq+1); // get bored after 4-fold coverage of all possible single mutations
 }
 
 // scoring function from score_spurious.m in DNAdesign
@@ -954,10 +955,11 @@ int main(int argc, char *argv[])
     "  quiet=WATCH          output running tally of best test scores, for chosen method\n"
     "  quiet=ALL            output all the above [default]\n"
     "  trace=ON             output the current sequence, at every improvement\n"
-    " STOPPING CRITERIA\n"
+    " STOPPING CRITERIA (default is bmult=12)\n"
     "  tmax=[value]         stop after specified time (in seconds) has elapsed\n"
     "  imax=[value]         stop after specified number of mutation iterations have been completed\n"
     "  bmax=[value]         stop after specified number of mutation iterations yield no change\n"
+    "  bmult=[value]        set bmax=[value]*[number of unique base equivalence classes] (integer)\n"
     " SCORING FUNCTION\n"
     "  score=automatic      set stopping criteria and spurious, verboten, and bonds score weights based on design size\n"
     "  score=noautomatic    reset any previous score=automatic option that has been provided.\n"
@@ -1051,6 +1053,7 @@ int main(int argc, char *argv[])
      else if (strncmp(argv[i],"imax=",5)==0) imax=atoi(&argv[i][5]);
      else if (strncmp(argv[i],"bored=",6)==0) {bmax=atoi(&argv[i][6]); bmax_set=1;}
      else if (strncmp(argv[i],"bmax=",5)==0) {bmax=atoi(&argv[i][5]); bmax_set=1;}
+     else if (strncmp(argv[i],"bmult=",5)==0) {bmult=atof(&argv[i][5]);}
      else if (strncmp(argv[i],"score=automatic",15)==0) automatic=1;
      else if (strncmp(argv[i],"score=noautomatic",17)==0) automatic=0;
      else if (strncmp(argv[i],"score=verboten",14)==0) { W_spurious=0.0; W_verboten=1.0; W_bonds=0.0; }
