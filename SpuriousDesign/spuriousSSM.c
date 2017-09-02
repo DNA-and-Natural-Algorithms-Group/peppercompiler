@@ -31,7 +31,7 @@
 #include <math.h>
 #include <ctype.h>
 
-extern double log2(double);
+//extern double log2(double);
 
 #define max(a,b) ((a)>(b)?(a):(b))
 

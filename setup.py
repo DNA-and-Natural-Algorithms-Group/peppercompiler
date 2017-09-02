@@ -7,7 +7,11 @@ from setuptools.command.develop import develop
 class build_with_spurious(build):
     def run(self):
         import os
-        os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm")
+        if "CC" in os.environ:
+            cc = os.environ['CC']
+        else:
+            cc = "cc"
+        os.system("{} -Wall -O3 SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm".format(cc))
         
         build.run(self)
 
