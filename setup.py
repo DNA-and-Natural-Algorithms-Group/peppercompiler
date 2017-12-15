@@ -24,7 +24,7 @@ class develop_with_spurious(develop):
 
 setup(
     name = "peppercompiler",
-    version = "v0.1.0.dev1",
+    version = "0.1.0",
     packages = ['peppercompiler', 'peppercompiler.design'],
 
     install_requires = ["pyparsing","six"],
