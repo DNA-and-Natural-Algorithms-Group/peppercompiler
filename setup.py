@@ -11,31 +11,31 @@ class build_with_spurious(build):
             cc = os.environ['CC']
         else:
             cc = "cc"
-        os.system("{} -Wall -O3 SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm".format(cc))
-        
+        os.system("{} -Wall -O3 peppercompiler/SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm".format(cc))
+
         build.run(self)
 
 class develop_with_spurious(develop):
     def run(self):
         import os
-        os.system("cc -Wall -O3 SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm")
-        
+        os.system("cc -Wall -O3 peppercompiler/SpuriousDesign/spuriousSSM.c -o peppercompiler/_spuriousSSM -lm")
+
         develop.run(self)
 
 setup(
     name = "peppercompiler",
     version = "v0.1.0.dev1",
-    packages = ['peppercompiler'],
+    packages = ['peppercompiler', 'peppercompiler.design'],
 
     install_requires = ["pyparsing","six"],
 
     include_package_data=True,
-    package_data={'peppercompiler': ['_spuriousSSM']},
+    package_data={'peppercompiler': ['_spuriousSSM', 'SpuriousDesign/spuriousSSM.c']},
 
     test_suite='peppercompiler.tests',
-    
+
     cmdclass={'build': build_with_spurious, 'develop': develop_with_spurious},
-    
+
     entry_points={ 'console_scripts': [
         'pepper-compiler = peppercompiler.compiler:main',
         'pepper-design-spurious = peppercompiler.design.spurious_design:main',
