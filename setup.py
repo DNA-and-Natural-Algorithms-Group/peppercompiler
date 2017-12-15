@@ -30,7 +30,7 @@ setup(
     install_requires = ["pyparsing","six"],
 
     include_package_data=True,
-    package_data={'peppercompiler': ['peppercompiler/_spuriousSSM', 'peppercompiler/SpuriousDesign/spuriousSSM.c']},
+    package_data={'peppercompiler': ['_spuriousSSM', 'SpuriousDesign/spuriousSSM.c']},
 
     test_suite='peppercompiler.tests',
 
