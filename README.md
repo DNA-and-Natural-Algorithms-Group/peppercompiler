@@ -9,6 +9,12 @@ yet.  Users of older versions should note that script names have changed.
 
 Peppercompiler also includes, and installs, SpuriousSSM.
 
+## Contact
+
+The Pepper Circuit Compiler was originally developed by Shawn Ligocki, 
+with later modification by Chris Berlind, Joseph Schaeffer, Constantine Evans, and Erik Winfree.
+
+
 ## Setup and Installation
 
 The easiest way to install peppercompiler is via Pip:
@@ -23,6 +29,8 @@ If compilation does not work for you, please let us know.
 
 To use Nupack, NUPACKHOME should be set to your Nupack directory.
 
+To use Multistrand, make sure that its executables are on your path.  However, the Multistrand functionality has not recently been tested.
+
 ## Basic usage
 
 Run
@@ -30,8 +38,7 @@ Run
     $ pepper-compile circuit
 
 to compile “circuit.sys” or “circuit.comp” and produce the design
-specification, “circuit.pil” (use --des for .des format used by Joe's
-designer).
+specification, “circuit.pil” (use --des for .des format used by the Nupack designer).
 
 Process “circuit.pil” with a designer.  For example, to use spuriousSSM, run
 
@@ -48,7 +55,7 @@ on the designed sequences.
 
 ## Advanced Usage
 
-Advanced options of `pepper-compile`, `pepper-design-spurious` and `finish` can
+Advanced options of `pepper-compile`, `pepper-design-spurious` and `pepper-finish` can
 be examined by using the --help flag (e.g. python compiler.py --help).
 
 Extended functionality:
