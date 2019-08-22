@@ -48,9 +48,9 @@ int bmult=12;
 double spurious_beta=5.0, spurious_intraS=25.0/3125, spurious_interS=5.0/3125, spurious_interC=1.0/3125, spurious_mismatch=25.0;
 int spurious_equality=1, spurious_range=6;
 double verboten_weak=1.0, verboten_strong=2.0, verboten_regular=0.5;
-int N=0,NrS=0,NSt=0,Nwc=0,Neq=0; // note that many functions assume that their input arrays are length N
-int *testwc, *testeq; char *testS, *testSt; 
-char *rS_filename=NULL, *St_filename=NULL, *wc_filename=NULL, *eq_filename=NULL, *S_filename=NULL;
+int N=0,NrS=0,NSt=0,Nwc=0,Neq=0,Ndg=0; // note that many functions assume that their input arrays are length N
+int *testwc, *testeq; char *testS, *testSt; int *testdgi, *testdgj; double *testdg,*testdgw;
+char *rS_filename=NULL, *St_filename=NULL, *wc_filename=NULL, *eq_filename=NULL, *S_filename=NULL, *dg_filename=NULL;
 double temperature=37;  // default value unless overwritten by command-line option
 int Nfree=0;  // number of "independent" base pairs that can be mutated, i.e. i+1 == min (eq[i],wc[i]) and St[i] isn't A, C, G, or T.
 int *freeloc; // freeloc[m] is position of m^th such independent base pair (starting at 0)
@@ -555,15 +555,24 @@ double score_verboten(char *S, int *wc, int *eq)
 //    all desired WC interactions, in Kcal/mole. 
 double score_bonds(char *S, int *wc, int *eq)
 {
-  double score=0; int i; 
+  double score=0,dG; int i,c; 
 
   //  for (i=0; i<5; i++) 
   //     { for (N=0; N<5; N++) printf("%4.2f ",nnDH[i][N]); printf("\n"); }
 
-  for (i=1; i<N; i++)
-    if (wc[i-1]==wc[i]+1) score += nnDG(C1234(S[i-1]),C1234(S[i]));
-
-  return score/2;  // every nt involved in WC get counted twice per stack 
+  if (dg_filename==NULL) {
+    for (i=1; i<N; i++)
+      if (wc[i-1]==wc[i]+1) score += nnDG(C1234(S[i-1]),C1234(S[i]));
+    return score/2;  // every nt involved in WC get counted twice per stack 
+  } else {
+    for (c=0; c<Ndg; c++) {
+      dG=0.0;
+      for (i=testdgi[c]; i<testdgj[c]; i++)
+        if (eq[i]!=0 && eq[i+1]!=0) dG += nnDG(C1234(S[i]),C1234(S[i+1]));
+      score += (dG-testdg[c])*(dG-testdg[c])*testdgw[c];
+    }
+    return score;
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -793,7 +802,7 @@ long int get_file_length(char *name)
 }
 
 void load_input_files()
-{ FILE *f; char c; int i; double r; int maxN;
+{ FILE *f; char c; int i,j; double r,s; int maxN;
 
 //// Note: we strip off trailing ' ' from rS and St,
 //// and delete corresponding entries in wc and eq
@@ -923,6 +932,31 @@ void load_input_files()
  for (i=0; i<N; i++) if (testeq[i]==0 && testS[i]!=' ')
    { fprintf(stderr,"error at position %d : eq can be 0 only in space between strands\n",i+1); exit(-1); }
 
+ // load target dG for specified domains, if dg file given
+ 
+ if (dg_filename!=NULL) {
+   maxN = 100+get_file_length(dg_filename);  // number of characters > number of lines.  excessive here but OK.
+   testdgi = calloc(maxN, sizeof(int));
+   testdgj = calloc(maxN, sizeof(int));
+   testdg  = calloc(maxN, sizeof(double));
+   testdgw = calloc(maxN, sizeof(double));
+   if ( (f = fopen(dg_filename,"r")) == NULL ) {
+     fprintf(stderr,"Can't open dg file <%s>\n",dg_filename); exit(-1);
+   } else {
+     while (fscanf(f," %d %d %lf %lf",&i,&j,&r,&s)>0) { 
+       testdgi[Ndg]=i; testdgj[Ndg]=j; testdg[Ndg]=r; testdgw[Ndg]=s; Ndg++; 
+       if ( (i>=N) || (j >=N) || (i>=j) ) 
+         { fprintf(stderr,"bond energy domain indices %d through %d out of bounds for sequence length %d\n",i,j,N); exit(-1); }
+     } 
+     if (debug) {
+       printf("dg = %d constraints = < \n",Ndg); 
+       for (i=0; i<Ndg; i++) { printf(" %5d through %5d : %7.2g kcal/mol  (weight %g)\n", testdgi[i],testdgj[i],testdg[i],testdgw[i]); }
+       printf("> \n"); 
+     }
+     fclose(f);
+   }
+ }
+
 }
 
 // -------------------------------------------------------------------------
@@ -938,16 +972,17 @@ int main(int argc, char *argv[])
  }
 
  if (!fancy_args && argc != 5) {
-    fprintf(stderr,"Two command line formats are accepted for %s:\n",argv[0]);
-    fprintf(stderr,"  %s rS_file St_file wc_file eq_file\n",argv[0]);
+    fprintf(stderr,"Two command line formats are accepted for spuriousSSM:\n");
+    fprintf(stderr,"  spuriousSSM rS_file St_file wc_file eq_file\n");
     fprintf(stderr,"or\n");
-    fprintf(stderr,"  %s [option]*\n",argv[0]);
+    fprintf(stderr,"  spuriousSSM [option]*\n");
     fprintf(stderr,"where the options are:\n"
     " INPUT/OUTPUT\n"
     "  sequence=[file]      for initial nucleotide sequence (rS_file) [default: random]\n"
     "  template=[file]      for allowed nucleotides at each position (St_file) [default: all N]\n"
     "  wc=[file]            for Watson-Crick pairing constraints (wc_file) [default: all -1]\n"
     "  eq=[file]            for equality constraints (eq_file) [default: identity]\n"
+    "  dg=[file]            for list of specific bond strength constraints [default: bond score]\n"
     "  output=[filename]    for final output sequence upon completion [default: stdout]\n"
     "  N=[value]            length of sequence, if no files are specified\n"
     "  quiet=TRUE           don't print anything, except errors & output\n"
@@ -1030,6 +1065,8 @@ int main(int argc, char *argv[])
     "The bonds score is:\n"
     "   the sum over all base-pair stacks, according to wc(), of the SantaLucia 1998 nearest-neighbor free energy.\n"
     "   Uses the temperature parameter and dG = dH - T dS; stronger bonding gives more negative values, i.e. improves the score.\n"
+    "   If a *.dg file is specified, with each line of form 'i j dG w' specifying the target dG for nucleotides i to j,\n"
+    "   then the sum of squared errors from the target, times weights w, is used instead.  (Nucleotide indices are 0-offset.)\n"
     "\n"
     "The overall score is W_spurious * score_spurious + W_verboten * score_verboten + W_bonds * score_bonds.\n\n"
     "   Thus, weighted combinations of scoring functions can be specified using the 'W_*' parameters.\n");
@@ -1047,6 +1084,7 @@ int main(int argc, char *argv[])
      else if (strncmp(argv[i],"template=",9)==0) St_filename=&argv[i][9]; 
      else if (strncmp(argv[i],"wc=",3)==0) wc_filename=&argv[i][3]; 
      else if (strncmp(argv[i],"eq=",3)==0) eq_filename=&argv[i][3]; 
+     else if (strncmp(argv[i],"dg=",3)==0) dg_filename=&argv[i][3]; 
      else if (strncmp(argv[i],"output=",7)==0) S_filename=&argv[i][7]; 
      else if (strncmp(argv[i],"N=",2)==0) N=atoi(&argv[i][2]);
      else if (strncmp(argv[i],"tmax=",5)==0) tmax=atoi(&argv[i][5]);
