@@ -9,6 +9,8 @@
   Removed the ViennaRNA dependencies, renamed as spuriousSSM.c, EW & CGE, 2/2015
   Also made mutations more efficient and reduced malloc/free load, resulting in 10x speed-up.
 
+  Added dg file option for imposing SantaLucia NN energy constraints on specified domains.  EW 8/2019
+
   gcc -Wall -O3 spuriousSSM.c -o spuriousSSM -lm
 
   Simple examples:
@@ -31,10 +33,7 @@
 #include <math.h>
 #include <ctype.h>
 
-//extern double log2(double);
-
 #define max(a,b) ((a)>(b)?(a):(b))
-
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
