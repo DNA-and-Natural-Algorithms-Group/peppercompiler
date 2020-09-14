@@ -112,5 +112,6 @@ DNA wiki: <http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler>
 
 - Problems with spuriousSSM not always being installed properly by pip have been fixed.  
 - Fixed sequences that are not used in the system now result in a warning, rather than a cryptic error.
-- Failures of SpuriousSSM should now be caught and result in a more useful error message.
+- Failures of SpuriousSSM should now be caught and result in more useful error messages.
 - A typo in the spuriousSSM energetics parameters has been fixed.
+- Added `dg=` option to spuriousSSM, allowing target dGs for specified parts of sequences.
