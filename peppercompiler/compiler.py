@@ -44,18 +44,32 @@ def compiler(basename, args, outputname, savename, fixed_file=None, synth=False,
     fixed_sequences = load_fixed(fixed_file)
     for type_, name, fixed_seq in fixed_sequences:
       if type_ in "sequence":
-        system.seqs[name].fix_seq( fixed_seq )
+        try: 
+          system.seqs[name].fix_seq( fixed_seq )
+        except KeyError:
+          warning("Sequence {} in fixed sequences not found/used in system.".format(name))
       elif type_ in "signal":
         # As a small hack, fix the first sequence in the list for the signal.
-        for seq in system.signals[name]:
-          if not seq[2]:
-            seq[0].fix_seq( fixed_seq )
-          else:
-            seq[0].wc.fix_seq( fixed_seq )
+        try:
+          seqs = system.signals[name]
+        except KeyError:
+          warning("Signal {} in fixed sequences not found/used in system.".format(name))
+        else:
+          for seq in seqs:
+            if not seq[2]:
+              seq[0].fix_seq( fixed_seq )
+            else:
+              seq[0].wc.fix_seq( fixed_seq )
       elif type_ == "strand":
-        system.strands[name].fix_seq( fixed_seq )
+        try:
+          system.strands[name].fix_seq( fixed_seq )
+        except KeyError:
+          warning("Strand {} in fixed sequences not found/used in system.".format(name))
       elif type_ == "structure":
-        system.structs[name].fix_seq( fixed_seq )
+        try:
+          system.structs[name].fix_seq( fixed_seq )
+        except KeyError:
+          warning("Structure {} in fixed sequences not found/used in system.".format(name))
   
 
   # Write the Zadeh-style design file

@@ -93,6 +93,9 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
       spo.write(data)
       data = spurious_proc.stdout.readline()
 
+    if spurious_proc.wait() != 0:
+      error("SpuriousSSM failed with return code {}.  Output is in {}.".format(spurious_proc.returncode, sp_outname))
+
     spo.close()
   else:
     print("Loading old spuriousSSM output from '%s'" % sp_outname)

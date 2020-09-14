@@ -105,3 +105,12 @@ The “examples/” directory has some instructive examples.
 
 The specifications for system and component files can be found on the
 DNA wiki: <http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler>
+
+## Changes
+
+### 0.1.3
+
+- Problems with spuriousSSM not always being installed properly by pip have been fixed.  
+- Fixed sequences that are not used in the system now result in a warning, rather than a cryptic error.
+- Failures of SpuriousSSM should now be caught and result in a more useful error message.
+- A typo in the spuriousSSM energetics parameters has been fixed.
