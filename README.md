@@ -55,7 +55,7 @@ on the designed sequences.
 
 ## Advanced Usage
 
-Advanced options of `pepper-compile`, `pepper-design-spurious` and `pepper-finish` can
+Advanced options of `pepper-compiler`, `pepper-design-spurious` and `pepper-finish` can
 be examined by using the --help flag (e.g. python compiler.py --help).
 
 Extended functionality:
@@ -64,7 +64,7 @@ Extended functionality:
     
     Ex:
 
-    `$ pepper-compile --fixed=circuit.fixed circuit`
+    `$ pepper-compiler --fixed=circuit.fixed circuit`
 
 -   You can get verbose progress information while designing with
     spuriousC
@@ -83,8 +83,8 @@ Furthermore, all input and output files can be specified specifically
 with options. Therefore, for example, you can run two designs on the
 same system at the same time. Ex:
 
-`$ pepper-compile --output=run1.des --save=run1.save examples/Georg_System/Circuit`
-`$ pepper-compile --output=run2.des --save=run2.save examples/Georg_System/Circuit`
+`$ pepper-compiler --output=run1.des --save=run1.save examples/Georg_System/Circuit`
+`$ pepper-compiler --output=run2.des --save=run2.save examples/Georg_System/Circuit`
 
 (These two designs will not interfere with each other.)
 
@@ -103,8 +103,10 @@ The “examples/” directory has some instructive examples.
 
 ## System/Component specification
 
-The specifications for system and component files can be found on the
-DNA wiki: <http://dna.caltech.edu/wikis/dnawiki/index.php/DNA_compiler>
+The specifications for system and component files can be found on the doc folder:
+
+- [System files](doc/system.md)
+- [Component files](doc/component.md)
 
 ## Changes
 
