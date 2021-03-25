@@ -173,4 +173,4 @@ specifying fuzzy states or desired speed of reactions.
 
 #### Examples
 
--   [DNA compiler/And22.comp](DNA_compiler/And22.comp "wikilink")
+-   [examples/system1/And22.comp](../examples/system1/And22.comp)

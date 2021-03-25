@@ -1,5 +1,5 @@
 A system file (name.sys) contains a specification for the connectivity
-of [components](DNA_compiler/component_syntax "wikilink") in a DNA
+of [components](./component.md) in a DNA
 system. It specifies each component and and ties their signal sequences
 together. A system may be used as a component in a larger system.
 
@@ -76,5 +76,5 @@ produce any outputs for downstream gates.
 
 #### Examples
 
--   [DNA compiler/Half Adder](DNA_compiler/Half_Adder "wikilink")
--   [DNA compiler/Two-Bit Adder](DNA_compiler/Two-Bit_Adder "wikilink")
+-   [Half Adder](../examples/system1/HalfAdder.sys)
+-   [Two Bit Adder](DNA_compiler/Two-Bit_Adder "wikilink") (TODO: find this)
