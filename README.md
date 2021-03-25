@@ -35,7 +35,7 @@ To use Multistrand, make sure that its executables are on your path.  However, t
 
 Run
 
-    $ pepper-compile circuit
+    $ pepper-compiler circuit
 
 to compile “circuit.sys” or “circuit.comp” and produce the design
 specification, “circuit.pil” (use --des for .des format used by the Nupack designer).
