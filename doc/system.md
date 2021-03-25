@@ -19,19 +19,19 @@ Comments may appear on their own lines or after a command, like so:
 In the spirit of Matlab\'s first line declarations, each system needs to
 have a declaration statement at the first line of code. Syntax:
 
-`declare system ``<name>`{=html}`: ``<inputs>`{=html}` -> ``<outputs>`{=html}
+`declare system <name>: <inputs> -> <outputs>`
 
 For example:
 
 `declare system HalfAdder: x0 + y0  ->  s0 + c1`
 
-The `<inputs>`{=html} and `<outputs>`{=html} are \'+\' separated lists
+The `<inputs>` and `<outputs>` are \'+\' separated lists
 of sequences that will be constrained to components below.
 
 These are used if this is a system being used as a component. However,
 for top-level systems, we will not have inputs and outputs and so
 
-`<name>`{=html} should be the same as the base name of the component
+`<name>` should be the same as the base name of the component
 file (i.e. this file should be HalfAdder.comp).
 
 #### Imports
@@ -39,7 +39,7 @@ file (i.e. this file should be HalfAdder.comp).
 In order to use a component file you must import it first
 (python-style). Syntax:
 
-`import ``<component name>`{=html}
+`import <component name>`
 
 For example:
 
@@ -60,7 +60,7 @@ This is the meat of the circuit file. You must make one statement for
 each component in the DNA system specifying the input and output
 sequences. The syntax is:
 
-`component ``<name>`{=html}` = ``<component name>`{=html}`: ``<list of input sequences>`{=html}` -> ``<list of output sequences>`{=html}
+`component <name> = <component name>: <list of input sequences> -> <list of output sequences>`
 
 for example
 

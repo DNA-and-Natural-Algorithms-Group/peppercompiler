@@ -22,7 +22,7 @@ Comments may appear on their own lines or after a command, like so:
 In the spirit of Matlab\'s first line declarations, each component needs
 to have a declaration statement at the first line of code. Syntax:
 
-`declare component ``<name>`{=html}`: ``<inputs>`{=html}` -> ``<outputs>`{=html}
+`declare component <name>: <inputs> -> <outputs>`
 
 For example:
 
@@ -43,7 +43,7 @@ file (i.e. this file should be HalfAdder.comp).
 In order to constrain some regions/subdomains of some strands to be
 complementary to regions on other strands we define sequence regions:
 
-`sequence ``<name>`{=html}` = ``<constraints>`{=html}` : ``<length>`{=html}
+`sequence <name> = <constraints> : <length>`
 
 For example:
 
@@ -85,7 +85,7 @@ one domain).
 
 Strands represent individual strand of DNA in the system. The syntax is:
 
-`strand ``<name>`{=html}` = ``<list of sequences and explicit constraints>`{=html}` : ``<length>`{=html}
+`strand <name> = <list of sequences and explicit constraints> : <length>`
 
 For example:
 
@@ -103,7 +103,7 @@ don\'t want to name.
 Now we glue the strands together to make multi-stranded (or
 single-stranded) structures:
 
-`structure ``<name>`{=html}` = ``<list of strands>`{=html}` : ``<secondary structure>`{=html}
+`structure <name> = <list of strands> : <secondary structure>`
 
 So continuing the above example:
 
@@ -161,11 +161,8 @@ Here each dot-paren represents an entire domain.
 Now all we have left is to explain the desired kinetics, what structures
 will interact and what will they produce:
 
-`kinetic ``<input structures>`{=html}` -> `
+`kinetic <input structures> -> <output structures>`
 
-```{=html}
-<output structures>
-```
 So if we\'re working with the half adder, we might have:
 
 `kinetic inX + Gate        ->  waste_X + inter_G`\
