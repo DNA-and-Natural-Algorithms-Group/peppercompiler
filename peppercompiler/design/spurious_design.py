@@ -8,6 +8,7 @@ import os
 import string
 import subprocess
 import sys
+import pkg_resources
 
 from .constraint_load import Convert
 
@@ -23,7 +24,7 @@ def print_list(xs, filename, format):
     f.write(format % x)
   f.close()
 
-def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse=False, just_files=False, struct_orient=False, old_output=False, tempname=None, extra_pars="", findmfe=True, spuriousbinary="spuriousSSM"):
+def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse=False, just_files=False, struct_orient=False, old_output=False, tempname=None, extra_pars=tuple(), findmfe=True, spuriousbinary="spuriousSSM"):
   
   if not tempname:
     tempname = basename
@@ -80,11 +81,14 @@ def design(basename, infilename, outfilename, cleanup=True, verbose=False, reuse
     
     spo = open(sp_outname,'wb') 
     
-    command = "%s score=automatic template=%s wc=%s eq=%s %s %s" % (spuriousbinary, stname, wcname, eqname, extra_pars, quiet)
-    print(command)
+    sp_binary_path = pkg_resources.resource_filename('peppercompiler','_spuriousSSM')
+    if isinstance(extra_pars, str):
+      extra_pars = extra_pars.split()
+    args = [sp_binary_path, f"template={stname}", f"wc={wcname}", f"eq={eqname}"] + list(extra_pars) + [quiet]
+    print(args)
     if just_files:
       return
-    spurious_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    spurious_proc = subprocess.Popen(args, shell=False, stdout=subprocess.PIPE)
 
     data = spurious_proc.stdout.readline()
     while data:
@@ -162,6 +166,6 @@ def main():
     options.output = basename + ".mfe"
   
   # Collect extra arguments for spuriousSSM
-  spurious_pars = " ".join(args[1:])
+  spurious_pars = args[1:]
   
   design(basename, infilename, options.output, options.cleanup, options.verbose, options.reuse, options.just_files, options.struct_orient, options.old_output, options.tempname, spurious_pars)
