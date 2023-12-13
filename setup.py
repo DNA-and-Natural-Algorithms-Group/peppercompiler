@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-from distutils.command.build import build
+from setuptools.command.build import build
 from setuptools.command.develop import develop
 
 
@@ -31,7 +31,7 @@ class develop_with_spurious(develop):
 
 setup(
     name="peppercompiler",
-    version="0.1.3",
+    version="0.1.4",
     packages=['peppercompiler', 'peppercompiler.design'],
     install_requires=["pyparsing", "six"],
     include_package_data=True,
